@@ -1,0 +1,22 @@
+# Rise / Fall Time Perception Experiment — Python dependencies
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# FlexSEA (Dephy Actuator-Package) must also be installed.
+# Option A — from PyPI (if available):
+#   pip install flexsea
+# Option B — from local source:
+#   pip install ./RESOURCES/Actuator-Package-develop
+#
+# On first run the FlexSEA library downloads its pre‑compiled C library
+# and device‑spec YAML from Dephy's S3 bucket.  Internet is required
+# that one time; afterwards files are cached in ~/.dephy/.
+
+numpy
+scipy
+pandas
+matplotlib
+pyyaml
+semantic_version
+pyudev

@@ -1,0 +1,1119 @@
+FlexSEA API Reference
+Device Class
+class flexsea.device.Device(firmwareVersion: str, port: str, baudRate: int = 230400, libFile: str = '', logLevel: int = 4, interactive: bool = True, debug: bool = False, s3Timeout: int = 60, stopMotorOnDisconnect: bool = False)[source]
+Representation of one of Dephy’s devices. Serves as a way to send commands to – and read data from – a Dephy device.
+
+Communication is done through a COM port (either bluetooth or serial).
+
+This class is essentially a Python wrapper around lower-level C/C++ code that has been pre-compiled into a shared library. These library files are stored on S3 and downloaded lazily. They are referenced by a semantic version string specified in the firmwareVersion constructor argument.
+
+Available versions can be listed with flexsea.utilities.firmware.get_available_firmware_versions
+
+Parameters
+:
+firmwareVersion (str) – Semantic version string of the firmware currently on Manage. Used to load the correct pre-compiled C library for communicating with the device. If the full version string, e.g., “10.7.0” is not given, e.g, “10” or “10.7”, the string will be expanded to a full version string. If an exact match cannot be found, you will be prompted to use the latest version sharing your version’s major version.
+
+port (str) – The name of the communication port the device is connected to. On Windows, this is usually something akin to COM3. On Linux, it is usually something akin to /dev/ttyACM0. On Windows, you can use the Device Manager to search for the port and on Linux you can use the ls command on /dev/ttyACM*
+
+baudRate (int, optional) – The communication rate expected by the device in bauds. The default value is 230400, which is the current rate used by all Dephy devices.
+
+libFile (str, optional) – flexsea serves as a wrapper around pre-compiled C/C++ libraries. Normally, these libraries are downloaded from S3, but in the event that you want to use a custom, local file, you can use this argument to specify the path to that file.
+
+logLevel (int, optional) – Describes the verbosity of the log files created by the device. Can be in the range [0,6], with 0 being the most verbose and 6 disabling logging.
+
+interactive (bool, optional) – There are certain scenarios where, if this is set to True, you will be prompted for confirmation. If False, you will not be prompted and the code will simply proceed. This mostly has to do with using a different library version than the one specified if an exact match for the specified version could not be found. The default value is True.
+
+debug (bool, optional) – Controls the traceback level. If False (the default), then the traceback limit is set to 0. If True, Python’s default traceback limit is used.
+
+s3Timeout (int, optional) – Time, in seconds, spent trying to connect to S3 before an exception is raised.
+
+stopMotorOnDisconnect (bool, optional) – If True, stop_motor is called by close (which, in turn, is called by the desctructor). If False, stop_motor is not called by close or the destructor. The default value is False. This is useful for on-device controllers (controllers that are baked into the device firmware), so that, should the device become disconnected from the computer it is streaming data to, the controller will not suddenly shut off and cause the wearer to potentially fall. If this is True, you must call stop_motor manually.
+
+connected
+If True, a connection has been established with the device over the serial port.
+
+Type
+:
+bool
+
+streaming
+If True, the device is currently sending data at the specified rate (streamingFrequency)
+
+Type
+:
+bool
+
+port
+The value of port passed to the constructor.
+
+Type
+:
+str
+
+interactive
+The value of interactive passed to the constructor.
+
+Type
+:
+bool
+
+firmwareVersion
+The value of firmwareVersion passed to the constructor.
+
+Type
+:
+semantic_version.Version
+
+libFile
+The value of libFile passed to the constructor.
+
+Type
+:
+str
+
+baudRate
+The value of baudRate passed to the constructor.
+
+Type
+:
+int
+
+logLevel
+The value of logLevel passed to the constructor.
+
+Type
+:
+int
+
+heartbeat
+How frequently the device should check for a connection to the computer. See: start_streaming
+
+Type
+:
+int
+
+id
+The decimal id of the device.
+
+Type
+:
+int
+
+streamingFrequency
+The frequency (in Hz) at which the device is sending data. See: start_streaming
+
+Type
+:
+int
+
+bootloaderActive
+firmwareVersion
+uvlo
+hasHabs
+name
+side
+num_utts
+gains
+remaining_training_steps
+success
+failure
+invalidParam
+invalidDevice
+libVersion
+isLegacy
+Examples
+
+Device("7.2.0", "COM3")
+Device("10", "/dev/ttyACM0", logLevel=6, interactive=False)
+activate_bootloader(target: str) → None[source]
+Activates the bootloader for target.
+
+Parameters
+:
+target (str) – Bootloader target. Can be: mn, ex, re, or habs.
+
+activate_multi_user_mode() → int[source]
+Puts the device into multi-user mode.
+
+This causes training mode to activate each time the device is power-cycled, so gait parameters do not persist across power cycles.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+Notes
+
+Training mode is only available if the device is flashed with one of Dephy’s controllers.
+
+activate_single_user_mode() → int[source]
+Puts the device into single-user mode.
+
+In this mode, training mode runs once and then the parameters are saved. This means that training mode will not re-activate if the device is power-cycled, so the same gait parameters will be used across sessions.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+Notes
+
+Training mode is only available if the device is flashed with one of Dephy’s controllers.
+
+property bootloaderActive: bool
+Returns whether or not the bootloader is active or not.
+
+Returns
+:
+True if bootloader is active and False otherwise.
+
+Return type
+:
+bool
+
+calibrate_imu() → int[source]
+Instructs the device to go through the IMU calibration process.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+close() → None[source]
+Severs connection with device. Does not stop the motor by default. To stop the motor on a call to close,
+
+Will no longer be able to send commands or receive data.
+
+command_motor_current(value: int) → int[source]
+Sends the given current to the motor.
+
+Parameters
+:
+value (int) – Desired motor current in milli-Amps.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+command_motor_impedance(value: int) → int[source]
+Has the motor simulate a stretched from current position to the desired position using the damping gain b and stiffness gain k.
+
+Parameters
+:
+value (int) – Desired motor position in ticks.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+command_motor_position(value: int) → int[source]
+Sets motor to given position.
+
+Parameters
+:
+value (int) – Desired motor position in encoder units.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+command_motor_voltage(value: int) → int[source]
+Sets motor’s voltage.
+
+Parameters
+:
+value (int) – Desired motor voltage in milli-volts.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+property failure: int
+The integer corresponding to a status code of failure.
+
+Returns
+:
+The integer corresponding to a status code of failure.
+
+Return type
+:
+int
+
+find_poles() → int[source]
+Instructs the device to go through the pole-finding process to align the motor correctly.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+property firmware_version: dict
+Gets the fimware versions of device’s MCUs.
+
+Returns
+:
+A dictionary with the semantic version strings of manage, execute, and regulate’s firmware. And habs, if applicable.
+
+Return type
+:
+Dict
+
+property gains: dict
+Returns the currently set gains.
+
+Returns
+:
+The names and values of each gain.
+
+Return type
+:
+dict
+
+get_training_state() → str[source]
+Returns the current status of training.
+
+Can be: loading, in_progress, done, walk_training_in_progress, or run_training_in_progress.
+
+Returns
+:
+Status of training.
+
+Return type
+:
+str
+
+Notes
+
+Training mode is only available if the device is flashed with one of Dephy’s controllers.
+
+get_training_user_mode() → str[source]
+Returns the current mode the device is in: either single-user or multi-user.
+
+Returns
+:
+The device’s current mode.
+
+Return type
+:
+str
+
+See also
+
+activate_multi_user_mode, activate_single_user_mode
+
+Notes
+
+Training mode is only available if the device is flashed with one of Dephy’s controllers.
+
+get_uvlo() → int[source]
+Gets the currently set UVLO.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+property hasHabs: bool
+Returns whether or not the device has a Habsolute encoder.
+
+Returns
+:
+True if the device has a Habsolute encoder and Faslse otherwise.
+
+Return type
+:
+bool
+
+property invalidDevice: int
+The integer corresponding to a status code of invalidDevice.
+
+Returns
+:
+The integer corresponding to a status code of invalidDevice.
+
+Return type
+:
+int
+
+property invalidParam: int
+The integer corresponding to a status code of invalidParam.
+
+Returns
+:
+The integer corresponding to a status code of invalidParam.
+
+Return type
+:
+int
+
+property isLegacy: bool
+Whether or not the device is a legacy device.
+
+Returns
+:
+Whether or not the device is a legacy device.
+
+Return type
+:
+bool
+
+property libVersion: str
+Version string of the currently loaded library.
+
+Returns
+:
+Version string of the currently loaded library.
+
+Return type
+:
+str
+
+property name: str
+Returns the human-friendly name of the device, e.g., actpack.
+
+Returns
+:
+The name of the device.
+
+Return type
+:
+str
+
+property num_utts: int
+The number of available UTT values is saved as #define NUM_UTT_VALS in the C library, so we have this convenience wrapper to access it.
+
+Returns
+:
+The number of User Testing Tweaks (UTTs)
+
+Return type
+:
+int
+
+open(bootloading: bool = False) → None[source]
+Establish a connection to a device.
+
+This is needed in order to send commands to the device and/or receive data from the device via serial communication through the COM port.
+
+Parameters
+:
+bootloading (bool (optional)) – This keyword is really onlymeant to be used by the bootloader and a user of flexsea should not have to use it at all. Starting with v12.0.0, a development version number was introduced. We can only connect to the device if both the firmware version (e.g., 12.0.0) and the development version (e.g., 2.0.0) match. If only the firmware version matches, we can connect to the device, but not send motor commands, only the bootloading command.
+
+print(data: dict | None = None) → None[source]
+Reads the data from the device and then prints it to the screen. If data is given, we print that instead.
+
+read(allData: bool = False) → dict | List[dict][source]
+Gets data from the data queue.
+
+Parameters
+:
+allData (bool, optional) – If False (the default), then only the most recent entry in the data queue is obtained. If True, then all of the data entries in the queue are obtained.
+
+Returns
+:
+If allData is False, then a dictionary is returned. If allData is True, then a list of dictionaries is returned. The dictionaries in each case are keyed by the names of the data fields and the values are the values of those fields. For firmware versions prior to 10.0.0, the fields are contained in a device specification file, which you can find in ~/.dephy/legacy_device_spcs. These spec files are downloaded lazily from AWS. For firmware versions >= 10.0.0, the fields are provided by the device itself, which means the list of fields is both device and firmware-version dependent.
+
+Return type
+:
+dict, List[dict]
+
+read_utts() → List[int][source]
+UTTs are not sent as a part of regular communication, so here we first request that the device send the UTTs to Mn, and then we read them.
+
+Returns
+:
+The current value of each UTT.
+
+Return type
+:
+List[int]
+
+property remaining_training_steps: int
+Returns the number of steps remaining before training is completed.
+
+Returns
+:
+The number of steps remaining before training is complete.
+
+Return type
+:
+int
+
+Notes
+
+Training mode is only available if the device is flashed with one of Dephy’s controllers.
+
+reset_utts() → int[source]
+Resets all UTTs to their default values.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+save_utts() → int[source]
+Saves the current UTT values to the device’s internal memory so that they persist across power cycles.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+set_all_utts(uttVals: List[int]) → int[source]
+Takes in a list of integer values and assigns each one to a UTT value.
+
+Parameters
+:
+uttVals (List[int]) – List of values, one for each UTT
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+set_file_name(name) → None[source]
+Sets the name of the log file
+
+Parameters
+:
+name (string) – The desired name of the log file
+
+set_file_size(size) → None[source]
+Sets the size of the log file
+
+Parameters
+:
+size (int) – The desired name of the log file
+
+set_gains(kp: int, ki: int, kd: int, k: int, b: int, ff: int) → None[source]
+Sets the gains used by PID controllers on the device.
+
+Parameters
+:
+kp (int) – Proportional gain.
+
+ki (int) – Integral gain.
+
+kd (int) – Differential gain.
+
+k (int) – Stiffness (used in impedence control only).
+
+b (int) – Damping (used in impedance control only).
+
+ff (int) – Feed forward gain.
+
+set_log_directory(path) → None[source]
+Sets the log directory
+
+Parameters
+:
+path (string) – The desired path for the log files
+
+set_tunnel_mode(target: str, timeout: int = 30) → bool[source]
+Puts Manage into tunnel mode.
+
+All communication goes through Manage, so we need to put it into tunnel mode in order to activate the other bootloaders. When bootloading Manage itself, this causes it to reboot in DFU mode.
+
+If bootloading fails for any reason once tunnel mode has been set, the device is bricked and must be programmed manually. The exception to this rule is Habs.
+
+Parameters
+:
+target (str) – The name of the target to set. Can be: mn, ex, re, habs, bt121, or xbee.
+
+timeout (int, optional) – The number of seconds to wait for confirmation before failing.
+
+Returns
+:
+activated – If True, the bootloader was set successfully. If False then something went wrong.
+
+Return type
+:
+bool
+
+set_utt(uttVal: int, index: int) → int[source]
+Sets the value of a single UTT.
+
+Parameters
+:
+uttVal (int) – The value the desired UTT will be set to
+
+index (int) – The array index for the desired UTT
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+set_uvlo(value: int) → int[source]
+Sets the UVLO value for the device. value needs to be in milli-volts.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+property side: str
+Returns the chirality of the device.
+
+Returns
+:
+Can be ‘left’, ‘right’, ‘none’ (for no chirality), or ‘undefined’ (for legacy devices that don’t know their side information)
+
+Return type
+:
+str
+
+start_streaming(frequency: int, heartbeat: int = 0, useSafety: bool = False) → None[source]
+Instructs the device to send data at the given frequency.
+
+Parameters
+:
+frequency (int) – The number of times per second the device should send data
+
+heartbeat (int) – When streaming, the computer periodically sends a message to the device to let it know that the connection between them is still alive. These are called heartbeat messages. This variable specifies the amount of time (in milliseconds) between successive heartbeat messages. This is related to how long the device will wait without receiving a heartbeat message before shutting itself off (five times heartbeat).
+
+useSafety (bool, optional) – If True, the device will stop the motor if it doesn’t receive a heartbeat message in time.
+
+Raises
+:
+ValueError – If frequency or heartbeat are invalid.
+
+start_training() → int[source]
+Activates training mode.
+
+When in training mode, the user must take a certain number of steps. This allows the device to learn the user’s gait and set the value of several parameters accordingly in order for the device to provide optimal augmentation.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+Notes
+
+Training mode is only available if the device is flashed with one of Dephy’s controllers.
+
+stop_motor() → int[source]
+Stops the motor and resets the gains to zero.
+
+Returns
+:
+Status code indicating success or failure.
+
+Return type
+:
+int
+
+See also
+
+success, failure
+
+stop_streaming() → None[source]
+Instructs the device to stop sending data.
+
+property success: int
+The integer corresponding to a status code of success.
+
+Returns
+:
+The integer corresponding to a status code of success.
+
+Return type
+:
+int
+
+property undefined: int
+The integer corresponding to a status code of undefined.
+
+Returns
+:
+The integer corresponding to a status code of undefined.
+
+Return type
+:
+int
+
+Utilities
+AWS
+flexsea.utilities.aws.get_s3_objects(bucket: str, client: BaseClient, prefix: str = '') → List[source]
+Recursively loops over all directories in a bucket and returns a list of files.
+
+Parameters
+:
+bucket (str) – The name of the bucket we’re getting files from.
+
+client (BaseClient) – The object providing an interface to S3.
+
+prefix (str) – The directory we’re looping over. If “”, then we get the top-level directories.
+
+Returns
+:
+A list of all the objects in the bucket.
+
+Return type
+:
+List[str]
+
+flexsea.utilities.aws.s3_download(obj: str, bucket: str, dest: str, profile: str | None = None, timeout=60) → None[source]
+Downloads a file from S3.
+
+Parameters
+:
+obj (str) – The name of the S3 object to download.
+
+bucket (str) – The name of the S3 bucket obj resides in.
+
+dest (str) – The path to where obj will be downloaded.
+
+profile (str, optional) – The name of the profile in the ~/.aws/credentials file. This profile should hold both the access key and secret access key needed for downloading private or restricted files.
+
+timeout (int, optional) – Time, in seconds, spent trying to connect to S3 before an exception is raised.
+
+Raises
+:
+ValueError – If the given profile cannot be found.
+
+ConnectTimeoutError – If a connection to S3 cannot be established within the allotted time.
+
+flexsea.utilities.aws.s3_find_object(fileName: str, bucket: str, client: str) → str[source]
+Searches the given bucket for the given file.
+
+Returns the full object path if there’s only one match. If there aren’t any matches or there’s more than one, we fail.
+
+Parameters
+:
+fileName (str) – The name of the S3 object to search for.
+
+bucket (str) – The name of the S3 bucket to search.
+
+client (BaseClient) – The object responsible for connecting to S3.
+
+Raises
+:
+FileNotFoundError – If the given fileName cannot be found.
+
+Returns
+:
+The full S3 path to the object.
+
+Return type
+:
+str
+
+Notes
+
+Paginator use: https://tinyurl.com/4scnuk6c
+
+Decorators
+flexsea.utilities.decorators.check_status_code(func: Callable) → Callable[source]
+Makes sure that the S3 request succeeded.
+
+Parameters
+:
+func (Callable) – The wrapped method.
+
+Raises
+:
+RuntimeError – If we receive a 403 (permission denied) or 404 (not found) status code.
+
+Returns
+:
+The wrapped method.
+
+Return type
+:
+Callable
+
+flexsea.utilities.decorators.minimum_required_version(version: str) → Callable[source]
+Makes sure that the device’s firmware is at least the given version.
+
+Parameters
+:
+version (str) – The firmware version required in order to use the wrapped method.
+
+Raises
+:
+RuntimeError – If the wrapped method is not a Device method or if the given version is greater than the device’s firmware version.
+
+Returns
+:
+The wrapped method
+
+Return type
+:
+Callable
+
+flexsea.utilities.decorators.requires_device_not(device: str) → Callable[source]
+Certain Device class methods only work on non-Actpack devices. This meta-decorator ensures this.
+
+Parameters
+:
+device (str) – The type of device that the physical device cannot be.
+
+Raises
+:
+RuntimeError – If the physical device has type device.
+
+Returns
+:
+The method being wrapped.
+
+Return type
+:
+Callable
+
+flexsea.utilities.decorators.requires_status(status: str) → Callable[source]
+Ensures we are either connected or streaming.
+
+Parameters
+:
+status (str) – The status to check for.
+
+Raises
+:
+RuntimeError – If the given status is not set.
+
+Returns
+:
+The method being wrapped.
+
+Return type
+:
+Callable
+
+flexsea.utilities.decorators.training_warn(func: Callable) → Any[source]
+Before training information is available or training commands can be sent, the device must finish its setup. The purpose of this wrapper is to provide a warning to the user if their command fails about why it probably failed and what they can do about it.
+
+Parameters
+:
+func (Callable) – The method being wrapped. Must be a training-specific method.
+
+Raises
+:
+RuntimeError – If the wrapped method does not return a SUCCESS status code.
+
+Returns
+:
+The wrapped method.
+
+Return type
+:
+Callable
+
+flexsea.utilities.decorators.validate(func: Callable) → Callable[source]
+Checks if the result of a command is SUCCESS.
+
+Parameters
+:
+func (Callable) – The method being wrapped.
+
+Raises
+:
+RuntimeError – If the wrapped method does not return a SUCCESS status code.
+
+Returns
+:
+The wrapped method.
+
+Return type
+:
+Callable
+
+Firmware
+class flexsea.utilities.firmware.Firmware[source]
+Holds the integer values representing the firmware versions of each microcontroller as returned from the C library. These need to be decoded before they make sense.
+
+flexsea.utilities.firmware.decode_firmware(val: int) → str[source]
+Returns decoded version number formatted as x.y.z
+
+Parameters
+:
+val (int) – The value returned by the device that encodes the major, minor, and patch versions of the firmware.
+
+Returns
+:
+The decoded firmware version in the form x.y.z
+
+Return type
+:
+str
+
+flexsea.utilities.firmware.get_available_firmware_versions(timeout=60) → List[str][source]
+Returns a list of firmware versions known to flexsea.
+
+To facilitiate offline use and firmware version validation, we cache a list of the currently available versions each time this function is run while online. If the user is not online, we load the available versions from the previously cached file and warn the user about how long it has been since their information was updated. If the file doesn’t exist and we’re not online, then the version information cannot be obtained, so we exit.
+
+Parameters
+:
+timeout (int, optional) – Time, in seconds, spent trying to connect to S3 before an exception is raised.
+
+Raises
+:
+FileNotFoundError – If we cannot connect to the internet and we do not have a cached list of versions.
+
+Returns
+:
+List of known semantic version strings.
+
+Return type
+:
+List[str]
+
+flexsea.utilities.firmware.get_closest_version(version: Version, versionList: List[str]) → Version[source]
+Returns the latest known version that shares a major version with version.
+
+Parameters
+:
+version (Version) – Semantic version string to check.
+
+versionList (List[str]) – List of versions known to flexsea.
+
+Raises
+:
+RuntimeError – If none of the known versions share a major version with version.
+
+Returns
+:
+The latest known version that shares a major version with version.
+
+Return type
+:
+Version
+
+Notes
+
+Using version specs : https://tinyurl.com/3e4t6svb
+
+flexsea.utilities.firmware.validate_given_firmware_version(firmwareVersion: str, interactive: bool, timeout=60) → Version[source]
+Makes sure that the given firmwareVersion is known to flexsea.
+
+Parameters
+:
+firmwareVersion (str) – The version string to check.
+
+interactive (bool) – If no exact match is known to flexsea, but there is a known version with the same major version as firmwareVersion, if this parameter is True we prompt the user whether or not they want to use it. If False, we go ahead and just use it.
+
+timeout (int, optional) – Time, in seconds, spent trying to connect to S3 before an exception is raised.
+
+Raises
+:
+ValueError – If the given firmwareVersion cannot be cast to a valid semantic string.
+
+ConnectTimeoutError – If a connection to S3 cannot be established within the allotted time.
+
+Returns
+:
+The Version object representing the valid semantic version string.
+
+Return type
+:
+Version
+
+Library
+flexsea.utilities.library.get_c_library(firmwareVersion: Version, libFile: Path | None, timeout: int = 60) → Tuple[source]
+Loads the correct C library for interacting with the device.
+
+If we’re given a library file to use, we make sure it exists. If we’re not given a library file to use, we check for a cached file on disk corresponding to our firmware version. If we don’t have one, we try to download it from S3. We then use ctypes to load the library.
+
+Parameters
+:
+firmwareVersion (Version) – The firmware version the library is built to interact with.
+
+libFile (Path, None) – The path to the local library file to load.
+
+timeout (int, optional) – Time, in seconds, spent trying to connect to S3 before an exception is raised.
+
+Raises
+:
+EndpointConnectionError – If we cannot connect to the internet in order to download the necessary library.
+
+Returns
+:
+Contains the ctypes.CDLL, the version of the library, and the full path to the library file.
+
+Return type
+:
+Tuple
+
+flexsea.utilities.library.set_read_functions(clib: CDLL, deviceName: str, isLegacy: bool, deviceType: Structure | None) → CDLL[source]
+Sets the prototypes for the read and read_all functions.
+
+Done here and not with the rest of the prototypes because, for legacy devices, we need the device name, which we can’t get until we call open, for which we need the function prototypes… We do it here for non-legacy devices because it’s easier than passing and worrying about the firmware version to set_prototypes
+
+Parameters
+:
+clib (CDLL) – The object on which the prototypes will be set.
+
+deviceName (str) – The name of the device, e.g., actpack. Used to set the correct function.
+
+isLegacy (bool) – Whether or not the device is a legacy device. The two types handle reading quite differently, so we need to know the type in order to set the methods appropriately.
+
+deviceType (Structure, None) – For legacy devices, this includes the fields and data types of the device’s data.
+
+Raises
+:
+ValueError – If the device type is unknown.
+
+Returns
+:
+The library object with the set prototypes.
+
+Return type
+:
+CDLL
+
+Legacy Device Specifications
+flexsea.utilities.specs.get_device_spec(deviceName: str, firmwareVersion: Version) → dict[source]
+Loads the correct device specification for legacy devices.
+
+If we cannot find a cached file, we check S3 and download it.
+
+Parameters
+:
+deviceName (str) – Name of the device, e.g., actpack.
+
+firmwareVersion (Version) – Semantic version string so that the correct spec file can be loaded.
+
+Raises
+:
+EndpointConnectionError – If we cannot connect to the internet to search for the file.
+
+Returns
+:
+A dictionary containing the field names and data types.
+
+Return type
+:
+Dict
+
+System
+flexsea.utilities.system.get_os() → str[source]
+Returns the operating system and “bitness” (64 or 32 bit). Can be:
+
+windows_32bit
+
+windows_64bit
+
+pi_32bit
+
+pi_64bit
+
+linux_32bit
+
+linux_64bit
+
+Returns
+:
+os – The name and “bitness” of the current operating system.
+
+Return type
+:
+str
