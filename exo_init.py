@@ -112,6 +112,22 @@ class ExoBoot:
         sleep(1)
         self.device.start_streaming(frequency=self.frequency)
         sleep(0.1)
+        # Force motor to a known-zero state so no stale command persists
+        # from a previous session or power-cycle.
+        try:
+            self.device.command_motor_current(0)
+            sleep(0.05)
+        except Exception:
+            pass
+
+        # Flush any stale data sitting in the USB/serial buffer from a
+        # prior session so the first real read_data() is fresh.
+        for _ in range(10):
+            try:
+                self.device.read()
+            except Exception:
+                pass
+            sleep(0.005)
         self.log(f"ExoBoot connected — ID {self.device.id}")
 
         # ---- Gait state ---------------------------------------------
@@ -560,7 +576,11 @@ class ExoBoot:
         """Clear all gait‑segmentation state so the next heel‑strike
         detection starts fresh.  Call this right before entering a
         control loop if there was a long idle period (e.g. between
-        Connect & Zero and Start Familiarization)."""
+        Connect & Zero and Start Familiarization).
+
+        Also resets the low-pass filter history and gains-mode tracker
+        so no stale values bleed across experiment phases.
+        """
         self.read_data()                    # get a fresh timestamp
         self.num_gait = 0
         self.num_gait_in_block = 0
@@ -573,6 +593,18 @@ class ExoBoot:
         self.armed_timestamp = -1
         self.heelstrike_timestamp_current = self.current_time
         self.heelstrike_timestamp_previous = -1
+
+        # Clear low-pass filter history so old velocity samples don't
+        # leak into the next phase.
+        self.ankleVel = [0.0] * 3
+        self.ankleVel_filt = [0.0] * 3
+
+        # Clear torque / current accumulators
+        self.tau = 0.0
+        self.current = 0.0
+
+        # Force gains to be re-sent on the next control iteration
+        self._gains_mode = None
 
     # -----------------------------------------------------------------
     #  Zero boot (tighten belt & record encoder offsets)
@@ -634,13 +666,32 @@ class ExoBoot:
     #  Clean‑up
     # -----------------------------------------------------------------
     def clean(self):
-        """Stop the motor, close the connection."""
+        """Safely shut down: zero motor, stop streaming, close port.
+
+        Sends zero-current twice with a short delay to make sure the
+        firmware registers the command even if the first write is lost
+        on the USB bus.  Then stops streaming and closes the port so
+        no stale state persists for the next session.
+        """
+        try:
+            self.device.command_motor_current(0)
+            sleep(0.05)
+            self.device.command_motor_current(0)
+            sleep(0.05)
+        except Exception:
+            pass
         try:
             self.device.stop_motor()
-            sleep(0.3)
+            sleep(0.1)
+        except Exception:
+            pass
+        try:
+            self.device.stop_streaming()
+            sleep(0.05)
         except Exception:
             pass
         try:
             self.device.close()
         except Exception:
             pass
+        self._gains_mode = None

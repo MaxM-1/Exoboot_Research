@@ -3,20 +3,30 @@
 Experiment GUI — Rise / Fall Time Perception
 =============================================
 
-Simple **tkinter** interface that replaces Xiangyu Peng's Android app.
+**PyQt5** interface that replaces Xiangyu Peng's Android app.
 Run with::
 
     python gui.py
 
-The GUI runs on the **main thread** (required by tkinter).  The
-experiment controller (``PerceptionExperiment``) runs in a daemon
-thread; communication happens via two ``queue.Queue`` objects.
+The GUI runs on the **main thread** (required by Qt).  The experiment
+controller (``PerceptionExperiment``) runs in a daemon thread;
+communication happens via two ``queue.Queue`` objects, polled by a
+``QTimer``.
 
 Author:  Max Miller — Auburn University
 """
 
-import tkinter as tk
-from tkinter import ttk, scrolledtext, messagebox
+import sys
+import queue
+
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget,
+    QVBoxLayout, QHBoxLayout, QFormLayout,
+    QGroupBox, QLabel, QLineEdit, QRadioButton, QButtonGroup,
+    QPushButton, QTextEdit, QMessageBox,
+)
 
 from config import *
 from perception_test import PerceptionExperiment
@@ -25,15 +35,14 @@ from perception_test import PerceptionExperiment
 # ======================================================================
 #  Main application
 # ======================================================================
-class ExperimentGUI:
-    """tkinter front‑end for the perception experiment."""
+class ExperimentGUI(QMainWindow):
+    """PyQt5 front-end for the perception experiment."""
 
-    POLL_MS = 100          # status‑queue polling interval
+    POLL_MS = 50           # status-queue polling interval (ms)
 
-    def __init__(self, root: tk.Tk):
-        self.root = root
-        self.root.title("Rise / Fall Time Perception Experiment")
-        self.root.resizable(True, True)
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Rise / Fall Time Perception Experiment")
 
         # ---- Experiment backend -----------------------------------
         self.experiment = PerceptionExperiment()
@@ -42,158 +51,195 @@ class ExperimentGUI:
         self._running = False
         self._awaiting_response = False
         self._connected = False       # True after Connect & Zero
+        self._closing = False         # True while safe-shutdown in progress
 
         # ---- Build UI ---------------------------------------------
-        self._build_setup_frame()
-        self._build_control_frame()
-        self._build_status_frame()
-        self._build_log_frame()
+        central = QWidget()
+        self.setCentralWidget(central)
+        main_layout = QVBoxLayout(central)
+        main_layout.setContentsMargins(8, 8, 8, 8)
+        main_layout.setSpacing(4)
+
+        main_layout.addWidget(self._build_setup_group())
+        main_layout.addWidget(self._build_control_group())
+        main_layout.addWidget(self._build_status_group())
+        main_layout.addWidget(self._build_log_group(), stretch=1)
+
         self._update_button_states()
 
         # ---- Start polling ----------------------------------------
-        self.root.after(self.POLL_MS, self._poll_status)
+        self._poll_timer = QTimer(self)
+        self._poll_timer.timeout.connect(self._poll_status)
+        self._poll_timer.start(self.POLL_MS)
 
     # ==================================================================
-    #  Setup frame
+    #  Setup group
     # ==================================================================
-    def _build_setup_frame(self):
-        frame = ttk.LabelFrame(self.root, text="Setup", padding=8)
-        frame.pack(fill="x", padx=8, pady=(8, 2))
+    def _build_setup_group(self) -> QGroupBox:
+        group = QGroupBox("Setup")
+        form = QFormLayout()
+        form.setLabelAlignment(Qt.AlignRight)
 
-        # Row helpers
-        def _entry_row(parent, label, default, row):
-            ttk.Label(parent, text=label).grid(
-                row=row, column=0, sticky="e", padx=(0, 4), pady=2)
-            var = tk.StringVar(value=default)
-            ttk.Entry(parent, textvariable=var, width=24).grid(
-                row=row, column=1, sticky="w", pady=2)
-            return var
+        self.edit_pid = QLineEdit("P001")
+        self.edit_weight = QLineEdit("75")
+        self.edit_fw = QLineEdit(FIRMWARE_VERSION)
+        self.edit_lport = QLineEdit(LEFT_PORT)
+        self.edit_rport = QLineEdit(RIGHT_PORT)
 
-        self.var_pid = _entry_row(frame, "Participant ID:", "P001", 0)
-        self.var_weight = _entry_row(frame, "Weight (kg):", "75", 1)
-        self.var_fw = _entry_row(frame, "Firmware:", FIRMWARE_VERSION, 2)
-        self.var_lport = _entry_row(frame, "Left port:", LEFT_PORT, 3)
-        self.var_rport = _entry_row(frame, "Right port:", RIGHT_PORT, 4)
+        for widget in (self.edit_pid, self.edit_weight, self.edit_fw,
+                       self.edit_lport, self.edit_rport):
+            widget.setFixedWidth(180)
+
+        form.addRow("Participant ID:", self.edit_pid)
+        form.addRow("Weight (kg):", self.edit_weight)
+        form.addRow("Firmware:", self.edit_fw)
+        form.addRow("Left port:", self.edit_lport)
+        form.addRow("Right port:", self.edit_rport)
 
         # Radio — test mode
-        ttk.Label(frame, text="Test mode:").grid(
-            row=5, column=0, sticky="e", padx=(0, 4), pady=2)
-        mode_frame = ttk.Frame(frame)
-        mode_frame.grid(row=5, column=1, sticky="w")
-        self.var_mode = tk.StringVar(value=RISE_TIME_TEST)
-        ttk.Radiobutton(mode_frame, text="Rise time",
-                        variable=self.var_mode,
-                        value=RISE_TIME_TEST).pack(side="left")
-        ttk.Radiobutton(mode_frame, text="Fall time",
-                        variable=self.var_mode,
-                        value=FALL_TIME_TEST).pack(side="left", padx=8)
+        mode_layout = QHBoxLayout()
+        self.radio_rise = QRadioButton("Rise time")
+        self.radio_fall = QRadioButton("Fall time")
+        self.radio_rise.setChecked(True)
+        self.mode_group = QButtonGroup(self)
+        self.mode_group.addButton(self.radio_rise)
+        self.mode_group.addButton(self.radio_fall)
+        mode_layout.addWidget(self.radio_rise)
+        mode_layout.addWidget(self.radio_fall)
+        mode_layout.addStretch()
+        mode_widget = QWidget()
+        mode_widget.setLayout(mode_layout)
+        form.addRow("Test mode:", mode_widget)
 
         # Radio — approach direction
-        ttk.Label(frame, text="Direction:").grid(
-            row=6, column=0, sticky="e", padx=(0, 4), pady=2)
-        dir_frame = ttk.Frame(frame)
-        dir_frame.grid(row=6, column=1, sticky="w")
-        self.var_approach = tk.StringVar(value=APPROACH_FROM_ABOVE)
-        ttk.Radiobutton(dir_frame, text="From above",
-                        variable=self.var_approach,
-                        value=APPROACH_FROM_ABOVE).pack(side="left")
-        ttk.Radiobutton(dir_frame, text="From below",
-                        variable=self.var_approach,
-                        value=APPROACH_FROM_BELOW).pack(side="left", padx=8)
+        dir_layout = QHBoxLayout()
+        self.radio_above = QRadioButton("From above")
+        self.radio_below = QRadioButton("From below")
+        self.radio_above.setChecked(True)
+        self.approach_group = QButtonGroup(self)
+        self.approach_group.addButton(self.radio_above)
+        self.approach_group.addButton(self.radio_below)
+        dir_layout.addWidget(self.radio_above)
+        dir_layout.addWidget(self.radio_below)
+        dir_layout.addStretch()
+        dir_widget = QWidget()
+        dir_widget.setLayout(dir_layout)
+        form.addRow("Direction:", dir_widget)
+
+        group.setLayout(form)
+        return group
 
     # ==================================================================
     #  Control buttons
     # ==================================================================
-    def _build_control_frame(self):
-        frame = ttk.LabelFrame(self.root, text="Controls", padding=8)
-        frame.pack(fill="x", padx=8, pady=2)
+    def _build_control_group(self) -> QGroupBox:
+        group = QGroupBox("Controls")
+        layout = QVBoxLayout()
 
-        row0 = ttk.Frame(frame)
-        row0.pack(fill="x", pady=2)
-        self.btn_connect = ttk.Button(
-            row0, text="Connect & Zero", command=self._on_connect_zero)
-        self.btn_connect.pack(side="left", padx=2)
-        self.btn_fam = ttk.Button(
-            row0, text="Start Familiarization", command=self._on_start_fam)
-        self.btn_fam.pack(side="left", padx=2)
-        self.btn_test = ttk.Button(
-            row0, text="Start Perception Test", command=self._on_start_test)
-        self.btn_test.pack(side="left", padx=2)
-        self.btn_stop = ttk.Button(
-            row0, text="Stop", command=self._on_stop)
-        self.btn_stop.pack(side="left", padx=2)
+        # Row 0 — main controls
+        row0 = QHBoxLayout()
+        self.btn_connect = QPushButton("Connect && Zero")
+        self.btn_fam = QPushButton("Start Familiarization")
+        self.btn_test = QPushButton("Start Perception Test")
+        self.btn_stop = QPushButton("Stop")
 
-        # Familiarization adjust
-        row1 = ttk.Frame(frame)
-        row1.pack(fill="x", pady=2)
-        ttk.Label(row1, text="Familiarization:").pack(side="left")
-        self.btn_inc = ttk.Button(
-            row1, text="▲ Increase", width=12, command=self._on_increase)
-        self.btn_inc.pack(side="left", padx=2)
-        self.btn_dec = ttk.Button(
-            row1, text="▼ Decrease", width=12, command=self._on_decrease)
-        self.btn_dec.pack(side="left", padx=2)
+        self.btn_connect.clicked.connect(self._on_connect_zero)
+        self.btn_fam.clicked.connect(self._on_start_fam)
+        self.btn_test.clicked.connect(self._on_start_test)
+        self.btn_stop.clicked.connect(self._on_stop)
 
-        # Response buttons
-        row2 = ttk.Frame(frame)
-        row2.pack(fill="x", pady=2)
-        ttk.Label(row2, text="Participant response:").pack(side="left")
-        self.btn_diff = ttk.Button(
-            row2, text="Different", width=12,
-            command=self._on_different)
-        self.btn_diff.pack(side="left", padx=2)
-        self.btn_same = ttk.Button(
-            row2, text="Same", width=12,
-            command=self._on_same)
-        self.btn_same.pack(side="left", padx=2)
+        for btn in (self.btn_connect, self.btn_fam, self.btn_test,
+                    self.btn_stop):
+            row0.addWidget(btn)
+        row0.addStretch()
+        layout.addLayout(row0)
+
+        # Row 1 — familiarization adjust
+        row1 = QHBoxLayout()
+        row1.addWidget(QLabel("Familiarization:"))
+        self.btn_inc = QPushButton("\u25B2 Increase")
+        self.btn_dec = QPushButton("\u25BC Decrease")
+        self.btn_inc.setFixedWidth(110)
+        self.btn_dec.setFixedWidth(110)
+        self.btn_inc.clicked.connect(self._on_increase)
+        self.btn_dec.clicked.connect(self._on_decrease)
+        row1.addWidget(self.btn_inc)
+        row1.addWidget(self.btn_dec)
+        row1.addStretch()
+        layout.addLayout(row1)
+
+        # Row 2 — participant response
+        row2 = QHBoxLayout()
+        row2.addWidget(QLabel("Participant response:"))
+        self.btn_diff = QPushButton("Different")
+        self.btn_same = QPushButton("Same")
+        self.btn_diff.setFixedWidth(110)
+        self.btn_same.setFixedWidth(110)
+        self.btn_diff.clicked.connect(self._on_different)
+        self.btn_same.clicked.connect(self._on_same)
+        row2.addWidget(self.btn_diff)
+        row2.addWidget(self.btn_same)
+        row2.addStretch()
+        layout.addLayout(row2)
+
+        group.setLayout(layout)
+        return group
 
     # ==================================================================
     #  Status display
     # ==================================================================
-    def _build_status_frame(self):
-        frame = ttk.LabelFrame(self.root, text="Status", padding=8)
-        frame.pack(fill="x", padx=8, pady=2)
+    def _build_status_group(self) -> QGroupBox:
+        group = QGroupBox("Status")
+        layout = QVBoxLayout()
 
-        self.lbl_state = ttk.Label(frame, text="State:  Idle",
-                                   font=("", 11, "bold"))
-        self.lbl_state.pack(anchor="w")
-        self.lbl_trial = ttk.Label(frame, text="Trial: --   Sweep: --   "
-                                                "Catch: --")
-        self.lbl_trial.pack(anchor="w")
-        self.lbl_ref = ttk.Label(
-            frame,
-            text=f"Reference: t_rise={DEFAULT_T_RISE}%  "
-                 f"t_fall={DEFAULT_T_FALL}%",
+        self.lbl_state = QLabel("State:  Idle")
+        self.lbl_state.setFont(QFont("", 11, QFont.Bold))
+        self.lbl_trial = QLabel("Trial: --   Sweep: --   Catch: --")
+        self.lbl_ref = QLabel(
+            f"Reference: t_rise={DEFAULT_T_RISE}%  "
+            f"t_fall={DEFAULT_T_FALL}%"
         )
-        self.lbl_ref.pack(anchor="w")
-        self.lbl_comp = ttk.Label(frame, text="Comparison: --")
-        self.lbl_comp.pack(anchor="w")
+        self.lbl_comp = QLabel("Comparison: --")
+
+        layout.addWidget(self.lbl_state)
+        layout.addWidget(self.lbl_trial)
+        layout.addWidget(self.lbl_ref)
+        layout.addWidget(self.lbl_comp)
+
+        group.setLayout(layout)
+        return group
 
     # ==================================================================
     #  Scrolling log
     # ==================================================================
-    def _build_log_frame(self):
-        frame = ttk.LabelFrame(self.root, text="Log", padding=4)
-        frame.pack(fill="both", expand=True, padx=8, pady=(2, 8))
+    def _build_log_group(self) -> QGroupBox:
+        group = QGroupBox("Log")
+        layout = QVBoxLayout()
 
-        self.log_text = scrolledtext.ScrolledText(
-            frame, height=14, state="disabled", wrap="word",
-            font=("Courier", 9),
-        )
-        self.log_text.pack(fill="both", expand=True)
+        self.log_text = QTextEdit()
+        self.log_text.setReadOnly(True)
+        self.log_text.setFont(QFont("Courier", 9))
+        layout.addWidget(self.log_text)
+
+        group.setLayout(layout)
+        return group
 
     # ==================================================================
     #  Button callbacks
     # ==================================================================
     def _collect_params(self, mode: str) -> dict:
+        test_mode = (RISE_TIME_TEST if self.radio_rise.isChecked()
+                     else FALL_TIME_TEST)
+        approach = (APPROACH_FROM_ABOVE if self.radio_above.isChecked()
+                    else APPROACH_FROM_BELOW)
         return {
-            "participant_id": self.var_pid.get(),
-            "user_weight": self.var_weight.get(),
-            "test_mode": self.var_mode.get(),
-            "approach": self.var_approach.get(),
-            "left_port": self.var_lport.get(),
-            "right_port": self.var_rport.get(),
-            "firmware": self.var_fw.get(),
+            "participant_id": self.edit_pid.text(),
+            "user_weight": self.edit_weight.text(),
+            "test_mode": test_mode,
+            "approach": approach,
+            "left_port": self.edit_lport.text(),
+            "right_port": self.edit_rport.text(),
+            "firmware": self.edit_fw.text(),
             "mode": mode,
         }
 
@@ -202,38 +248,54 @@ class ExperimentGUI:
         treadmill before pressing Start Familiarization / Test."""
         if self._connected or self._running:
             return
-        self._append_log(">>> Connecting and zeroing boots …")
-        self.lbl_state.config(text="State:  Connecting …")
+
+        # --- Clean up any previous experiment instance -----------------
+        # Stop a lingering thread (e.g. if a prior run errored out)
+        # and drain the old status queue so stale messages don't
+        # bleed into the new session.
+        if self.experiment is not None:
+            try:
+                self.experiment.request_stop()
+            except Exception:
+                pass
+            while True:
+                try:
+                    self.experiment.status_queue.get_nowait()
+                except queue.Empty:
+                    break
+
+        self._append_log(">>> Connecting and zeroing boots \u2026")
+        self.lbl_state.setText("State:  Connecting \u2026")
         params = self._collect_params("connect_only")
-        self.experiment = PerceptionExperiment()
+        self.experiment = PerceptionExperiment()   # fresh instance
         self.experiment.start(params)
 
     def _on_start_fam(self):
         if self._running:
             return
         if not self._connected:
-            messagebox.showwarning(
-                "Not connected",
+            QMessageBox.warning(
+                self, "Not connected",
                 "Press 'Connect & Zero' first, then start the treadmill "
                 "before pressing Start Familiarization.")
             return
         self._running = True
         self._update_button_states()
-        self._append_log(">>> Starting familiarization …")
+        self._append_log(">>> Starting familiarization \u2026")
         self.experiment.command_queue.put(FAMILIARIZATION_BEGIN_SIGNAL)
 
     def _on_start_test(self):
         if self._running:
             return
         if not self._connected:
-            messagebox.showwarning(
-                "Not connected",
+            QMessageBox.warning(
+                self, "Not connected",
                 "Press 'Connect & Zero' first, then start the treadmill "
                 "before pressing Start Perception Test.")
             return
         self._running = True
         self._update_button_states()
-        self._append_log(">>> Starting perception test …")
+        self._append_log(">>> Starting perception test \u2026")
         self.experiment.command_queue.put(PERCEPTION_TEST_BEGIN_SIGNAL)
 
     def _on_stop(self):
@@ -261,7 +323,7 @@ class ExperimentGUI:
             self._update_button_states()
 
     # ==================================================================
-    #  Button‑state management
+    #  Button-state management
     # ==================================================================
     def _update_button_states(self):
         running = self._running
@@ -269,37 +331,37 @@ class ExperimentGUI:
         connected = self._connected
 
         # Connect & Zero: only when not connected and not running
-        self.btn_connect.config(
-            state="normal" if (not connected and not running) else "disabled")
+        self.btn_connect.setEnabled(not connected and not running)
 
         # Start buttons: only when connected but not yet running
         can_start = connected and not running
-        self.btn_fam.config(state="normal" if can_start else "disabled")
-        self.btn_test.config(state="normal" if can_start else "disabled")
+        self.btn_fam.setEnabled(can_start)
+        self.btn_test.setEnabled(can_start)
 
         # Stop: when connected or running
-        self.btn_stop.config(
-            state="normal" if (running or connected) else "disabled")
+        self.btn_stop.setEnabled(running or connected)
 
         # Familiarization adjust: only while running
-        self.btn_inc.config(state="normal" if running else "disabled")
-        self.btn_dec.config(state="normal" if running else "disabled")
+        self.btn_inc.setEnabled(running)
+        self.btn_dec.setEnabled(running)
 
         # Response buttons: only while awaiting response
-        self.btn_diff.config(state="normal" if awaiting else "disabled")
-        self.btn_same.config(state="normal" if awaiting else "disabled")
+        self.btn_diff.setEnabled(awaiting)
+        self.btn_same.setEnabled(awaiting)
 
     # ==================================================================
-    #  Status‑queue polling  (runs on main thread via root.after)
+    #  Status-queue polling  (runs on main thread via QTimer)
     # ==================================================================
     def _poll_status(self):
-        try:
-            while True:
+        while True:
+            try:
                 msg = self.experiment.status_queue.get_nowait()
+            except queue.Empty:
+                break
+            try:
                 self._handle_status(msg)
-        except Exception:
-            pass
-        self.root.after(self.POLL_MS, self._poll_status)
+            except Exception as exc:
+                self._append_log(f"GUI error handling status: {exc}")
 
     def _handle_status(self, msg: dict):
         t = msg.get("type", "")
@@ -311,22 +373,27 @@ class ExperimentGUI:
             # Boots are connected and zeroed — waiting for user
             self._connected = True
             self._running = False
-            self.lbl_state.config(text="State:  Connected & Zeroed — "
-                                       "start treadmill then press Start")
-            self._append_log("Boots connected and zeroed.  "
-                             "Start the treadmill, then press "
-                             "'Start Familiarization' or 'Start "
-                             "Perception Test'.")
+            self.lbl_state.setText(
+                "State:  Connected & Zeroed \u2014 "
+                "start treadmill then press Start")
+            self._append_log(
+                "Boots connected and zeroed.  "
+                "Start the treadmill, then press "
+                "'Start Familiarization' or 'Start "
+                "Perception Test'.")
             self._update_button_states()
 
         elif t == "state":
             val = msg.get("value", "")
-            self.lbl_state.config(text=f"State:  {val}")
+            self.lbl_state.setText(f"State:  {val}")
             if val in ("Idle", "Complete", "Stopped"):
                 self._running = False
                 self._connected = False
                 self._awaiting_response = False
                 self._update_button_states()
+                # If we were waiting on shutdown to close, do it now
+                if self._closing:
+                    self.close()
 
         elif t == "trial_info":
             trial = msg.get("trial", "--")
@@ -334,18 +401,19 @@ class ExperimentGUI:
             catch = msg.get("catch", False)
             comp = msg.get("comparison", "--")
             catch_str = "Yes" if catch else "No"
-            self.lbl_trial.config(
-                text=f"Trial: {trial}   Sweep: {sweep}   "
-                     f"Catch: {catch_str}")
-            mode = self.var_mode.get()
-            if mode == RISE_TIME_TEST:
-                self.lbl_comp.config(
-                    text=f"Comparison: t_rise={comp}%  "
-                         f"t_fall={DEFAULT_T_FALL}%")
+            self.lbl_trial.setText(
+                f"Trial: {trial}   Sweep: {sweep}   "
+                f"Catch: {catch_str}")
+            test_mode = (RISE_TIME_TEST if self.radio_rise.isChecked()
+                         else FALL_TIME_TEST)
+            if test_mode == RISE_TIME_TEST:
+                self.lbl_comp.setText(
+                    f"Comparison: t_rise={comp}%  "
+                    f"t_fall={DEFAULT_T_FALL}%")
             else:
-                self.lbl_comp.config(
-                    text=f"Comparison: t_rise={DEFAULT_T_RISE}%  "
-                         f"t_fall={comp}%")
+                self.lbl_comp.setText(
+                    f"Comparison: t_rise={DEFAULT_T_RISE}%  "
+                    f"t_fall={comp}%")
 
         elif t == "awaiting_response":
             self._awaiting_response = True
@@ -354,29 +422,56 @@ class ExperimentGUI:
 
         elif t == "error":
             self._append_log(f"   ERROR: {msg.get('message', '')}")
-            messagebox.showerror("Error", msg.get("message", "Unknown error"))
+            QMessageBox.critical(
+                self, "Error", msg.get("message", "Unknown error"))
             self._running = False
             self._connected = False
             self._awaiting_response = False
             self._update_button_states()
 
     # ==================================================================
+    #  Safe window close  (stop motors before exit)
+    # ==================================================================
+    def closeEvent(self, event):
+        """Ensure exoboots are safely stopped before the window closes.
+
+        If an experiment is active, request a stop and defer the close
+        until the experiment thread confirms shutdown via the status
+        queue.  A 3-second fallback timer guarantees the window closes
+        even if the thread hangs.
+        """
+        if self._closing:
+            # Already waiting — accept unconditionally (fallback timer)
+            event.accept()
+            return
+
+        if self._running or self._connected:
+            self._closing = True
+            self._append_log("Shutting down safely \u2014 stopping motors \u2026")
+            self.experiment.request_stop()
+            # Fallback: force-close after 3 seconds even if thread hangs
+            QTimer.singleShot(3000, self.close)
+            event.ignore()
+        else:
+            event.accept()
+
+    # ==================================================================
     #  Log helper
     # ==================================================================
     def _append_log(self, text: str):
-        self.log_text.config(state="normal")
-        self.log_text.insert("end", text + "\n")
-        self.log_text.see("end")
-        self.log_text.config(state="disabled")
+        self.log_text.append(text)
+        self.log_text.ensureCursorVisible()
 
 
 # ======================================================================
 #  Entry point
 # ======================================================================
 def main():
-    root = tk.Tk()
-    ExperimentGUI(root)
-    root.mainloop()
+    app = QApplication(sys.argv)
+    window = ExperimentGUI()
+    window.resize(700, 650)
+    window.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

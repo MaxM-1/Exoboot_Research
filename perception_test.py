@@ -632,11 +632,14 @@ class PerceptionExperiment:
             if boot is not None:
                 try:
                     boot.device.command_motor_current(0)
+                    sleep(0.05)
+                    boot.device.command_motor_current(0)
                 except Exception:
                     pass
                 boot.clean()
         self.left_boot = None
         self.right_boot = None
+        self._flush_cmd()           # discard stale commands
         self._send("state", value="Idle")
 
 

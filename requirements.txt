@@ -18,5 +18,6 @@ scipy
 pandas
 matplotlib
 pyyaml
+PyQt5                   # On RPi 5: sudo apt install python3-pyqt5
 semantic_version
 pyudev
