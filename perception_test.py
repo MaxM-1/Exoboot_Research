@@ -200,6 +200,50 @@ class PerceptionExperiment:
         self.right_boot.reset_gait_state()
         self._log("Gait detection reset — ready for heel‑strikes.")
 
+        # ---- Sensor pre‑flight check (2 s) ---------------------------
+        self._log("Sensor check — reading 2 s of IMU data …")
+        l_gz_min = l_gz_max = self.left_boot.gyroz
+        r_gz_min = r_gz_max = self.right_boot.gyroz
+        l_st_first = self.left_boot.current_time
+        r_st_first = self.right_boot.current_time
+        for _ in range(2000):
+            self.left_boot.read_data()
+            self.right_boot.read_data()
+            l_gz_min = min(l_gz_min, self.left_boot.gyroz)
+            l_gz_max = max(l_gz_max, self.left_boot.gyroz)
+            r_gz_min = min(r_gz_min, self.right_boot.gyroz)
+            r_gz_max = max(r_gz_max, self.right_boot.gyroz)
+            sleep(0.001)
+        l_st_last = self.left_boot.current_time
+        r_st_last = self.right_boot.current_time
+        self._log(
+            f"  Left  gyroz  min={l_gz_min:.0f}  max={l_gz_max:.0f}  "
+            f"state_time {l_st_first}→{l_st_last} "
+            f"(Δ={l_st_last - l_st_first})"
+        )
+        self._log(
+            f"  Right gyroz  min={r_gz_min:.0f}  max={r_gz_max:.0f}  "
+            f"state_time {r_st_first}→{r_st_last} "
+            f"(Δ={r_st_last - r_st_first})"
+        )
+        self._log(
+            f"  Thresholds:  ARM >= {self.left_boot.segmentation_arm_threshold:.0f}   "
+            f"TRIGGER <= {self.left_boot.segmentation_trigger_threshold:.0f}"
+        )
+        if l_gz_min == l_gz_max == 0:
+            self._log("  ⚠ WARNING: Left gyroz stuck at 0 — IMU may not be streaming!")
+        if r_gz_min == r_gz_max == 0:
+            self._log("  ⚠ WARNING: Right gyroz stuck at 0 — IMU may not be streaming!")
+        if l_st_first == l_st_last:
+            self._log("  ⚠ WARNING: Left state_time not changing — data may be stale!")
+        if r_st_first == r_st_last:
+            self._log("  ⚠ WARNING: Right state_time not changing — data may be stale!")
+
+        # Re-reset so the sensor-check reads don't pollute gait state
+        self.left_boot.reset_gait_state()
+        self.right_boot.reset_gait_state()
+        self._log("Sensor check complete — starting control loop.")
+
         p = self.params
         user_weight = float(p["user_weight"])
         test_mode = p["test_mode"]
@@ -307,6 +351,50 @@ class PerceptionExperiment:
         self.left_boot.reset_gait_state()
         self.right_boot.reset_gait_state()
         self._log("Gait detection reset — ready for heel‑strikes.")
+
+        # ---- Sensor pre‑flight check (2 s) ---------------------------
+        self._log("Sensor check — reading 2 s of IMU data …")
+        l_gz_min = l_gz_max = self.left_boot.gyroz
+        r_gz_min = r_gz_max = self.right_boot.gyroz
+        l_st_first = self.left_boot.current_time
+        r_st_first = self.right_boot.current_time
+        for _ in range(2000):
+            self.left_boot.read_data()
+            self.right_boot.read_data()
+            l_gz_min = min(l_gz_min, self.left_boot.gyroz)
+            l_gz_max = max(l_gz_max, self.left_boot.gyroz)
+            r_gz_min = min(r_gz_min, self.right_boot.gyroz)
+            r_gz_max = max(r_gz_max, self.right_boot.gyroz)
+            sleep(0.001)
+        l_st_last = self.left_boot.current_time
+        r_st_last = self.right_boot.current_time
+        self._log(
+            f"  Left  gyroz  min={l_gz_min:.0f}  max={l_gz_max:.0f}  "
+            f"state_time {l_st_first}→{l_st_last} "
+            f"(Δ={l_st_last - l_st_first})"
+        )
+        self._log(
+            f"  Right gyroz  min={r_gz_min:.0f}  max={r_gz_max:.0f}  "
+            f"state_time {r_st_first}→{r_st_last} "
+            f"(Δ={r_st_last - r_st_first})"
+        )
+        self._log(
+            f"  Thresholds:  ARM >= {self.left_boot.segmentation_arm_threshold:.0f}   "
+            f"TRIGGER <= {self.left_boot.segmentation_trigger_threshold:.0f}"
+        )
+        if l_gz_min == l_gz_max == 0:
+            self._log("  ⚠ WARNING: Left gyroz stuck at 0 — IMU may not be streaming!")
+        if r_gz_min == r_gz_max == 0:
+            self._log("  ⚠ WARNING: Right gyroz stuck at 0 — IMU may not be streaming!")
+        if l_st_first == l_st_last:
+            self._log("  ⚠ WARNING: Left state_time not changing — data may be stale!")
+        if r_st_first == r_st_last:
+            self._log("  ⚠ WARNING: Right state_time not changing — data may be stale!")
+
+        # Re-reset so the sensor-check reads don't pollute gait state
+        self.left_boot.reset_gait_state()
+        self.right_boot.reset_gait_state()
+        self._log("Sensor check complete — starting control loop.")
 
         p = self.params
         user_weight = float(p["user_weight"])

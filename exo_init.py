@@ -36,6 +36,7 @@ from config import (
     TICKS_TO_ANGLE_COEFF, ANGLE_TO_TICKS_COEFF, BIT_TO_GYRO_COEFF,
     NUM_GAIT_TIMES_TO_AVERAGE, ARMED_DURATION_PERCENT,
     HEELSTRIKE_THRESHOLD_ABOVE, HEELSTRIKE_THRESHOLD_BELOW,
+    MIN_STRIDE_PERIOD, MIN_ARMED_DURATION,
     CURRENT_GAINS, POSITION_GAINS,
 )
 
@@ -147,6 +148,13 @@ class ExoBoot:
         self.heelstrike_timestamp_current: float = -1
         self.heelstrike_timestamp_previous: float = -1
         self.armed_timestamp: float = -1
+
+        # ---- Debug counters ------------------------------------------
+        self._dbg_count: int = 0
+        self._dbg_gz_min: float = 0.0
+        self._dbg_gz_max: float = 0.0
+        self._dbg_armed_events: int = 0
+        self._dbg_trigger_events: int = 0
 
         # ---- Sensor cache --------------------------------------------
         self.current_time: int = -1
@@ -314,10 +322,46 @@ class ExoBoot:
         triggered = False
         armed_time = 0
 
+        # ---- Debug tracking ------------------------------------------
+        self._dbg_count += 1
+        if self.gyroz < self._dbg_gz_min:
+            self._dbg_gz_min = self.gyroz
+        if self.gyroz > self._dbg_gz_max:
+            self._dbg_gz_max = self.gyroz
+
+        # Periodic sensor report (every ~1 s for the first 15 s)
+        if self._dbg_count % 1000 == 0 and self._dbg_count <= 15000:
+            side_str = "L" if self.side == LEFT else "R"
+            self.log(
+                f"  [{side_str} DBG @{self._dbg_count}] "
+                f"gz={self.gyroz:.0f}  "
+                f"min/max={self._dbg_gz_min:.0f}/{self._dbg_gz_max:.0f}  "
+                f"arm_thr={self.segmentation_arm_threshold:.0f}  "
+                f"trg_thr={self.segmentation_trigger_threshold:.0f}  "
+                f"armed={self.heelstrike_armed}  "
+                f"HS={self.num_gait}  "
+                f"exp_dur={self.expected_duration}"
+            )
+        # ---- end debug -----------------------------------------------
+
+        # ---- Refractory period: skip detection if too soon after
+        #      the last heel‑strike --------------------------------
+        time_since_last_hs = self.current_time - self.heelstrike_timestamp_current
+        if time_since_last_hs < MIN_STRIDE_PERIOD:
+            self.segmentation_trigger = False
+            return
+
         if (self.gyroz >= self.segmentation_arm_threshold
                 and not self.heelstrike_armed):
             self.heelstrike_armed = True
             self.armed_timestamp = self.current_time
+            self._dbg_armed_events += 1
+            if self._dbg_armed_events <= 20:
+                side_str = "L" if self.side == LEFT else "R"
+                self.log(
+                    f"  [{side_str} ARM] gz={self.gyroz:.0f}  "
+                    f"t={self.current_time}"
+                )
 
         if self.armed_timestamp != -1:
             armed_time = self.current_time - self.armed_timestamp
@@ -326,7 +370,13 @@ class ExoBoot:
                 and self.gyroz <= self.segmentation_trigger_threshold):
             self.heelstrike_armed = False
             self.armed_timestamp = -1
-            threshold = ARMED_DURATION_PERCENT / 100.0 * self.expected_duration
+            # Use the larger of the percentage‑based threshold and the
+            # absolute floor so the very first strides aren't noise.
+            threshold = max(
+                ARMED_DURATION_PERCENT / 100.0 * self.expected_duration,
+                MIN_ARMED_DURATION,
+            )
+            self._dbg_trigger_events += 1
             if armed_time > threshold:
                 triggered = True
                 self.num_gait += 1
@@ -334,7 +384,20 @@ class ExoBoot:
                 side_str = "Left" if self.side == LEFT else "Right"
                 self.log(
                     f"  {side_str} heel‑strike #{self.num_gait}"
+                    f"  (armed_time={armed_time:.0f}  "
+                    f"thresh={threshold:.1f}  "
+                    f"exp_dur={self.expected_duration:.1f})"
                 )
+            else:
+                # Trigger was crossed but armed_time check FAILED
+                if self._dbg_trigger_events <= 20:
+                    side_str = "L" if self.side == LEFT else "R"
+                    self.log(
+                        f"  [{side_str} TRG REJECTED] "
+                        f"armed_time={armed_time:.0f} "
+                        f"<= thresh={threshold:.1f}  "
+                        f"exp_dur={self.expected_duration}"
+                    )
 
         self.segmentation_trigger = triggered
 
@@ -356,6 +419,14 @@ class ExoBoot:
             self.heelstrike_timestamp_current
             - self.heelstrike_timestamp_previous
         )
+
+        # Reject obviously invalid durations (< 400 ms ≈ 150 steps/min
+        # or > 3000 ms ≈ 20 steps/min) — this also discards the bogus
+        # first "stride" from reset‑time to the first real heel‑strike
+        # when the gap is too long.
+        if self.current_duration < 400 or self.current_duration > 3000:
+            return
+
         if self.heelstrike_timestamp_previous == -1:
             self.heelstrike_timestamp_previous = self.heelstrike_timestamp_current
             return
@@ -367,9 +438,14 @@ class ExoBoot:
               and self.current_duration >= 0.5 * min(self.past_stride_times)):
             self.past_stride_times.insert(0, self.current_duration)
             self.past_stride_times.pop()
-            self.expected_duration = (
-                sum(self.past_stride_times) / len(self.past_stride_times)
-            )
+
+        # Compute expected_duration from ALL available valid strides,
+        # even before the buffer is fully populated.  This lets the
+        # torque profile activate after just one good stride instead
+        # of waiting for NUM_GAIT_TIMES_TO_AVERAGE + 1 heel‑strikes.
+        valid = [t for t in self.past_stride_times if t != -1]
+        if valid:
+            self.expected_duration = sum(valid) / len(valid)
 
     # -----------------------------------------------------------------
     #  Motor‑to‑ankle velocity ratio  (derivative of 5th‑order poly)
@@ -466,6 +542,14 @@ class ExoBoot:
         """Read data and send the appropriate motor command for the
         current gait phase.  Call this once per control‑loop iteration."""
         self.read_data()
+
+        # Before gait cadence is established, keep cable taut with
+        # light current so the motor isn’t dead but also doesn’t
+        # fight ankle motion via position control.
+        if self.percent_gait < 0:
+            self._set_current_gains()
+            self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
+            return
 
         t_onset = self.t_peak - self.t_rise   # actuation start (%)
 
@@ -591,7 +675,10 @@ class ExoBoot:
         self.segmentation_trigger = False
         self.heelstrike_armed = False
         self.armed_timestamp = -1
-        self.heelstrike_timestamp_current = self.current_time
+        # Use -1 so the first "stride" (reset-time → first real HS)
+        # produces a huge duration that the >3000 ms sanity check
+        # rejects.  Real stride timing starts from the second HS.
+        self.heelstrike_timestamp_current = -1
         self.heelstrike_timestamp_previous = -1
 
         # Clear low-pass filter history so old velocity samples don't
@@ -605,6 +692,13 @@ class ExoBoot:
 
         # Force gains to be re-sent on the next control iteration
         self._gains_mode = None
+
+        # ---- Debug counters (reset each phase) -----------------------
+        self._dbg_count: int = 0
+        self._dbg_gz_min: float = 0.0
+        self._dbg_gz_max: float = 0.0
+        self._dbg_armed_events: int = 0
+        self._dbg_trigger_events: int = 0
 
     # -----------------------------------------------------------------
     #  Zero boot (tighten belt & record encoder offsets)

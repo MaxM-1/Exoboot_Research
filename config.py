@@ -13,7 +13,7 @@ FIRMWARE_VERSION = "7.2.0"          # Legacy ExoBoot firmware
 BAUD_RATE = 230400                  # Default Dephy baud rate
 LEFT_PORT = "/dev/ttyACM0"
 RIGHT_PORT = "/dev/ttyACM1"
-STREAMING_FREQUENCY = 1000          # Hz
+STREAMING_FREQUENCY = 100          # Hz - Used to be 1000 then changed to 100  
 LOG_LEVEL = 6                       # 0 = most verbose, 6 = off
 
 # ==============================================================================
@@ -42,16 +42,18 @@ BIT_TO_GYRO_COEFF = 1.0 / 32.8
 # ==============================================================================
 NUM_GAIT_TIMES_TO_AVERAGE = 3
 ARMED_DURATION_PERCENT = 10
-HEELSTRIKE_THRESHOLD_ABOVE = 150 / BIT_TO_GYRO_COEFF    # ≈ 4920
-HEELSTRIKE_THRESHOLD_BELOW = -300 / BIT_TO_GYRO_COEFF   # ≈ −9840
+HEELSTRIKE_THRESHOLD_ABOVE = 100 / BIT_TO_GYRO_COEFF    # ≈ 3280  (was 150 → 4920)
+HEELSTRIKE_THRESHOLD_BELOW = -150 / BIT_TO_GYRO_COEFF   # ≈ −4920 (was -300 → −9840)
+MIN_STRIDE_PERIOD = 400            # ms — refractory period between heel‑strikes
+MIN_ARMED_DURATION = 100           # ms — floor for armed‑time check
 
 # ==============================================================================
 # Collins Torque‑Profile Defaults  (% of gait cycle)
 # ==============================================================================
 DEFAULT_T_RISE = 25.3               # Rise time  (reference value)
 DEFAULT_T_FALL = 10.3               # Fall time  (reference value)
-DEFAULT_T_ONSET = 42.0              # Actuation‑start timing
-DEFAULT_PEAK_TORQUE_NORM = 0.175    # Normalised peak torque  (Nm / kg)
+DEFAULT_T_ONSET = 26.0              # Actuation‑start timing
+DEFAULT_PEAK_TORQUE_NORM = 0.225    # Normalised peak torque  (Nm / kg)
 
 # ==============================================================================
 # PID Gains

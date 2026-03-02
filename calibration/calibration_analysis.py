@@ -55,33 +55,17 @@ def calibrate(csv_path: str, side_sign: int):
     ankle = df["ank_ang"].values
     motor = df["mot_ang"].values
 
-    # ---- Find stable start (motor acceleration near zero) ----
+    # ---- Trim unstable start (first ~0.5 s) -----------------------
     time_ms = df["state_time"].values.astype(float)
     time_s = (time_ms - time_ms[0]) / 1000.0
 
-    # Estimate indices per second
-    idx_1s = np.searchsorted(time_s, 1.0) - np.searchsorted(time_s, 0.0)
-    idx_1s = max(idx_1s, 1)
-
-    # Approximate motor acceleration via second‑difference
-    mot_vel = np.gradient(motor.astype(float))
-    mot_acc = np.abs(np.gradient(mot_vel))
-
-    accel_thresh = 200
-    start_idx = 0
-    for i in range(len(time_s) - idx_1s):
-        window = mot_acc[i: i + idx_1s]
-        if np.all(window < accel_thresh):
-            start_idx = i
-            break
-
-    # ---- Find stop index: max motor angle in the correct direction ----
-    stop_idx = int(np.argmax(side_sign * motor))
-
-    if stop_idx <= start_idx:
-        print("WARNING: stop_idx <= start_idx — using full range")
-        start_idx = 0
-        stop_idx = len(motor) - 1
+    # Skip the first 0.5 s where motor current ramps up and the
+    # initial position is still settling.  Use the rest of the data
+    # all the way to the end of the sweep.
+    start_idx = int(np.searchsorted(time_s, 0.5))
+    if start_idx >= len(motor) - 10:
+        start_idx = 0       # fallback: not enough data after trim
+    stop_idx = len(motor) - 1
 
     ankle_seg = ankle[start_idx: stop_idx + 1]
     motor_seg = motor[start_idx: stop_idx + 1]
