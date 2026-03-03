@@ -89,7 +89,7 @@ class PerceptionExperiment:
             participant_id : str
             user_weight    : float   (kg)
             test_mode      : str     RISE_TIME_TEST | FALL_TIME_TEST
-            approach        : str     APPROACH_FROM_ABOVE | APPROACH_FROM_BELOW
+            approach       : str     APPROACH_FROM_ABOVE | APPROACH_FROM_BELOW
             mode           : str     'familiarization' | 'perception'
             left_port      : str
             right_port     : str
