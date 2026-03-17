@@ -13,7 +13,7 @@ FIRMWARE_VERSION = "7.2.0"          # Legacy ExoBoot firmware
 BAUD_RATE = 230400                  # Default Dephy baud rate
 LEFT_PORT = "/dev/ttyACM0"
 RIGHT_PORT = "/dev/ttyACM1"
-STREAMING_FREQUENCY = 100          # Hz - Used to be 1000 then changed to 100  
+STREAMING_FREQUENCY = 500          # Hz - Used to be 1000 then changed to 100  
 LOG_LEVEL = 6                       # 0 = most verbose, 6 = off
 
 # ==============================================================================
@@ -44,8 +44,14 @@ NUM_GAIT_TIMES_TO_AVERAGE = 3
 ARMED_DURATION_PERCENT = 10
 HEELSTRIKE_THRESHOLD_ABOVE = 100 / BIT_TO_GYRO_COEFF    # ≈ 3280  (was 150 → 4920)
 HEELSTRIKE_THRESHOLD_BELOW = -150 / BIT_TO_GYRO_COEFF   # ≈ −4920 (was -300 → −9840)
-MIN_STRIDE_PERIOD = 400            # ms — refractory period between heel‑strikes
+MIN_STRIDE_PERIOD = 650            # ms — absolute‑minimum refractory period
+REFRACTORY_FRACTION = 0.60         # dynamic refractory = 60 % of expected stride
+REFRACTORY_MAX = 850               # ms — hard cap so refractory can never grow
+                                    #      large enough to block ipsilateral ARM
+STRIDE_OUTLIER_FACTOR = 1.3        # accept strides within ±30 % of expected
 MIN_ARMED_DURATION = 100           # ms — floor for armed‑time check
+MAX_ARMED_FRACTION = 0.55          # disarm if armed > 55 % of expected stride
+MAX_ARMED_MS = 600                 # ms — absolute cap when expected_duration unknown
 
 # ==============================================================================
 # Collins Torque‑Profile Defaults  (% of gait cycle)

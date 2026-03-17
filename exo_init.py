@@ -36,7 +36,9 @@ from config import (
     TICKS_TO_ANGLE_COEFF, ANGLE_TO_TICKS_COEFF, BIT_TO_GYRO_COEFF,
     NUM_GAIT_TIMES_TO_AVERAGE, ARMED_DURATION_PERCENT,
     HEELSTRIKE_THRESHOLD_ABOVE, HEELSTRIKE_THRESHOLD_BELOW,
-    MIN_STRIDE_PERIOD, MIN_ARMED_DURATION,
+    MIN_STRIDE_PERIOD, REFRACTORY_FRACTION, REFRACTORY_MAX,
+    STRIDE_OUTLIER_FACTOR, MIN_ARMED_DURATION,
+    MAX_ARMED_FRACTION, MAX_ARMED_MS,
     CURRENT_GAINS, POSITION_GAINS,
 )
 
@@ -344,13 +346,11 @@ class ExoBoot:
             )
         # ---- end debug -----------------------------------------------
 
-        # ---- Refractory period: skip detection if too soon after
-        #      the last heel‑strike --------------------------------
-        time_since_last_hs = self.current_time - self.heelstrike_timestamp_current
-        if time_since_last_hs < MIN_STRIDE_PERIOD:
-            self.segmentation_trigger = False
-            return
-
+        # ---- ARM check (runs OUTSIDE the refractory gate) ---------
+        #      The boot must be allowed to arm during swing even while
+        #      the refractory window blocks triggers — otherwise a
+        #      growing refractory can swallow the ARM event and cause
+        #      missed heel‑strikes → runaway expected_duration.
         if (self.gyroz >= self.segmentation_arm_threshold
                 and not self.heelstrike_armed):
             self.heelstrike_armed = True
@@ -366,10 +366,33 @@ class ExoBoot:
         if self.armed_timestamp != -1:
             armed_time = self.current_time - self.armed_timestamp
 
+        # ---- Max‑armed expiry: if armed longer than 55 % of stride,
+        #      this ARM event came from contralateral vibration (e.g.
+        #      opposite foot's toe‑off).  Disarm so we can re‑arm on
+        #      the correct swing‑phase event. ----------------------
+        if self.heelstrike_armed:
+            max_armed = (MAX_ARMED_FRACTION * self.expected_duration
+                         if self.expected_duration > 0
+                         else MAX_ARMED_MS)
+            if armed_time > max_armed:
+                self.heelstrike_armed = False
+                self.armed_timestamp = -1
+
+        # ---- Refractory period: block contralateral cross‑talk ----
+        #      Only the TRIGGER is gated — ARM was handled above.
+        if self.expected_duration > 0:
+            refractory = max(MIN_STRIDE_PERIOD,
+                             REFRACTORY_FRACTION * self.expected_duration)
+            refractory = min(refractory, REFRACTORY_MAX)   # hard cap
+        else:
+            refractory = MIN_STRIDE_PERIOD
+        time_since_last_hs = self.current_time - self.heelstrike_timestamp_current
+        if time_since_last_hs < refractory:
+            self.segmentation_trigger = False
+            return
+
         if (self.heelstrike_armed
                 and self.gyroz <= self.segmentation_trigger_threshold):
-            self.heelstrike_armed = False
-            self.armed_timestamp = -1
             # Use the larger of the percentage‑based threshold and the
             # absolute floor so the very first strides aren't noise.
             threshold = max(
@@ -378,7 +401,10 @@ class ExoBoot:
             )
             self._dbg_trigger_events += 1
             if armed_time > threshold:
+                # ---- VALID ipsilateral heel‑strike ----
                 triggered = True
+                self.heelstrike_armed = False
+                self.armed_timestamp = -1
                 self.num_gait += 1
                 self.num_gait_in_block += 1
                 side_str = "Left" if self.side == LEFT else "Right"
@@ -389,11 +415,13 @@ class ExoBoot:
                     f"exp_dur={self.expected_duration:.1f})"
                 )
             else:
-                # Trigger was crossed but armed_time check FAILED
+                # ---- Too short: cross‑talk spike.  Stay armed so
+                #      the real ipsilateral HS a few hundred ms later
+                #      still finds the boot in the armed state. ----
                 if self._dbg_trigger_events <= 20:
                     side_str = "L" if self.side == LEFT else "R"
                     self.log(
-                        f"  [{side_str} TRG REJECTED] "
+                        f"  [{side_str} TRG HOLD] "
                         f"armed_time={armed_time:.0f} "
                         f"<= thresh={threshold:.1f}  "
                         f"exp_dur={self.expected_duration}"
@@ -432,20 +460,23 @@ class ExoBoot:
             return
 
         if -1 in self.past_stride_times:
+            # Buffer still filling — accept any reasonable duration.
             self.past_stride_times.insert(0, self.current_duration)
             self.past_stride_times.pop()
-        elif (self.current_duration <= 1.5 * max(self.past_stride_times)
-              and self.current_duration >= 0.5 * min(self.past_stride_times)):
+        elif (self.expected_duration > 0
+              and (1.0 / STRIDE_OUTLIER_FACTOR) * self.expected_duration
+                  <= self.current_duration
+                  <= STRIDE_OUTLIER_FACTOR * self.expected_duration):
+            # Within ±30 % of current estimate — accept.
             self.past_stride_times.insert(0, self.current_duration)
             self.past_stride_times.pop()
+        # else: outlier — silently rejected, buffer unchanged.
 
-        # Compute expected_duration from ALL available valid strides,
-        # even before the buffer is fully populated.  This lets the
-        # torque profile activate after just one good stride instead
-        # of waiting for NUM_GAIT_TIMES_TO_AVERAGE + 1 heel‑strikes.
-        valid = [t for t in self.past_stride_times if t != -1]
+        # Use *median* for robustness: a single outlier that slips in
+        # during initial fill cannot corrupt the estimate.
+        valid = sorted(t for t in self.past_stride_times if t != -1)
         if valid:
-            self.expected_duration = sum(valid) / len(valid)
+            self.expected_duration = valid[len(valid) // 2]
 
     # -----------------------------------------------------------------
     #  Motor‑to‑ankle velocity ratio  (derivative of 5th‑order poly)
@@ -542,26 +573,38 @@ class ExoBoot:
         """Read data and send the appropriate motor command for the
         current gait phase.  Call this once per control‑loop iteration."""
         self.read_data()
+        # ---- Phase‑level debug (every ~1 s) --------------------------
+        if self._dbg_count % 1000 == 500 and self._dbg_count <= 15000:
+            side_str = "L" if self.side == LEFT else "R"
+            self.log(
+                f"  [{side_str} CMD @{self._dbg_count}] "
+                f"pg={self.percent_gait:.1f}%  "
+                f"tau={self.tau:.2f}Nm  "
+                f"cur={self.current:.0f}mA  "
+                f"exp_dur={self.expected_duration:.0f}  "
+                f"HS={self.num_gait}  "
+                f"wm_wa={self.wm_wa:.2f}"
+            )
+        # ---- end debug -----------------------------------------------
 
-        # Before gait cadence is established, keep cable taut with
-        # light current so the motor isn’t dead but also doesn’t
-        # fight ankle motion via position control.
+        # Stay in current-control mode the entire gait cycle.
+        # This avoids position-control instability that can trip the
+        # motor's firmware safety and kill all subsequent commands.
+        self._set_current_gains()
+
+        # Before gait cadence is established, keep cable taut.
         if self.percent_gait < 0:
-            self._set_current_gains()
             self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
             return
 
         t_onset = self.t_peak - self.t_rise   # actuation start (%)
 
-        # Phase 1 — Early stance  (0 % → t_onset):  position control
+        # Phase 1 — Early stance  (0 % → t_onset):  light cable tension
         if 0 <= self.percent_gait <= t_onset:
-            self._set_position_gains()
-            motor_angle = self._desired_motor_position()
-            self.device.command_motor_position(int(motor_angle))
+            self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
 
-        # Phase 2 — Ascending curve  (t_onset → t_peak):  current control
+        # Phase 2 — Ascending curve  (t_onset → t_peak):  torque ramp up
         elif t_onset < self.percent_gait <= self.t_peak:
-            self._set_current_gains()
             pg = self.percent_gait
             self.tau = (self.a1 * pg**3 + self.b1 * pg**2
                         + self.c1 * pg + self.d1)
@@ -571,9 +614,8 @@ class ExoBoot:
             self.current = max(min(self.current, PEAK_CURRENT), NO_SLACK_CURRENT)
             self.device.command_motor_current(int(self.current * self.side))
 
-        # Phase 3 — Descending curve  (t_peak → t_peak+t_fall): current
+        # Phase 3 — Descending curve  (t_peak → t_peak+t_fall): ramp down
         elif self.t_peak < self.percent_gait <= self.t_peak + self.t_fall:
-            self._set_current_gains()
             pg = self.percent_gait
             self.tau = (self.a2 * pg**3 + self.b2 * pg**2
                         + self.c2 * pg + self.d2)
@@ -583,11 +625,9 @@ class ExoBoot:
             self.current = max(min(self.current, PEAK_CURRENT), NO_SLACK_CURRENT)
             self.device.command_motor_current(int(self.current * self.side))
 
-        # Phase 4 — Late stance  (t_peak+t_fall → 100 %):  position ctrl
+        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):  light tension
         elif self.percent_gait > self.t_peak + self.t_fall:
-            self._set_position_gains()
-            motor_angle = self._desired_motor_position()
-            self.device.command_motor_position(int(motor_angle))
+            self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
 
     # -----------------------------------------------------------------
     #  Gain‑mode helpers  (avoid redundant set_gains calls)
