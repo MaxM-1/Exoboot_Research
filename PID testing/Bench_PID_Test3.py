@@ -49,7 +49,7 @@ from flexsea.device import Device
 
 # --- Hardware ---
 FIRMWARE_VERSION = "7.2.0"
-STREAMING_FREQ   = 500
+STREAMING_FREQ   = 100    #was prev. 500hz 
 LOG_LEVEL        = 6
 
 # --- Safety ---
