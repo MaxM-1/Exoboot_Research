@@ -13,7 +13,7 @@ FIRMWARE_VERSION = "7.2.0"          # Legacy ExoBoot firmware
 BAUD_RATE = 230400                  # Default Dephy baud rate
 LEFT_PORT = "/dev/ttyACM0"
 RIGHT_PORT = "/dev/ttyACM1"
-STREAMING_FREQUENCY = 500          # Hz - Used to be 1000 then changed to 100  
+STREAMING_FREQUENCY = 100          # Hz - Used to be 1000 then changed to 100  
 LOG_LEVEL = 6                       # 0 = most verbose, 6 = off
 
 # ==============================================================================
@@ -64,8 +64,12 @@ DEFAULT_PEAK_TORQUE_NORM = 0.225    # Normalised peak torque  (Nm / kg)
 # ==============================================================================
 # PID Gains
 # ==============================================================================
-CURRENT_GAINS = {"kp": 100, "ki": 32, "kd": 0, "k": 0, "b": 0, "ff": 0}
-POSITION_GAINS = {"kp": 175, "ki": 50, "kd": 0, "k": 0, "b": 0, "ff": 0}
+#CURRENT_GAINS = {"kp": 100, "ki": 32, "kd": 0, "k": 0, "b": 0, "ff": 0} old values
+CURRENT_GAINS = {"kp": 40, "ki": 400, "kd": 0, "k": 0, "b": 0, "ff": 128}
+
+
+#POSITION_GAINS = {"kp": 175, "ki": 50, "kd": 0, "k": 0, "b": 0, "ff": 0} old values 
+POSITION_GAINS = {"kp": 100, "ki": 20, "kd": 35, "k": 0, "b": 0, "ff": 0}
 
 # ==============================================================================
 # Perception‑Test Protocol

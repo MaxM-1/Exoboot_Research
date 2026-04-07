@@ -199,7 +199,7 @@ class ExoBoot:
         self.d2: float = 0
 
         # ---- Low‑pass filter (2nd‑order Butterworth, 12 Hz) ----------
-        self.sampling_freq = 500
+        self.sampling_freq = 100    #changing to 100
         self.b_filt, self.a_filt = butter(
             2, 12 / (self.sampling_freq / 2), "low"
         )
