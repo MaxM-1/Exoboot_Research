@@ -587,24 +587,27 @@ class ExoBoot:
             )
         # ---- end debug -----------------------------------------------
 
-        # Stay in current-control mode the entire gait cycle.
-        # This avoids position-control instability that can trip the
-        # motor's firmware safety and kill all subsequent commands.
-        self._set_current_gains()
-
-        # Before gait cadence is established, keep cable taut.
+        # Before gait cadence is established, keep chain loaded with
+        # position control tracking the ankle polynomial.
         if self.percent_gait < 0:
-            self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
+            self._set_position_gains()
+            motor_target = self._desired_motor_position()
+            self.device.command_motor_position(int(motor_target))
             return
 
         t_onset = self.t_peak - self.t_rise   # actuation start (%)
 
-        # Phase 1 — Early stance  (0 % → t_onset):  light cable tension
+        # Phase 1 — Early stance  (0 % → t_onset):  position control
+        # Track the ankle-to-motor polynomial to keep chain loaded
+        # without applying torque.
         if 0 <= self.percent_gait <= t_onset:
-            self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
+            self._set_position_gains()
+            motor_target = self._desired_motor_position()
+            self.device.command_motor_position(int(motor_target))
 
         # Phase 2 — Ascending curve  (t_onset → t_peak):  torque ramp up
         elif t_onset < self.percent_gait <= self.t_peak:
+            self._set_current_gains()
             pg = self.percent_gait
             self.tau = (self.a1 * pg**3 + self.b1 * pg**2
                         + self.c1 * pg + self.d1)
@@ -616,6 +619,7 @@ class ExoBoot:
 
         # Phase 3 — Descending curve  (t_peak → t_peak+t_fall): ramp down
         elif self.t_peak < self.percent_gait <= self.t_peak + self.t_fall:
+            self._set_current_gains()
             pg = self.percent_gait
             self.tau = (self.a2 * pg**3 + self.b2 * pg**2
                         + self.c2 * pg + self.d2)
@@ -625,9 +629,11 @@ class ExoBoot:
             self.current = max(min(self.current, PEAK_CURRENT), NO_SLACK_CURRENT)
             self.device.command_motor_current(int(self.current * self.side))
 
-        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):  light tension
+        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):  position control
         elif self.percent_gait > self.t_peak + self.t_fall:
-            self.device.command_motor_current(int(NO_SLACK_CURRENT * self.side))
+            self._set_position_gains()
+            motor_target = self._desired_motor_position()
+            self.device.command_motor_position(int(motor_target))
 
     # -----------------------------------------------------------------
     #  Gain‑mode helpers  (avoid redundant set_gains calls)
