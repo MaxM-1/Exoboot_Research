@@ -25,8 +25,8 @@ RIGHT = -1
 # ==============================================================================
 # Current Limits (mA)
 # ==============================================================================
-ZEROING_CURRENT = 1800
-NO_SLACK_CURRENT = 1200
+ZEROING_CURRENT = 1000              # 1800 -> 1000
+NO_SLACK_CURRENT = 800              # 1200 -> 800
 PEAK_CURRENT = 28000
 WARMUP_CURRENT = 600                # Light current during warm‑up strides
 
@@ -50,8 +50,8 @@ REFRACTORY_MAX = 850               # ms — hard cap so refractory can never gro
                                     #      large enough to block ipsilateral ARM
 STRIDE_OUTLIER_FACTOR = 1.3        # accept strides within ±30 % of expected
 MIN_ARMED_DURATION = 100           # ms — floor for armed‑time check
-MAX_ARMED_FRACTION = 0.55          # disarm if armed > 55 % of expected stride
-MAX_ARMED_MS = 600                 # ms — absolute cap when expected_duration unknown
+MAX_ARMED_FRACTION = 0.65          # disarm if armed > 65 % of expected stride | 0.55->0.65
+MAX_ARMED_MS = 900                 # ms — absolute cap when expected_duration unknown | 600->900
 
 # ==============================================================================
 # Collins Torque‑Profile Defaults  (% of gait cycle)
