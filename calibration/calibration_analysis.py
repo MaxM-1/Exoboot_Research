@@ -77,8 +77,8 @@ def calibrate(csv_path: str, side_sign: int):
     unique_ankle, unique_idx = np.unique(ankle_seg, return_index=True)
     unique_motor = motor_seg[unique_idx]
 
-    # ---- 5th‑order polynomial fit ------------------------------------
-    poly_coeffs = np.polyfit(unique_ankle, unique_motor, 5)
+    # ---- 5th(now 4th)‑order polynomial fit ------------------------------------
+    poly_coeffs = np.polyfit(unique_ankle, unique_motor, 4)   #changed from 5->4 
     print("Polynomial coefficients (highest→lowest degree):")
     for i, c in enumerate(poly_coeffs):
         print(f"  c[{5-i}]  = {c: .15e}")
