@@ -43,8 +43,8 @@ def main():
                         help=f"Firmware version  (default: {FIRMWARE_VERSION})")
     parser.add_argument("--freq", type=int, default=100,
                         help="Streaming frequency in Hz  (default: 100)")
-    parser.add_argument("--current", type=int, default=1500,
-                        help="Tightening current in mA  (default: 1500)")
+    parser.add_argument("--current", type=int, default=1000,
+                        help="Tightening current in mA  (default: 1000)")  #changing default to 1000
     parser.add_argument("--collect-time", type=int, default=15,
                         help="Seconds to collect while dorsiflexing  (default: 15)")
     args = parser.parse_args()
@@ -70,7 +70,8 @@ def main():
 
     # ---- Step 2: apply motor current to tighten strap -------------------
     print("Applying motor current to tighten strap …")
-    device.set_gains(kp=100, ki=32, kd=0, k=0, b=0, ff=0)
+    #device.set_gains(kp=100, ki=32, kd=0, k=0, b=0, ff=0)  <-old pre 4/19
+    device.set_gains(kp=40, ki=400, kd=0, k=0, b=0, ff=128)   #<- new post 4/19
     sleep(0.5)
     tighten_current = args.current * side_sign
     for _ in range(30):
