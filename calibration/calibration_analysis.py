@@ -153,11 +153,10 @@ def plot_calibration(poly_coeffs, unique_ankle, unique_motor,
 
     # ---- 3. Derivative ωm/ωa ----------------------------------------
     c = poly_coeffs
-    deriv = (5 * c[0] * unique_ankle**4
-             + 4 * c[1] * unique_ankle**3
-             + 3 * c[2] * unique_ankle**2
-             + 2 * c[3] * unique_ankle
-             + c[4])
+    deriv = (4 * c[0] * unique_ankle**3     #changing to reflect 4th order poly following 4/21 ROM_position testing changes and troubleshooting 
+             + 3 * c[1] * unique_ankle**2
+             + 2 * c[2] * unique_ankle
+             + c[3])
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(unique_ankle, deriv, "b-")
     ax.set_xlabel("Ankle ticks")

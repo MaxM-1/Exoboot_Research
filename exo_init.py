@@ -245,13 +245,13 @@ class ExoBoot:
             - self.side * 55 * ANGLE_TO_TICKS_COEFF
         )
 
-        # Polynomial coefficients  (5th‑degree: poly4·x⁵ … poly0·x)
+        # Polynomial coefficients  (4th‑degree: poly4·x⁴ … poly0·x)
         self.wm_wa_coeffs = [
             cfg.getfloat(self.boot_id, f"poly{i}") for i in range(4, -1, -1)
         ]
         self.wm_wa: float = 0.0
 
-        self.ank_mot_coeffs = list(self.wm_wa_coeffs) + [0.0]
+        self.ank_mot_coeffs = list(self.wm_wa_coeffs) #+ [0.0]
         # The 6th element is the constant offset, set by encoder_check.
 
     # -----------------------------------------------------------------
@@ -479,17 +479,22 @@ class ExoBoot:
             self.expected_duration = valid[len(valid) // 2]
 
     # -----------------------------------------------------------------
-    #  Motor‑to‑ankle velocity ratio  (derivative of 5th‑order poly)
+    #  Motor‑to‑ankle velocity ratio  (derivative of 4th‑order poly)
+    # used to be 5th order poly but changing to 4th order poly on 4/21 following ROM position testing (first test trial)
     # -----------------------------------------------------------------
     def _calc_wm_wa(self):
+        """ Derivative of the ankle→motor polynomial (4th-order).
+        Given the polynomial P(x) = c[0]·x^4 + c[1]·x^3 + c[2]·x^2 + c[3]·x + c[4],
+        the derivative (motor-to-ankle velocity ratio) is:
+        P'(x) = 4·c[0]·x^3 + 3·c[1]·x^2 + 2·c[2]·x + c[3] 
+        """
         x = self.ankleTicksRaw
         c = self.wm_wa_coeffs
         self.wm_wa = (
-            5 * c[0] * x**4
-            + 4 * c[1] * x**3
-            + 3 * c[2] * x**2
-            + 2 * c[3] * x
-            + c[4]
+            4 * c[0] * x**3
+            + 3 * c[1] * x**2
+            + 2 * c[2] * x
+            + c[3]
         )
         if self.wm_wa <= 0.5:          # safety clamp
             self.wm_wa = 1.0
