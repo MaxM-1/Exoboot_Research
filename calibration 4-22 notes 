@@ -1,0 +1,409 @@
+Max running ROM position test on right boot using Max 4_19 gains 
+.
+
+DataLog file: 4-22_15h25m33s_(ROM_position_test1_right_trial1)
+ROM output file: 15h25m38s_(right_trial1_Max) 
+
+With right boot on right foot, I (Max) started the ROM_position_test1 program and then after I started the program, the chain zeroed. I then went to full planterflexsion with my foot and the boot tracked it but when I was at full planterflexion and I stopped and started to dorsiflex then the program stopped as it aborted 
+
+Terminal output below:
+"
+python ROM_position_test1.py --port /dev/ttyACM0 --side right
+Loaded calibration for boot C6D9 (ankle_55 = 2663)
+Polynomial coefficients (initial): [9.353749824153902e-11, -1.485428134229325e-06, 0.008339703074754783, -7.656019804837489, -59115.09852481093]
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50905
+
+Zeroing boot — tightening chain for 3 seconds …
+Zeroing complete.
+
+Encoder check — stand still for 1 second …
+  reading 0: mot_ang = -6079
+  reading 1: mot_ang = -6079
+  reading 2: mot_ang = -6079
+  ankle reading = 4431
+  motor actual  = -6078
+  motor desired = -22471
+  offset applied = 16393
+  motor after shift = -6078 (should match actual)
+Encoder check complete.
+
+Position gains set.
+
+============================================================
+READY FOR ROM TEST
+============================================================
+The motor is now in POSITION CONTROL tracking the polynomial.
+When you press ENTER, logging will begin.
+Slowly move the ankle through the full range of motion:
+  - Full plantarflexion (toes down)
+  - Full dorsiflexion (toes up)
+  - Repeat a few times, ~3 seconds per direction
+
+If you feel anything wrong or the motor runs away:
+  Press Ctrl-C immediately.  The motor will be zeroed.
+
+Maximum test duration: 30 seconds
+============================================================
+Press ENTER to begin logging (or Ctrl-C to abort) …
+
+>>> RECORDING — move your ankle slowly through the ROM …
+
+  t=  2.0s  ankle= 3306  motor= -19274  target= -19383  err=  -109  cur= -453 mA
+  t=  4.0s  ankle= 2522  motor= -29077  target= -29030  err=    47  cur= -382 mA
+
+*** CURRENT ABORT *** |mot_cur| = -8034 mA exceeds limit 8000 mA at t=4.86s
+
+Stopping motor …
+
+============================================================
+ROM TEST SUMMARY
+============================================================
+  Samples logged: 483
+  Max |current| seen: 7892 mA
+  Fallback events (unsafe polynomial): 0
+
+  >>> No fallback events — polynomial looks safe.
+  >>> If max current stayed well under 1000 mA, you're ready to walk.
+
+  Data saved to: /home/auburn/Desktop/Exoboot_Research/ROM_test_right_2026-04-22_15h25m38s.csv
+  "
+
+======================================================================
+==========================New Trial===================================
+======================================================================
+
+I ran another ROM position test on the right boot again using gains that were calculated for me (Max) by the calibration
+4_19 day of calibration 
+
+DataLog file: 4-22_15h32m26s_(ROM_position_test1_right_trial2)
+ROM output file: 15h32m31s_(right_trial2_Max) 
+
+I had the boot (right foot) and I started flat footed in neutral ankle angle (like I normally do and did in right trial 1) and I went to full planter flexion and the boot seemed to follow but it felt a little slow with the tracking response (at least I think) and when I reached full planterflexion and began to dorsiflexion with my right foot then the boot seemed to keep trying to apply force to have me planterflex while I was trying dorsiflex and then it stopped and by looking in the terminal it seemed like the abort current was hit
+
+Terminal output below:
+
+"
+Loaded calibration for boot C6D9 (ankle_55 = 2663)
+Polynomial coefficients (initial): [9.353749824153902e-11, -1.485428134229325e-06, 0.008339703074754783, -7.656019804837489, -59115.09852481093]
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50905
+
+Zeroing boot — tightening chain for 3 seconds …
+Zeroing complete.
+
+Encoder check — stand still for 1 second …
+  reading 0: mot_ang = -7950
+  reading 1: mot_ang = -7949
+  reading 2: mot_ang = -7949
+  ankle reading = 4285
+  motor actual  = -7948
+  motor desired = -24130
+  offset applied = 16182
+  motor after shift = -7948 (should match actual)
+Encoder check complete.
+
+Position gains set.
+
+============================================================
+READY FOR ROM TEST
+============================================================
+The motor is now in POSITION CONTROL tracking the polynomial.
+When you press ENTER, logging will begin.
+Slowly move the ankle through the full range of motion:
+  - Full plantarflexion (toes down)
+  - Full dorsiflexion (toes up)
+  - Repeat a few times, ~3 seconds per direction
+
+If you feel anything wrong or the motor runs away:
+  Press Ctrl-C immediately.  The motor will be zeroed.
+
+Maximum test duration: 30 seconds
+============================================================
+Press ENTER to begin logging (or Ctrl-C to abort) …
+
+>>> RECORDING — move your ankle slowly through the ROM …
+
+  t=  2.0s  ankle= 4215  motor=  -8732  target=  -8750  err=   -18  cur=-5568 mA
+  t=  4.0s  ankle= 3204  motor= -20904  target= -20851  err=    53  cur= -899 mA
+
+*** CURRENT ABORT *** |mot_cur| = -8285 mA exceeds limit 8000 mA at t=6.02s
+
+Stopping motor …
+
+============================================================
+ROM TEST SUMMARY
+============================================================
+  Samples logged: 598
+  Max |current| seen: 7997 mA
+  Fallback events (unsafe polynomial): 0
+
+  >>> No fallback events — polynomial looks safe.
+  >>> If max current stayed well under 1000 mA, you're ready to walk.
+
+  Data saved to: /home/auburn/Desktop/Exoboot_Research/ROM_test_right_2026-04-22_15h32m31s.csv
+"
+
+
+======================================================================
+==========================New Trial===================================
+======================================================================
+
+DataLog file: 4-22_15h43m29s_(ROM_position_test1_left_trial1)_sav
+ROM output file: 15h43m34s_(left_trial1_Sav) 
+
+This trial has Savannah or 'Sav' (another member of our research lab) doing the ROM test (same one that Max (me) was using and the same one that is used before) using Max's calibration values from 4_19
+
+Note: Savannah (sav) also did the same calibration that I did and I have values for her but I wanted to have her use my calibration values to see if there would be any difference as I think that in my actual experiment that I am going to need to have each participant do the calibration and there is not one singular calibration to get the calibration values that will work for everyone so I think that each participant I have in my study and in savannah's study will need to do the calibration for themselves 
+
+Note2: I am having Savannah do some of teh ROM testing using my calibration values and my plan is to also MAYBE have myself do the ROM test using savannahs calibration values 
+
+Here is how it went: 
+Doing the left boot on savannah , 
+She felt no force felt when zero chain is supposed to happen 
+I felt the chain on the left boot and was already tight , started position ROM test and savannah said she felt very little force felt throughout 
+chain started with no slack ( was already tight)
+
+Terminal output below:
+
+"
+Loaded calibration for boot C719 (ankle_55 = 5935)
+Polynomial coefficients (initial): [-1.897366210015303e-10, 3.231551075036516e-06, -0.02031289138370717, 68.03589687311457, -64018.97610468795]
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Zeroing boot — tightening chain for 3 seconds …
+Zeroing complete.
+
+Encoder check — stand still for 1 second …
+  reading 0: mot_ang = 13528
+  reading 1: mot_ang = 13527
+  reading 2: mot_ang = 13527
+  ankle reading = 4138
+  motor actual  = 13528
+  motor desired = 43036
+  offset applied = -29508
+  motor after shift = 13528 (should match actual)
+Encoder check complete.
+
+Position gains set.
+
+============================================================
+READY FOR ROM TEST
+============================================================
+The motor is now in POSITION CONTROL tracking the polynomial.
+When you press ENTER, logging will begin.
+Slowly move the ankle through the full range of motion:
+  - Full plantarflexion (toes down)
+  - Full dorsiflexion (toes up)
+  - Repeat a few times, ~3 seconds per direction
+
+If you feel anything wrong or the motor runs away:
+  Press Ctrl-C immediately.  The motor will be zeroed.
+
+Maximum test duration: 30 seconds
+============================================================
+Press ENTER to begin logging (or Ctrl-C to abort) …
+
+>>> RECORDING — move your ankle slowly through the ROM …
+
+  t=  2.0s  ankle= 4645  motor=  19724  target=  19769  err=    45  cur=  424 mA
+  t=  4.0s  ankle= 5210  motor=  26783  target=  26774  err=    -9  cur=  229 mA
+  t=  6.0s  ankle= 5742  motor=  32937  target=  32940  err=     3  cur=  370 mA
+  t=  8.0s  ankle= 5887  motor=  34443  target=  34445  err=     2  cur=  -87 mA
+  t= 10.0s  ankle= 5771  motor=  33222  target=  33249  err=    27  cur= -171 mA
+  t= 12.1s  ankle= 4767  motor=  21110  target=  21288  err=   178  cur= -264 mA
+  t= 14.1s  ankle= 4084  motor=  12889  target=  12873  err=   -16  cur=  -44 mA
+  t= 16.1s  ankle= 3663  motor=   7870  target=   7806  err=   -64  cur= -379 mA
+  t= 18.1s  ankle= 3168  motor=   1797  target=   1781  err=   -16  cur= -343 mA
+  t= 20.1s  ankle= 2835  motor=  -2727  target=  -2529  err=   198  cur=  309 mA
+^C
+
+[Ctrl-C received — stopping motor and saving data …]
+
+Stopping motor …
+
+============================================================
+ROM TEST SUMMARY
+============================================================
+  Samples logged: 2112
+  Max |current| seen: 1523 mA
+  Fallback events (unsafe polynomial): 0
+
+  >>> No fallback events — polynomial looks safe.
+  >>> If max current stayed well under 1000 mA, you're ready to walk.
+
+  Data saved to: /home/auburn/Desktop/Exoboot_Research/ROM_test_left_2026-04-22_15h43m34s.csv
+"
+
+
+
+======================================================================
+==========================New Trial===================================
+======================================================================
+
+DataLog file: 4-22_15h46m37s_(ROM_position_test1_right_trial1)_sav
+ROM output file: 15h46m41s_(right_trial1_Sav) 
+
+Sav on right boot now, still using my calibration values and not hers
+
+Here is how it went:
+Chain started with slack (I visually checked) and motor did apply force to zero the chain
+tracked position for little short period of time while savannah was doing planterflexion motion and then hit current limit
+
+Terminal output:
+
+"
+Loaded calibration for boot C6D9 (ankle_55 = 2663)
+Polynomial coefficients (initial): [9.353749824153902e-11, -1.485428134229325e-06, 0.008339703074754783, -7.656019804837489, -59115.09852481093]
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50905
+
+Zeroing boot — tightening chain for 3 seconds …
+Zeroing complete.
+
+Encoder check — stand still for 1 second …
+  reading 0: mot_ang = -9982
+  reading 1: mot_ang = -9981
+  reading 2: mot_ang = -9983
+  ankle reading = 4120
+  motor actual  = -9980
+  motor desired = -26029
+  offset applied = 16049
+  motor after shift = -9980 (should match actual)
+Encoder check complete.
+
+Position gains set.
+
+============================================================
+READY FOR ROM TEST
+============================================================
+The motor is now in POSITION CONTROL tracking the polynomial.
+When you press ENTER, logging will begin.
+Slowly move the ankle through the full range of motion:
+  - Full plantarflexion (toes down)
+  - Full dorsiflexion (toes up)
+  - Repeat a few times, ~3 seconds per direction
+
+If you feel anything wrong or the motor runs away:
+  Press Ctrl-C immediately.  The motor will be zeroed.
+
+Maximum test duration: 30 seconds
+============================================================
+Press ENTER to begin logging (or Ctrl-C to abort) …
+
+>>> RECORDING — move your ankle slowly through the ROM …
+
+  t=  2.0s  ankle= 2273  motor= -31945  target= -32329  err=  -384  cur=-7303 mA
+
+*** CURRENT ABORT *** |mot_cur| = -8172 mA exceeds limit 8000 mA at t=2.05s
+
+Stopping motor …
+
+============================================================
+ROM TEST SUMMARY
+============================================================
+  Samples logged: 204
+  Max |current| seen: 7569 mA
+  Fallback events (unsafe polynomial): 0
+
+  >>> No fallback events — polynomial looks safe.
+  >>> If max current stayed well under 1000 mA, you're ready to walk.
+
+  Data saved to: /home/auburn/Desktop/Exoboot_Research/ROM_test_right_2026-04-22_15h46m42s.csv
+
+"
+
+
+
+
+======================================================================
+==========================New Trial===================================
+======================================================================
+
+DataLog file: 4-22_15h52m06s_(ROM_position_test1_left_trial2)_sav
+ROM output file: N/A 
+
+
+Savannah trial 2 with left boot , checked for slack in chain , for sure has slack in chain fomr visual inspection
+
+With slack in chain the ROM position file was ran and it zeroed the left boot and got rid of the slack in the chain 
+
+once it zeroed - gave runtime error
+
+Terminal output below:
+
+"
+Loaded calibration for boot C719 (ankle_55 = 5935)
+Polynomial coefficients (initial): [-1.897366210015303e-10, 3.231551075036516e-06, -0.02031289138370717, 68.03589687311457, -64018.97610468795]
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Zeroing boot — tightening chain for 3 seconds …
+Zeroing complete.
+
+Encoder check — stand still for 1 second …
+RuntimeError: Error: not connected.
+"
+did not generate ROM test file but did generate datalog file?
+
+
+
+======================================================================
+==========================New Trial===================================
+======================================================================
+
+DataLog file: 4-22_15h56m14s_(ROM_position_test1_left_trial3)_sav
+ROM output file: 15h56m19s_(left_trial3_Sav)  
+Note: in ROM output file I am calling this trial 3 as trial 2 with the left boot that was previously ran had a runtime error and crashed  
+
+Running left boot again ROM test with savannah as last one gave runtime error
+Chain has slack in it - checked visually  
+
+Chain zeroed to go from having slack to no slack  
+
+Savannah planterflexed and the motor gave force (savannah said it was giving assistance in planterflexion, all the way from neutral to max. planter flexion)
+when at max. planterflexion went to dorsiflex ankle and savannah said she felt resistance 
+-only got part of the way through dorsiflex (gave resistance wjile trying to dorsiflex)
+- while dorsiflexing (doing dorsiflexion) it cutoff with current abort 
+
+terminal output: 
+
+"
+Loaded calibration for boot C719 (ankle_55 = 5935)
+Polynomial coefficients (initial): [-1.897366210015303e-10, 3.231551075036516e-06, -0.02031289138370717, 68.03589687311457, -64018.97610468795]
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Zeroing boot — tightening chain for 3 seconds …
+Zeroing complete.
+
+Encoder check — stand still for 1 second …
+RuntimeError: Error: not connected.
+
+"
+
+=========================
+Final note
+=========================
+*all of these were ran with my 4_19 calibration values (both savannah and I (my name is max) trials were ran with max's calibration values from 4_19)
+
+.
