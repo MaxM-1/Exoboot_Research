@@ -69,7 +69,12 @@ CURRENT_GAINS = {"kp": 40, "ki": 400, "kd": 0, "k": 0, "b": 0, "ff": 128}
 
 
 #POSITION_GAINS = {"kp": 175, "ki": 50, "kd": 0, "k": 0, "b": 0, "ff": 0} old values 
+
 POSITION_GAINS = {"kp": 100, "ki": 20, "kd": 35, "k": 0, "b": 0, "ff": 0}
+#above are prev gains used in walking trial - commenting out for now for ROM_position test2 import
+
+#POSITION_GAINS = {"kp": 100, "ki": 0, "kd": 35, "k": 0, "b": 0, "ff": 0} #gain adjustment for ROM position test 2
+
 
 # ==============================================================================
 # Perception‑Test Protocol
