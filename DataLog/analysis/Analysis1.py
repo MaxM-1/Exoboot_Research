@@ -23,6 +23,8 @@ Usage
 -----
     # Analyze a specific file
     python DataLog/analysis/Analysis1.py DataLog/Data2026-04-19_13h15m55s_.csv
+    -or-
+    python DataLog/analysis/Analysis1.py "DataLog/Data2026-04-19_13h15m55s_.csv"
 
     # Pick the most recent DataLog CSV automatically
     python DataLog/analysis/Analysis1.py --latest
