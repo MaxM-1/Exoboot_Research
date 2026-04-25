@@ -1,0 +1,383 @@
+for some reason this automade into a python file but it should be a .txt file
+
+look on laptop in downloads for images created in troubleshooting 
+
+move those images to RESOURCES -> in new 4_25 folder as they are helpful to see HOW 
+previous round of testing failed for me and malek but not for savannah 
+
+troubleshooting with cld - confusion that I was running maleks calibration values but I clarified that all of the walking tests were done with my values 
+cld says calibration is not the problem after clafification on calibration 
+-says that the fitment is good for calibration and thinks issue is maybe with the agins 
+
+cld made a plot_position_gain_test.py file and a position_gain_test file 
+both on 4_25 
+-I put them in the calibration folder and had them start with teh z_[...] to avoid confusion
+
+====================================================================
+                        New written note below:
+====================================================================
+
+Max
+ran the position_gain_test_4_25 on left boot
+it felt like for each trial it was harder and harder to dorsiflex
+(as kp was increasing)
+terminal output below:
+
+
+"
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) ...
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Loaded polynomial for boot C719: poly4..poly0 = -1.897e-10, +3.232e-06, -2.031e-02, +6.804e+01, -6.402e+04
+
+>>> Wear the boot, stand still on a flat surface.
+    Then press ENTER to tighten the chain ... 
+Tightening chain ...
+Encoder check ...
+  reading 0: mot_ang = 27473
+  reading 1: mot_ang = 27473
+  reading 2: mot_ang = 27473
+  ankle         = 4206
+  motor actual  = 27473
+  motor desired = 43864
+  offset        = -16391
+  motor shifted = 27473
+  Polynomial anchored ✓
+
+
+>>> Trial: kp=10, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+
+>>> Trial: kp=20, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=30, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ...  
+    Trial complete: 1000 samples
+
+>>> Trial: kp=50, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=100, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+Full trial data → /home/auburn/Desktop/Exoboot_Research/calibration/position_gain_test_2026-04-25_16h53m32s.csv
+
+========================================================================================
+   kp  samples   |cur|max   |cur|p95   |cur|mean   |err|p95   |err|max    aborted
+----------------------------------------------------------------------------------------
+   10     1000       5165       4644        1763        192       2889         no
+   20     1000       5479       4636        2085        369       2146         no
+   30     1000       5323       4627        1926        269       1857         no
+   50     1000       5423       4451        2241        135       1809         no
+  100     1000       5434       4380        2678        136       5127         no
+========================================================================================
+
+Interpretation:
+  * A 'good' kp keeps |cur|max well below the abort threshold AND
+    keeps |err|p95 small (motor faithfully tracks the polynomial).
+  * If |cur|max is at the abort threshold, that kp is too aggressive
+    for this hardware/sampling-rate combo.
+  * If |err|p95 is large (>1000 ticks) AND |cur| is small, the gain
+    is too low — the controller is sluggish.
+
+Done.
+"
+
+====================================================================
+                        New written note below:
+====================================================================
+position_gain_test performed by Max on right boot:
+
+ran the test on the right boot and I did not really feel anything when kp was 10 but when kp was 20 I did not really feel any sort of tracking and then all of a sudden I felt a jolt of force and from the terminal it aborted but then after that jolt I did not feel anything 
+
+Terminal output below:
+
+"
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) ...
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50905
+
+Loaded polynomial for boot C6D9: poly4..poly0 = +9.354e-11, -1.485e-06, +8.340e-03, -7.656e+00, -5.912e+04
+
+>>> Wear the boot, stand still on a flat surface.
+    Then press ENTER to tighten the chain ... 
+Tightening chain ...
+Encoder check ...
+  reading 0: mot_ang = -11937
+  reading 1: mot_ang = -11937
+  reading 2: mot_ang = -11937
+  ankle         = 3911
+  motor actual  = -11937
+  motor desired = -28472
+  offset        = +16535
+  motor shifted = -11937
+  Polynomial anchored ✓
+
+
+>>> Trial: kp=10, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+
+    Trial complete: 1000 samples
+
+>>> Trial: kp=20, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ...   !! ABORT |mot_cur|=8089 mA > 8000 mA at t=0.17s
+    Trial complete: 18 samples   [ABORTED at t=0.17s]
+
+>>> Trial: kp=30, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=50, ki=20, kd=35, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... ^C
+Interrupted — stopping motor and closing device.
+"
+Note: no output file was generated in the calibration folder for the right boot because I ctrl+c the program and stopped it after I did not feel anything but I still have the datalog file
+.
+
+
+====================================================================
+                        New written note below:
+====================================================================
+
+Testing procedure:
+Test 1: Re-run on Max LEFT with --kd 0
+
+python calibration/position_gain_test.py --port /dev/ttyACM0 --side left --kd 0
+
+->
+I ran it:
+
+Datalog file name: Data2026-04-25_17h37m27s_Max_position_gain_test_left_trial2.csv
+
+Calibration output file name:
+left_position_gain_test_Max_2026-04-25_17h38m43s.csv
+
+It was tracking me in planterflexion but I felt resistance on dorsiflexion
+
+below is the terminal output:
+
+"
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) ...
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Loaded polynomial for boot C719: poly4..poly0 = -1.897e-10, +3.232e-06, -2.031e-02, +6.804e+01, -6.402e+04
+
+>>> Wear the boot, stand still on a flat surface.
+    Then press ENTER to tighten the chain ... 
+Tightening chain ...
+Encoder check ...
+  reading 0: mot_ang = 32122
+  reading 1: mot_ang = 32122
+  reading 2: mot_ang = 32122
+  ankle         = 4588
+  motor actual  = 32122
+  motor desired = 48568
+  offset        = -16446
+  motor shifted = 32122
+  Polynomial anchored ✓
+
+
+>>> Trial: kp=10, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=20, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=30, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=50, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=100, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+Full trial data → /home/auburn/Desktop/Exoboot_Research/calibration/position_gain_test_2026-04-25_17h38m43s.csv
+
+========================================================================================
+   kp  samples   |cur|max   |cur|p95   |cur|mean   |err|p95   |err|max    aborted
+----------------------------------------------------------------------------------------
+   10     1000       3767       2764        1037        242       1238         no
+   20     1000       4114       3123        1384        380       2099         no
+   30     1000       3460       3028        1405        129        625         no
+   50     1000       3398       2669        1272        176       2956         no
+  100     1000       3236       2721        1348        184       3807         no
+========================================================================================
+
+Interpretation:
+  * A 'good' kp keeps |cur|max well below the abort threshold AND
+    keeps |err|p95 small (motor faithfully tracks the polynomial).
+  * If |cur|max is at the abort threshold, that kp is too aggressive
+    for this hardware/sampling-rate combo.
+  * If |err|p95 is large (>1000 ticks) AND |cur| is small, the gain
+    is too low — the controller is sluggish.
+
+Done.
+"
+
+====================================================================
+                        New written note below:
+====================================================================
+
+Test2: Running with Savannah
+
+Savannah said she felt tracking during planterflexion and then resistance at dorsiflexion
+
+Datalog file: Data2026-04-25_17h46m54s_Sav_position_gain_test_left_trial1.csv
+
+Calilbration output file: 
+left_position_gain_test_Sav_2026-04-25_17h48m14s.csv
+
+Terminal output:
+
+"
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) ...
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Loaded polynomial for boot C719: poly4..poly0 = -1.897e-10, +3.232e-06, -2.031e-02, +6.804e+01, -6.402e+04
+
+>>> Wear the boot, stand still on a flat surface.
+    Then press ENTER to tighten the chain ... 
+Tightening chain ...
+Encoder check ...
+  reading 0: mot_ang = 27737
+  reading 1: mot_ang = 27737
+  reading 2: mot_ang = 27737
+  ankle         = 4227
+  motor actual  = 27737
+  motor desired = 44120
+  offset        = -16383
+  motor shifted = 27737
+  Polynomial anchored ✓
+
+
+>>> Trial: kp=10, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=20, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=30, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=50, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+>>> Trial: kp=100, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+    Trial complete: 1000 samples
+
+Full trial data → /home/auburn/Desktop/Exoboot_Research/calibration/position_gain_test_2026-04-25_17h48m14s.csv
+
+========================================================================================
+   kp  samples   |cur|max   |cur|p95   |cur|mean   |err|p95   |err|max    aborted
+----------------------------------------------------------------------------------------
+   10     1000       7993       6996        3255        630       1942         no
+   20     1000       7131       6683        3303        571       4148         no
+   30     1000       7291       6467        3285        448       4523         no
+   50     1000       7238       6774        3618        414       7441         no
+  100     1000       7199       6493        3067        377       5230         no
+========================================================================================
+
+Interpretation:
+  * A 'good' kp keeps |cur|max well below the abort threshold AND
+    keeps |err|p95 small (motor faithfully tracks the polynomial).
+  * If |cur|max is at the abort threshold, that kp is too aggressive
+    for this hardware/sampling-rate combo.
+  * If |err|p95 is large (>1000 ticks) AND |cur| is small, the gain
+    is too low — the controller is sluggish.
+
+Done.
+"
+
+
+
+
+====================================================================
+                        New written note below:
+====================================================================
+
+
+
+
+
+
