@@ -352,3 +352,164 @@ Shutting down boots …
 "
 .
 
+=================================================
+=================================================
+=================================================
+
+~~~~~~~~made following changes to exo_init ~~~~~~~~
+
+def _desired_motor_position(self):
+    ank_clamped = max(self.ank_min, min(self.ank_max, self.ankleTicksRaw))
+    motor_angle = np.floor(
+        np.polyval(self.ank_mot_coeffs, ank_clamped)
+        - self.side * self.magnitude
+        - (self.kinematicCoeffs[0] * self.ankleVel_filt[0]
+           + self.kinematicCoeffs[1])
+    )
+    return motor_angle
+
+# In whichever method calls _set_position_gains:
+def _set_position_gains(self):
+    # Use soft gains when ankle is outside the calibrated range
+    if (self.ankleTicksRaw < self.ank_min or 
+        self.ankleTicksRaw > self.ank_max):
+        if self._gains_mode != "position_soft":
+            self.device.set_gains(kp=10, ki=0, kd=0, k=0, b=0, ff=0)
+            self._gains_mode = "position_soft"
+    else:
+        if self._gains_mode != "position":
+            self.device.set_gains(**POSITION_GAINS)
+            self._gains_mode = "position"
+
+=================================================
+Running another test same procedure as BEFORE
+
+FELT GOOD!!!!!!!! 
+Profile still felt a little delayed but both boots were working well for a time 
+Right boot still failed after a while and left one kept going but that was only thing observed 
+in addition to the profile being a little delayed 
+
+Also noting that the data file output (P001_Familiarization_....) is left empty after the triel ended 
+
+GUI output:
+"
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Calibrated ankle range: [2316, 5748]
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Calibrated ankle range: [2513, 5929]
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 32651
+  reading 1: mot_ang = 32651
+  reading 2: mot_ang = 32651
+  ankle  = 4628
+  motor actual  = 32651
+  motor desired = 32157.0
+  offset        = 494.0
+  motor shifted = 32651.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -13418
+  reading 1: mot_ang = -13418
+  reading 2: mot_ang = -13418
+  ankle  = 3802
+  motor actual  = -13418
+  motor desired = -13583.0
+  offset        = 165.0
+  motor shifted = -13418.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting familiarization …
+=== Familiarization ===
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [L DBG @1000] gz=3  min/max=-9/17  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-11  min/max=-40/0  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [L DBG @2000] gz=12  min/max=-9/18  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-9  min/max=-40/0  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  Left  gyroz  min=-9  max=18  state_time 24398→26618 (Δ=2220)
+  Right gyroz  min=-40  max=-4  state_time 21992→24212 (Δ=2220)
+  Thresholds:  ARM >= 3280   TRIGGER <= -4920
+Sensor check complete — starting control loop.
+t_rise=25.3%  t_fall=10.3%  t_peak=51.3%
+  [L CMD @500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.77
+  [R CMD @500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.15
+  [L ARM] gz=3372  t=33428
+  [R ARM] gz=3348  t=31722
+  [L ARM] gz=3469  t=34898
+  [R ARM] gz=4245  t=33262
+  [L ARM] gz=3602  t=36488
+  [L DBG @1000] gz=-1067  min/max=-6157/9596  arm_thr=3280  trg_thr=-4920  armed=True  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-4763  min/max=-4763/8475  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R ARM] gz=4761  t=34662
+  [L ARM] gz=3671  t=37828
+  [R ARM] gz=4366  t=35972
+  [L ARM] gz=3617  t=39038
+  [R ARM] gz=3656  t=37202
+  [L ARM] gz=3408  t=40328
+  [R ARM] gz=5186  t=38502
+  [L ARM] gz=3310  t=41558
+  [L CMD @1500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.61
+  [R CMD @1500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.47
+  [R ARM] gz=3404  t=39812
+  [L ARM] gz=3440  t=42808
+  [R ARM] gz=3409  t=41022
+  Right heel‑strike #1  (armed_time=500  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3436  t=44098
+  [R ARM] gz=3395  t=42312
+  [L ARM] gz=3486  t=45348
+  [R ARM] gz=4449  t=43512
+  [L ARM] gz=3346  t=46588
+  [R ARM] gz=3583  t=44742
+  [L DBG @2000] gz=-3161  min/max=-8417/10435  arm_thr=3280  trg_thr=-4920  armed=True  HS=0  exp_dur=-1
+  [R DBG @2000] gz=7022  min/max=-6469/12716  arm_thr=3280  trg_thr=-4920  armed=True  HS=1  exp_dur=-1
+  [L ARM] gz=3562  t=47818
+  [R ARM] gz=3566  t=46042
+  [L ARM] gz=3430  t=49068
+  [R ARM] gz=3550  t=47302
+  [L ARM] gz=3442  t=50308
+  [R ARM] gz=3800  t=48542
+  Right heel‑strike #2  (armed_time=410  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3366  t=51558
+  [R ARM] gz=3598  t=49842
+  [L CMD @2500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=11.72
+  [R CMD @2500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=2  wm_wa=11.56
+  [L ARM] gz=3429  t=52788
+  [R ARM] gz=3617  t=51052
+  Right heel‑strike #3  (armed_time=370  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3456  t=54008
+  [R ARM] gz=6272  t=52202
+  Right heel‑strike #4  (armed_time=450  thresh=247.0  exp_dur=2470.0)
+  [L ARM] gz=3395  t=55298
+  [R ARM] gz=3885  t=53502
+  Right heel‑strike #5  (armed_time=410  thresh=247.0  exp_dur=2470.0)
+  [L ARM] gz=4627  t=56448
+  [R ARM] gz=3761  t=54712
+  Right heel‑strike #6  (armed_time=410  thresh=126.0  exp_dur=1260.0)
+  [L ARM] gz=3599  t=57748
+  [L DBG @3000] gz=5817  min/max=-8417/11757  arm_thr=3280  trg_thr=-4920  armed=True  HS=0  exp_dur=-1
+  [R DBG @3000] gz=-1631  min/max=-12876/12716  arm_thr=3280  trg_thr=-4920  armed=False  HS=6  exp_dur=1230
+  [R ARM] gz=3386  t=55962
+  Right heel‑strike #7  (armed_time=410  thresh=123.0  exp_dur=1230.0)
+>>> STOP requested
+Familiarization data saved → /home/auburn/Desktop/Exoboot_Research/data
+Familiarization ended.
+Shutting down boots …
+"
+.
+
+
+=================================================
+=================================================
+=================================================

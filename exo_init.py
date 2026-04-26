@@ -675,25 +675,27 @@ class ExoBoot:
             self._gains_mode = "current"
 
     def _set_position_gains(self):
-        if self._gains_mode != "position":
-            self.device.set_gains(**POSITION_GAINS)
-            self._gains_mode = "position"
-
+        # Use soft gains when ankle is outside the calibrated range
+        if (self.ankleTicksRaw < self.ank_min or 
+            self.ankleTicksRaw > self.ank_max):
+            if self._gains_mode != "position_soft":
+                self.device.set_gains(kp=10, ki=0, kd=0, k=0, b=0, ff=0)
+                self._gains_mode = "position_soft"
+        else:
+                if self._gains_mode != "position":
+                    self.device.set_gains(**POSITION_GAINS)
+                    self._gains_mode = "position"
+                    
     # -----------------------------------------------------------------
     #  Desired motor position from ankle angle
     # -----------------------------------------------------------------
     def _desired_motor_position(self):
-        # Clamp ankle to calibrated range so the polynomial doesn't
-        # extrapolate during deep dorsiflexion / plantarflexion peaks
-        # that exceed the bench-cal sweep coverage.
-        ank_clamped = max(
-            self.ank_min, min(self.ank_max, self.ankleTicksRaw)
-        )
+        ank_clamped = max(self.ank_min, min(self.ank_max, self.ankleTicksRaw))
         motor_angle = np.floor(
             np.polyval(self.ank_mot_coeffs, ank_clamped)
             - self.side * self.magnitude
             - (self.kinematicCoeffs[0] * self.ankleVel_filt[0]
-               + self.kinematicCoeffs[1])
+                + self.kinematicCoeffs[1])
         )
         return motor_angle
 
