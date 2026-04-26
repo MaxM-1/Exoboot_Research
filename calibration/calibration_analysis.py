@@ -11,8 +11,8 @@ Usage::
     python calibration/calibration_analysis.py \\
         --csv calibration/left_boot_calib_2026-02-26_10h30m00s.csv \\
         --side left \\
-        --boot-id AB1F \\
-        --ankle-55 8170
+        --boot-id C719 \\
+        --ankle-55 7970
 
 The script also produces diagnostic plots so you can verify the fit.
 """
