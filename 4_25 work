@@ -375,9 +375,103 @@ Done.
 ====================================================================
                         New written note below:
 ====================================================================
+plugged in above into claude in projects 
+
+===============================================================================
+===============================================================================
+===============================================================================
+===============================================================================
+===============================================================================
+
+Test A: with savannah asking to gradually push dorsiflexion and see what happens - left boot 
+
+python calibration/z_position_gain_test_4_25.py --port /dev/ttyACM0 --side left --kd 0 --kp-list 50
+
+Ran: 
+Datalog file:
+Data2026-04-25_18h17m59s_Sav_position_gain_test_left_UntilFailure.csv
+
+left_position_gain_test_Sav2_2026-04-25_18h18m13s.csv
+
+Terminal Output:
+"
+python calibration/z_position_gain_test_4_25.py --port /dev/ttyACM0 --side left --kd 0 --kp-list 50
+
+Connecting to ExoBoot on /dev/ttyACM0 (fw 7.2.0) ...
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+Connected — device ID 50969
+
+Loaded polynomial for boot C719: poly4..poly0 = -1.897e-10, +3.232e-06, -2.031e-02, +6.804e+01, -6.402e+04
+
+>>> Wear the boot, stand still on a flat surface.
+    Then press ENTER to tighten the chain ... 
+Tightening chain ...
+Encoder check ...
+  reading 0: mot_ang = 11614
+  reading 1: mot_ang = 11614
+  reading 2: mot_ang = 11614
+  ankle         = 4249
+  motor actual  = 11614
+  motor desired = 44389
+  offset        = -32775
+  motor shifted = 11614
+  Polynomial anchored ✓
 
 
+>>> Trial: kp=50, ki=20, kd=0, ff=0
+    Hold position-control for 10.0 s.
+    Gently dorsi/plantar flex your ankle by ~5 degrees during the trial.
+    Move slowly — the goal is to characterize, not to provoke.
+    Press ENTER when ready ... 
+  !! ABORT |mot_cur|=8153 mA > 8000 mA at t=2.42s
+    Trial complete: 237 samples   [ABORTED at t=2.42s]
+
+Full trial data → /home/auburn/Desktop/Exoboot_Research/calibration/position_gain_test_2026-04-25_18h18m13s.csv
+
+========================================================================================
+   kp  samples   |cur|max   |cur|p95   |cur|mean   |err|p95   |err|max    aborted
+----------------------------------------------------------------------------------------
+   50      237       8153       6254        2036        957       1597    t=2.42s
+========================================================================================
+
+Interpretation:
+  * A 'good' kp keeps |cur|max well below the abort threshold AND
+    keeps |err|p95 small (motor faithfully tracks the polynomial).
+  * If |cur|max is at the abort threshold, that kp is too aggressive
+    for this hardware/sampling-rate combo.
+  * If |err|p95 is large (>1000 ticks) AND |cur| is small, the gain
+    is too low — the controller is sluggish.
+
+Done.
+"
+.
+========================================================
 
 
+===============================================================================
+===============================================================================
 
+Test B: extending calibration on the left boot
+THIS WAS RAN WITH MAX WEARING THE BOOT
 
+Ran: python calibration/boot_calibration.py --port /dev/ttyACM0 --side left --collect-time 25
+
+Note: I started in planterflexion and I hit my full dorsiflexion pretty quick and then just held it there until the calibration 
+
+file name: left_boot_calib_2026-04-25_19h23m53s_adjusted_Max1.csv
+
+datalog: Data2026-04-25_19h23m15s_left_Max_adjusted_calibration.csv
+
+I then tried to run the following command:
+
+python calibration/calibration_analysis.py --csv calibration/left_boot_calib_<new>.csv --side left --boot-id C719 --ankle-55 <existing_value>
+
+But I got an error in the terminal: 
+bash: syntax error near unexpected token `newline'
+
+===============================================================================
+===============================================================================
+plugged into claude
+===============================================================================
+===============================================================================
