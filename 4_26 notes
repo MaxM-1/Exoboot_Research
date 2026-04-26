@@ -82,3 +82,108 @@ Shutting down boots …
 
 "
 ===========================================================================
+Max walking test:
+Doing walking test at 1.25 m/s^2 with save calibration and gains as before
+BUT pressing "start familiarization" BEFORE the treadmill is started 
+
+Using POSITION_GAINS = {"kp": 100, "ki": 20, "kd": 0, "k": 0, "b": 0, "ff": 0} 
+
+On the treadmill with the exos connected and zerod I started familiarization and waited roughly 20 seconds 
+while I was in the familiarization until teh treadmill was started at 1.25m/s^2
+
+When treadmill started, both right and left boots were giving force but after ~3ith steps the right boot failed 
+and the left boot kept going but it felt very wrong, giving me torque at seemingly random times 
+cant tell super well what was going on with left boot from a perception standpoint but it just felt wrong 
+and like it was kind of randomly applying torque 
+
+GUI output:
+"
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 28927
+  reading 1: mot_ang = 28927
+  reading 2: mot_ang = 28927
+  ankle  = 4330
+  motor actual  = 28927
+  motor desired = 45381.0
+  offset        = -16454.0
+  motor shifted = 28927.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -11802
+  reading 1: mot_ang = -11802
+  reading 2: mot_ang = -11802
+  ankle  = 3928
+  motor actual  = -11802
+  motor desired = -28272.0
+  offset        = 16470.0
+  motor shifted = -11802.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting familiarization …
+=== Familiarization ===
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [L DBG @1000] gz=2  min/max=-14/19  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-21  min/max=-29/0  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [L DBG @2000] gz=9  min/max=-14/26  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-10  min/max=-33/15  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  Left  gyroz  min=-14  max=26  state_time 25309→27579 (Δ=2270)
+  Right gyroz  min=-33  max=15  state_time 23085→25355 (Δ=2270)
+  Thresholds:  ARM >= 3280   TRIGGER <= -4920
+Sensor check complete — starting control loop.
+t_rise=25.3%  t_fall=10.3%  t_peak=51.3%
+  [L CMD @500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.28
+  [R CMD @500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=11.75
+  [L DBG @1000] gz=-3  min/max=-20/27  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-15  min/max=-66/70  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [L ARM] gz=3350  t=40379
+  [R ARM] gz=4596  t=38885
+  [L ARM] gz=3459  t=42069
+  [R ARM] gz=9123  t=40505
+  [L CMD @1500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.03
+  [R CMD @1500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.31
+  [L ARM] gz=3411  t=43579
+  [R ARM] gz=3803  t=41995
+  Right heel‑strike #1  (armed_time=440  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3404  t=44819
+  Left heel‑strike #1  (armed_time=470  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=4828  t=43265
+  [L ARM] gz=3603  t=46099
+  [R ARM] gz=3763  t=44555
+  Right heel‑strike #2  (armed_time=340  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3297  t=47389
+  [R ARM] gz=3413  t=45835
+  [L DBG @2000] gz=-3567  min/max=-7512/9959  arm_thr=3280  trg_thr=-4920  armed=True  HS=1  exp_dur=-1
+  [R DBG @2000] gz=8102  min/max=-5827/11377  arm_thr=3280  trg_thr=-4920  armed=True  HS=2  exp_dur=2460
+  [L ARM] gz=3715  t=48689
+  Right heel‑strike #3  (armed_time=1090  thresh=246.0  exp_dur=2460.0)
+  [R ARM] gz=3700  t=47105
+  Left heel‑strike #2  (armed_time=710  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3348  t=49939
+  Right heel‑strike #4  (armed_time=1100  thresh=246.0  exp_dur=2460.0)
+  [R ARM] gz=3650  t=48375
+  [L ARM] gz=3671  t=51179
+  Right heel‑strike #5  (armed_time=1110  thresh=203.0  exp_dur=2030.0)
+  [R ARM] gz=4360  t=49645
+  Left heel‑strike #3  (armed_time=750  thresh=100.0  exp_dur=-1.0)
+>>> STOP requested
+Familiarization data saved → /home/auburn/Desktop/Exoboot_Research/data
+Familiarization ended.
+Shutting down boots …
+"
+
+=================================================
