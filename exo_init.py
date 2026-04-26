@@ -254,6 +254,28 @@ class ExoBoot:
         self.ank_mot_coeffs = list(self.wm_wa_coeffs) #+ [0.0]
         # The 6th element is the constant offset, set by encoder_check.
 
+        # ---- Working ankle range (written by calibration_analysis2.py) ----
+        # The polynomial is only valid between ank_min and ank_max — the
+        # bounds of the engaged-sweep region during bench calibration.
+        # Outside this range the 4th-order fit extrapolates badly, so we
+        # clamp the ankle input before evaluating polyval and its derivative.
+        # If ank_min/ank_max are missing from the cal file (legacy entries)
+        # we fall back to (-inf, +inf) and skip clamping for backward
+        # compatibility.
+        try:
+            self.ank_min = cfg.getint(self.boot_id, "ank_min")
+            self.ank_max = cfg.getint(self.boot_id, "ank_max")
+            self.log(
+                f"Calibrated ankle range: [{self.ank_min}, {self.ank_max}]"
+            )
+        except (configparser.NoOptionError, ValueError):
+            self.ank_min = float("-inf")
+            self.ank_max = float("inf")
+            self.log(
+                "WARNING: ank_min/ank_max not found in bootCal.txt — "
+                "polynomial may extrapolate during walking."
+            )
+
     # -----------------------------------------------------------------
     #  Initialise (zero + encoder‑check) — call after construction
     # -----------------------------------------------------------------
@@ -486,9 +508,13 @@ class ExoBoot:
         """ Derivative of the ankle→motor polynomial (4th-order).
         Given the polynomial P(x) = c[0]·x^4 + c[1]·x^3 + c[2]·x^2 + c[3]·x + c[4],
         the derivative (motor-to-ankle velocity ratio) is:
-        P'(x) = 4·c[0]·x^3 + 3·c[1]·x^2 + 2·c[2]·x + c[3] 
+        P'(x) = 4·c[0]·x^3 + 3·c[1]·x^2 + 2·c[2]·x + c[3]
+
+        Clamps ankle to the calibrated range [ank_min, ank_max] before
+        evaluating, so that walking-time excursions outside the cal
+        sweep don't drive wm_wa to unphysical values.
         """
-        x = self.ankleTicksRaw
+        x = max(self.ank_min, min(self.ank_max, self.ankleTicksRaw))
         c = self.wm_wa_coeffs
         self.wm_wa = (
             4 * c[0] * x**3
@@ -657,8 +683,14 @@ class ExoBoot:
     #  Desired motor position from ankle angle
     # -----------------------------------------------------------------
     def _desired_motor_position(self):
+        # Clamp ankle to calibrated range so the polynomial doesn't
+        # extrapolate during deep dorsiflexion / plantarflexion peaks
+        # that exceed the bench-cal sweep coverage.
+        ank_clamped = max(
+            self.ank_min, min(self.ank_max, self.ankleTicksRaw)
+        )
         motor_angle = np.floor(
-            np.polyval(self.ank_mot_coeffs, self.ankleTicksRaw)
+            np.polyval(self.ank_mot_coeffs, ank_clamped)
             - self.side * self.magnitude
             - (self.kinematicCoeffs[0] * self.ankleVel_filt[0]
                + self.kinematicCoeffs[1])
