@@ -199,3 +199,14 @@ then went through the full ROM from max. planterflexion
 all the way to max dorsiflexion so that the boot was not limited to the constraints of a individual persons ROM 
 I did it a little quickly so I had to hold both boots at full pllanterflexion for a while 
 did for both sides 
+============================================
+
+good process but the boot_calibration and curent calibration_analysis.py is not meant to take into account this behavior 
+
+making new boot_calibration2 file so that I can cleanly do this process 
+.
+
+=================================================
+=================================================
+=================================================
+.
