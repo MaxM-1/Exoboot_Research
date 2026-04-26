@@ -660,9 +660,14 @@ class ExoBoot:
             self.current = max(min(self.current, PEAK_CURRENT), NO_SLACK_CURRENT)
             self.device.command_motor_current(int(self.current * self.side))
 
-        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):  position control
+        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):
+        # SOFT position control.  No torque commanded here; controller
+        # only needs to keep chain from going slack.  Firm gains were
+        # tripping the I^2t fuse during deep-dorsiflex approach to
+        # heel strike — the rigid chain can't absorb the error that
+        # firm tracking demands.
         elif self.percent_gait > self.t_peak + self.t_fall:
-            self._set_position_gains()
+            self._set_position_soft_gains()
             motor_target = self._desired_motor_position()
             self.device.command_motor_position(int(motor_target))
 
@@ -675,17 +680,32 @@ class ExoBoot:
             self._gains_mode = "current"
 
     def _set_position_gains(self):
-        # Use soft gains when ankle is outside the calibrated range
-        if (self.ankleTicksRaw < self.ank_min or 
-            self.ankleTicksRaw > self.ank_max):
-            if self._gains_mode != "position_soft":
-                self.device.set_gains(kp=10, ki=0, kd=0, k=0, b=0, ff=0)
-                self._gains_mode = "position_soft"
-        else:
-                if self._gains_mode != "position":
-                    self.device.set_gains(**POSITION_GAINS)
-                    self._gains_mode = "position"
-                    
+        """Use the firm POSITION_GAINS from config.py.  Caller is
+        responsible for choosing this vs ``_set_position_soft_gains`` —
+        firm is appropriate for phase 1 (loaded foot in early stance);
+        soft is appropriate for phase 4 (unloaded foot in late
+        stance / swing) where chain mechanics dominate.
+        """
+        if self._gains_mode != "position":
+            self.device.set_gains(**POSITION_GAINS)
+            self._gains_mode = "position"
+
+    def _set_position_soft_gains(self):
+        """Soft position-control gains for phase 4 (swing).
+
+        Phase 4 is where the foot is moving freely and the chain can
+        be back-driven by foot mechanics into positions that don't
+        match polyval(ank) — particularly during deep dorsiflex
+        approach to heel strike.  Firm gains (kp=100) react to the
+        resulting position error with rail current that trips the
+        I^2t fuse.  Soft gains (kp=10, ki=0, kd=0) let the motor be
+        back-driven without resistance, while still maintaining
+        enough tension to keep the chain from going completely slack.
+        """
+        if self._gains_mode != "position_soft":
+            self.device.set_gains(kp=10, ki=0, kd=0, k=0, b=0, ff=0)
+            self._gains_mode = "position_soft"
+
     # -----------------------------------------------------------------
     #  Desired motor position from ankle angle
     # -----------------------------------------------------------------
