@@ -1,0 +1,12 @@
+Source CSV          : /home/auburn/Desktop/Exoboot_Research/DataLog/Data2026-04-26_17h13m07s_right_max_1.25_walktest4.csv
+File duration       : 49.52 s (4953 samples)
+Mean sample rate    : 100.0 Hz (expected 100)
+dt median / max     : 10.0 / 10.0 ms
+Detection mode      : armtrigger  (side_sign=+1)
+Heel strikes found  : 22
+Stride duration     : 1268 ± 125 ms (min 1070, max 1690)
+mot_cur range       : -26145 .. 4890 mA
+mot_ang range       : -34758 .. 7351 ticks
+ank_ang range       : 1974 .. 4899 ticks
+Temp max            : 29 °C
+Batt V min / max    : 32.35 / 37.45 V

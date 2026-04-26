@@ -513,3 +513,125 @@ Shutting down boots …
 =================================================
 =================================================
 =================================================
+deleting ank_min and ank_max from bootCal.txt
+.
+running again (max walk test 5)
+
+right boot failed after a little bit but left boot was good 
+
+"
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+WARNING: ank_min/ank_max not found in bootCal.txt — polynomial may extrapolate during walking.
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+WARNING: ank_min/ank_max not found in bootCal.txt — polynomial may extrapolate during walking.
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 31262
+  reading 1: mot_ang = 31262
+  reading 2: mot_ang = 31262
+  ankle  = 4523
+  motor actual  = 31262
+  motor desired = 30821.0
+  offset        = 441.0
+  motor shifted = 31262.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -12110
+  reading 1: mot_ang = -12110
+  reading 2: mot_ang = -12110
+  ankle  = 3906
+  motor actual  = -12110
+  motor desired = -12325.0
+  offset        = 215.0
+  motor shifted = -12110.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting familiarization …
+=== Familiarization ===
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [L DBG @1000] gz=3  min/max=-4/18  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-26  min/max=-29/0  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [L DBG @2000] gz=9  min/max=-5/18  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-12  min/max=-29/0  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  Left  gyroz  min=-5  max=18  state_time 42991→45161 (Δ=2170)
+  Right gyroz  min=-29  max=-1  state_time 26789→28969 (Δ=2180)
+  Thresholds:  ARM >= 3280   TRIGGER <= -4920
+Sensor check complete — starting control loop.
+t_rise=25.3%  t_fall=10.3%  t_peak=51.3%
+  [L CMD @500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=11.89
+  [R CMD @500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=11.57
+  [L ARM] gz=3966  t=50561
+  [R ARM] gz=3428  t=35089
+  [L ARM] gz=3331  t=52291
+  [R ARM] gz=3617  t=37029
+  [L ARM] gz=4190  t=53901
+  [R ARM] gz=3342  t=38309
+  [L ARM] gz=3518  t=55161
+  [L DBG @1000] gz=7401  min/max=-7075/9868  arm_thr=3280  trg_thr=-4920  armed=True  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-2532  min/max=-6734/10052  arm_thr=3280  trg_thr=-4920  armed=False  HS=0  exp_dur=-1
+  [R ARM] gz=3320  t=39589
+  Right heel‑strike #1  (armed_time=450  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3365  t=56441
+  [R ARM] gz=3769  t=40889
+  [L ARM] gz=3326  t=57681
+  [R ARM] gz=3331  t=42109
+  [L ARM] gz=3326  t=58941
+  [R ARM] gz=3526  t=43409
+  Right heel‑strike #2  (armed_time=350  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3392  t=60191
+  [L CMD @1500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.03
+  [R CMD @1500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=2  wm_wa=10.88
+  [R ARM] gz=3338  t=44639
+  [L ARM] gz=3444  t=61461
+  [R ARM] gz=3742  t=45929
+  [L ARM] gz=3291  t=62711
+  [R ARM] gz=3280  t=47169
+  [L ARM] gz=3400  t=64001
+  [R ARM] gz=3629  t=48459
+  [L ARM] gz=3994  t=65201
+  [L DBG @2000] gz=-1969  min/max=-7786/10533  arm_thr=3280  trg_thr=-4920  armed=True  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-3827  min/max=-7028/11002  arm_thr=3280  trg_thr=-4920  armed=False  HS=2  exp_dur=-1
+  [R ARM] gz=3738  t=49709
+  Right heel‑strike #3  (armed_time=350  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3624  t=66541
+  [R ARM] gz=3889  t=50989
+  Right heel‑strike #4  (armed_time=390  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3339  t=67751
+  [R ARM] gz=3734  t=52169
+  [L ARM] gz=3686  t=68941
+  [R ARM] gz=3509  t=53389
+  Right heel‑strike #5  (armed_time=410  thresh=132.0  exp_dur=1320.0)
+  [L ARM] gz=3398  t=70161
+  [L CMD @2500] pg=-1.0%  tau=0.00Nm  cur=0mA  exp_dur=-1  HS=0  wm_wa=12.73
+  [R ARM] gz=3529  t=54579
+  [R CMD @2500] pg=32.2%  tau=2.27Nm  cur=3519mA  exp_dur=2420  HS=5  wm_wa=12.04
+  Right heel‑strike #6  (armed_time=320  thresh=242.0  exp_dur=2420.0)
+  [L ARM] gz=3358  t=71351
+  Left heel‑strike #1  (armed_time=450  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3796  t=55799
+  Right heel‑strike #7  (armed_time=380  thresh=132.0  exp_dur=1320.0)
+  [L ARM] gz=3809  t=72591
+  [R ARM] gz=3928  t=56999
+  Right heel‑strike #8  (armed_time=340  thresh=128.0  exp_dur=1280.0)
+  [L ARM] gz=3346  t=73811
+  Left heel‑strike #2  (armed_time=440  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3365  t=58219
+>>> STOP requested
+Familiarization data saved → /home/auburn/Desktop/Exoboot_Research/data
+Familiarization ended.
+Shutting down boots …
+"
+
+.
