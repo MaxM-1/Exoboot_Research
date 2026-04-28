@@ -1,0 +1,95 @@
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 31855
+  reading 1: mot_ang = 31855
+  reading 2: mot_ang = 31855
+  ankle  = 4584
+  motor actual  = 31855
+  motor desired = 31778.0
+  offset        = 77.0
+  motor shifted = 31855.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -12570
+  reading 1: mot_ang = -12570
+  reading 2: mot_ang = -12570
+  ankle  = 3859
+  motor actual  = -12570
+  motor desired = -13196.0
+  offset        = 626.0
+  motor shifted = -12570.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting familiarization …
+=== Familiarization ===
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [R ARM] gz=4029  t=48387
+  Right heel‑strike #1  (armed_time=450  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=4233  t=56373
+  Left heel‑strike #1  (armed_time=380  thresh=100.0  exp_dur=-1.0)
+  [L DBG @1000] gz=-5231  min/max=-7578/12247  arm_thr=3280  trg_thr=-4920  armed=False  HS=1  exp_dur=-1
+  [R DBG @1000] gz=-5730  min/max=-5730/12026  arm_thr=3280  trg_thr=-4920  armed=False  HS=1  exp_dur=-1
+  [R ARM] gz=3495  t=49537
+  Right heel‑strike #2  (armed_time=310  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3910  t=57523
+  [L DBG @2000] gz=-3121  min/max=-7725/13158  arm_thr=3280  trg_thr=-4920  armed=True  HS=1  exp_dur=-1
+  [R DBG @2000] gz=-4930  min/max=-6534/12921  arm_thr=3280  trg_thr=-4920  armed=False  HS=2  exp_dur=1010
+  Left  gyroz  min=-7725  max=13158  state_time 55703→57903 (Δ=2200)
+  Right gyroz  min=-6534  max=12921  state_time 48307→50497 (Δ=2190)
+  Thresholds:  ARM >= 3280   TRIGGER <= -4920
+Sensor check complete — starting control loop.
+Per-sample loggers attached → /home/auburn/Desktop/Exoboot_Research/data
+t_rise=25.3%  t_fall=10.3%  t_peak=51.3%
+  [R ARM] gz=5834  t=50637
+  Right heel‑strike #1  (armed_time=520  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3744  t=58683
+  Left heel‑strike #1  (armed_time=470  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3545  t=51907
+  Right heel‑strike #2  (armed_time=420  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3552  t=59913
+  Left heel‑strike #2  (armed_time=400  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3601  t=53107
+  Right heel‑strike #3  (armed_time=390  thresh=117.0  exp_dur=1170.0)
+  [L ARM] gz=3932  t=61113
+  Left heel‑strike #3  (armed_time=390  thresh=116.0  exp_dur=1160.0)
+  [R ARM] gz=3478  t=54297
+  Right heel‑strike #4  (armed_time=410  thresh=117.0  exp_dur=1170.0)
+  [L ARM] gz=4197  t=62303
+  Left heel‑strike #4  (armed_time=420  thresh=119.0  exp_dur=1190.0)
+  [R ARM] gz=4256  t=55487
+  [L CMD @500] pg=47.9%  tau=19.77Nm  cur=28000mA  exp_dur=1190  HS=4  wm_wa=12.12
+  Right heel‑strike #5  (armed_time=400  thresh=117.0  exp_dur=1170.0)
+  [R CMD @500] pg=0.0%  tau=0.00Nm  cur=0mA  exp_dur=1180  HS=5  wm_wa=12.36
+  [L ARM] gz=3535  t=63483
+  Left heel‑strike #5  (armed_time=420  thresh=119.0  exp_dur=1190.0)
+  [R ARM] gz=3860  t=56677
+  Right heel‑strike #6  (armed_time=420  thresh=118.0  exp_dur=1180.0)
+  [L ARM] gz=4826  t=64693
+  Left heel‑strike #6  (armed_time=320  thresh=119.0  exp_dur=1190.0)
+  [R ARM] gz=4630  t=57897
+  Right heel‑strike #7  (armed_time=420  thresh=121.0  exp_dur=1210.0)
+  [L ARM] gz=3864  t=65893
+  Left heel‑strike #7  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  [R ARM] gz=3433  t=59087
+  Right heel‑strike #8  (armed_time=420  thresh=121.0  exp_dur=1210.0)
+  [L ARM] gz=3338  t=67083
+>>> STOP requested
+Familiarization data saved → /home/auburn/Desktop/Exoboot_Research/data
+Familiarization ended.
+Shutting down boots …
+DataLog renamed → Data2026-04-28_14h03m08s_LEFT_idC719_MAX1_Connect.csv
+DataLog renamed → Data2026-04-28_14h03m12s_RIGHT_idC6D9_MAX1_Connect.csv

@@ -1,0 +1,80 @@
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 27411
+  reading 1: mot_ang = 27411
+  reading 2: mot_ang = 27411
+  ankle  = 4206
+  motor actual  = 27411
+  motor desired = 27052.0
+  offset        = 359.0
+  motor shifted = 27411.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -10219
+  reading 1: mot_ang = -10219
+  reading 2: mot_ang = -10219
+  ankle  = 4075
+  motor actual  = -10219
+  motor desired = -10567.0
+  offset        = 348.0
+  motor shifted = -10219.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting familiarization …
+=== Familiarization ===
+  [R ARM] gz=7800  t=46482
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [R ARM] gz=7800  t=46482
+  Right heel‑strike #1  (armed_time=370  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3652  t=49526
+  Left heel‑strike #1  (armed_time=390  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3864  t=47582
+  [L DBG @1000] gz=-892  min/max=-7870/12377  arm_thr=3280  trg_thr=-4920  armed=False  HS=1  exp_dur=-1
+  [R DBG @1000] gz=3864  min/max=-6678/12047  arm_thr=3280  trg_thr=-4920  armed=True  HS=1  exp_dur=-1
+  Right heel‑strike #2  (armed_time=380  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=4021  t=50696
+  Left heel‑strike #2  (armed_time=370  thresh=100.0  exp_dur=-1.0)
+  [L DBG @2000] gz=-1908  min/max=-8042/12377  arm_thr=3280  trg_thr=-4920  armed=False  HS=2  exp_dur=1150
+  [R DBG @2000] gz=-2093  min/max=-6678/12047  arm_thr=3280  trg_thr=-4920  armed=False  HS=2  exp_dur=1110
+  Left  gyroz  min=-8042  max=12377  state_time 49006→51216 (Δ=2210)
+  Right gyroz  min=-6678  max=12047  state_time 46482→48692 (Δ=2210)
+  Thresholds:  ARM >= 3280   TRIGGER <= -4920
+Sensor check complete — starting control loop.
+Per-sample loggers attached → /home/auburn/Desktop/Exoboot_Research/data
+t_rise=25.3%  t_fall=10.3%  t_peak=51.3%
+  [R ARM] gz=4010  t=48742
+  Right heel‑strike #1  (armed_time=400  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=5129  t=51786
+  [R ARM] gz=7996  t=49842
+  Right heel‑strike #2  (armed_time=410  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3600  t=53036
+  Left heel‑strike #1  (armed_time=400  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3308  t=51082
+  Right heel‑strike #3  (armed_time=420  thresh=111.0  exp_dur=1110.0)
+  [L ARM] gz=3299  t=54216
+  Left heel‑strike #2  (armed_time=410  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=4002  t=52302
+  Right heel‑strike #4  (armed_time=340  thresh=125.0  exp_dur=1250.0)
+  [L ARM] gz=3846  t=55406
+  Left heel‑strike #3  (armed_time=440  thresh=119.0  exp_dur=1190.0)
+  [R ARM] gz=4520  t=53502
+>>> STOP requested
+Familiarization data saved → /home/auburn/Desktop/Exoboot_Research/data
+Familiarization ended.
+Shutting down boots …
+DataLog renamed → Data2026-04-28_15h06m26s_LEFT_idC719_MAX3_Connect.csv
+DataLog renamed → Data2026-04-28_15h06m31s_RIGHT_idC6D9_MAX3_Connect.csv

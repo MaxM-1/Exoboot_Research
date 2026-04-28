@@ -17,7 +17,9 @@ Author:  Max Miller — Auburn University
 """
 
 import sys
+import os
 import queue
+from time import strftime
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
@@ -43,6 +45,17 @@ class ExperimentGUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Rise / Fall Time Perception Experiment")
+
+        # ---- Persistent GUI log file (data/GUIlog_*.txt) ----------
+        log_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "data")
+        os.makedirs(log_dir, exist_ok=True)
+        self._gui_log_path = os.path.join(
+            log_dir, f"GUIlog_{strftime('%Y-%m-%d_%Hh%Mm%Ss')}.txt")
+        try:
+            self._gui_log_fh = open(self._gui_log_path, "a", buffering=1)
+        except Exception:
+            self._gui_log_fh = None
 
         # ---- Experiment backend -----------------------------------
         self.experiment = PerceptionExperiment()
@@ -453,6 +466,12 @@ class ExperimentGUI(QMainWindow):
             QTimer.singleShot(3000, self.close)
             event.ignore()
         else:
+            try:
+                if getattr(self, "_gui_log_fh", None):
+                    self._gui_log_fh.close()
+                    self._gui_log_fh = None
+            except Exception:
+                pass
             event.accept()
 
     # ==================================================================
@@ -461,6 +480,11 @@ class ExperimentGUI(QMainWindow):
     def _append_log(self, text: str):
         self.log_text.append(text)
         self.log_text.ensureCursorVisible()
+        if getattr(self, "_gui_log_fh", None):
+            try:
+                self._gui_log_fh.write(text + "\n")
+            except Exception:
+                pass
 
 
 # ======================================================================

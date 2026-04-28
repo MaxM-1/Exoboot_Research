@@ -1,0 +1,48 @@
+=== Diagnostic summary (L) ===
+File rows           : 870
+Duration            : 9.3 s  (≈ 93.2 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : MAX1   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 7
+TRIGGER events      : 7
+% time armed        : 30.9%
+gyroz range         : -7590 .. 13176
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   position_late_stance       26.8%
+   idle_position              25.3%
+   position_early_stance      20.2%
+   cur_ramp_up                19.7%
+   cur_ramp_down               8.0%
+Cmd τ range         : 0.00 .. 21.37 Nm
+Cmd current range   : 0 .. 28000 mA
+Meas current range  : -1402 .. 26499 mA
+
+FLAGS:
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 220 samples; first at t=2.72s.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 870
+Duration            : 9.3 s  (≈ 93.3 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX1   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 8
+TRIGGER events      : 8
+% time armed        : 36.9%
+gyroz range         : -6871 .. 13053
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   position_late_stance       29.8%
+   position_early_stance      23.1%
+   idle_position              19.5%
+   cur_ramp_up                19.5%
+   cur_ramp_down               8.0%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : -28000 .. 0 mA
+Meas current range  : -26224 .. 464 mA
+
+FLAGS:
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 216 samples; first at t=2.13s.

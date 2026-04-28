@@ -1,0 +1,1 @@
+state_time,accelx,accely,accelz,gyrox,gyroy,gyroz,mot_ang,mot_vel,mot_acc,mot_cur,mot_volt,batt_volt,batt_curr,temperature,status_mn,status_ex,status_re,genvar_0,genvar_1,genvar_2,genvar_3,genvar_4,genvar_5,genvar_6,genvar_7,genvar_8,genvar_9,ank_ang,ank_vel,sys_time,event flags

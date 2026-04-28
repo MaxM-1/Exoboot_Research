@@ -22,6 +22,8 @@ Controller and experiment platform for studying human perception of rise and fal
 | `calibration/bootCal.txt` | Calibration coefficients loaded by `ExoBoot` at startup |
 | `data/data_analysis.py` | Post-experiment analysis: JND computation, staircase plots |
 | `requirements.txt` | Python dependencies |
+| `requirements-dev.txt` | Developer/test dependencies |
+| `tests/` | Offline pytest suite for math, protocol helpers, analysis, calibration helpers, and logging |
 | `RESOURCES/` | Reference materials: Dephy API source, Peng's original controller, user guides, papers |
 
 ## Setup
@@ -37,6 +39,24 @@ sudo apt install python3-pyqt5
 ```
 
 FlexSEA must be installed separately from the Dephy Actuator-Package (see `RESOURCES/Actuator-Package-develop/` or the [Dephy GitHub](https://github.com/DephyInc/Actuator-Package)).
+
+## Testing
+
+The project has an offline pytest suite that does **not** connect to ExoBoot hardware. It checks pure math, config sanity, protocol helpers, CSV analysis, calibration helpers, imports, and logger output.
+
+Install the test dependency once:
+
+```bash
+.venv/bin/python -m pip install -r requirements-dev.txt
+```
+
+Run the tests from the repository root:
+
+```bash
+.venv/bin/python -m pytest
+```
+
+These tests are a quick safety net before running calibration or live experiments. Passing tests do not replace hardware validation, motor safety checks, or walking trials.
 
 ## Workflow
 

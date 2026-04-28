@@ -111,10 +111,36 @@ class ExoBoot:
             logLevel=self.log_level,
             interactive=False,
         )
+        # Snapshot DataLog folder before start_streaming so we can
+        # identify which file belongs to THIS boot (FlexSEA names them
+        # by timestamp only, with no boot ID — making L/R disambiguation
+        # impossible from the filename alone).
+        self._datalog_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "DataLog")
+        try:
+            _existing = set(os.listdir(self._datalog_dir))
+        except FileNotFoundError:
+            _existing = set()
+
         self.device.open()
         sleep(1)
         self.device.start_streaming(frequency=self.frequency)
-        sleep(0.1)
+        sleep(0.3)  # let the C library actually create the file
+
+        # Find the new DataLog file created by start_streaming.
+        self.datalog_path: str | None = None
+        try:
+            new_files = [f for f in os.listdir(self._datalog_dir)
+                         if f not in _existing and f.endswith(".csv")]
+            if new_files:
+                # newest by mtime
+                new_files.sort(
+                    key=lambda f: os.path.getmtime(
+                        os.path.join(self._datalog_dir, f)))
+                self.datalog_path = os.path.join(
+                    self._datalog_dir, new_files[-1])
+        except Exception:
+            self.datalog_path = None
         # Force motor to a known-zero state so no stale command persists
         # from a previous session or power-cycle.
         try:
@@ -171,6 +197,17 @@ class ExoBoot:
         self.motorTicksZeroed: int = 0
         self.motorTicksOffset: int = 0
         self.motorCurrent: int = 0
+        self.motorVoltage: int = 0
+        self.motorVelocity: int = 0
+        self.motor_pos_setpoint: int = 0
+
+        # ---- Battery / thermal / firmware status ---------------------
+        self.battVoltage: int = 0
+        self.battCurrent: int = 0
+        self.temperature: int = 0
+        self.status_mn: int = 0
+        self.status_ex: int = 0
+        self.status_re: int = 0
 
         self.ankleTicksRaw: int = 0
         self.ankleTicksZeroed: int = 0
@@ -215,6 +252,9 @@ class ExoBoot:
 
         # ---- Gains‑mode tracker (avoid re‑sending same gains) --------
         self._gains_mode: str | None = None   # 'current' | 'position'
+
+        # ---- Per-sample diagnostic logger (attached by perception_test) -
+        self.logger = None
 
         # ---- Calibration data ----------------------------------------
         self._load_calibration()
@@ -288,6 +328,16 @@ class ExoBoot:
             self.motorTicksRaw - self.motorTicksOffset
         )
         self.motorCurrent = data.get("mot_cur", 0)
+        self.motorVoltage = data.get("mot_volt", 0)
+        self.motorVelocity = data.get("mot_vel", 0)
+
+        # Battery / thermal / firmware-status registers --------------
+        self.battVoltage = data.get("batt_volt", 0)
+        self.battCurrent = data.get("batt_curr", 0)
+        self.temperature = data.get("temperature", 0)
+        self.status_mn = data.get("status_mn", 0)
+        self.status_ex = data.get("status_ex", 0)
+        self.status_re = data.get("status_re", 0)
 
         self.ankleTicksRaw = data.get("ank_ang", 0)
         self.ankleTicksZeroed = self.side * (
@@ -592,23 +642,39 @@ class ExoBoot:
             )
         # ---- end debug -----------------------------------------------
 
-        # Before gait cadence is established, keep chain loaded with
-        # position control tracking the ankle polynomial.
+        # Before gait cadence is established, keep chain loaded with a
+        # small "no slack" current.  Position control was previously
+        # used here but produced unreachable position targets during
+        # walking (velocity term in _desired_motor_position spikes the
+        # setpoint by tens of thousands of ticks at heel-strike) which
+        # forced the motor into over-current faults.
         if self.percent_gait < 0:
-            self._set_position_gains()
-            motor_target = self._desired_motor_position()
-            self.device.command_motor_position(int(motor_target))
+            self._set_current_gains()
+            cmd = NO_SLACK_CURRENT * self.side
+            self.device.command_motor_current(int(cmd))
+            self.tau = 0.0
+            self.current = NO_SLACK_CURRENT
+            self.motor_pos_setpoint = 0
+            if self.logger:
+                self.logger.set_controller_mode("idle_no_slack")
+                self.logger.log(tau_Nm=0.0, current_cmd_mA=cmd)
             return
 
         t_onset = self.t_peak - self.t_rise   # actuation start (%)
+        _mode = "hold_no_slack"
 
-        # Phase 1 — Early stance  (0 % → t_onset):  position control
-        # Track the ankle-to-motor polynomial to keep chain loaded
-        # without applying torque.
+        # Phase 1 — Early stance  (0 % → t_onset):  hold slack out.
+        # Use NO_SLACK_CURRENT instead of position control so the chain
+        # is pre-tensioned for the upcoming ramp without risking a huge
+        # position-error spike.
         if 0 <= self.percent_gait <= t_onset:
-            self._set_position_gains()
-            motor_target = self._desired_motor_position()
-            self.device.command_motor_position(int(motor_target))
+            self._set_current_gains()
+            cmd = NO_SLACK_CURRENT * self.side
+            self.device.command_motor_current(int(cmd))
+            self.tau = 0.0
+            self.current = NO_SLACK_CURRENT
+            self.motor_pos_setpoint = 0
+            _mode = "early_stance_no_slack"
 
         # Phase 2 — Ascending curve  (t_onset → t_peak):  torque ramp up
         elif t_onset < self.percent_gait <= self.t_peak:
@@ -621,6 +687,7 @@ class ExoBoot:
             )
             self.current = max(min(self.current, PEAK_CURRENT), NO_SLACK_CURRENT)
             self.device.command_motor_current(int(self.current * self.side))
+            _mode = "cur_ramp_up"
 
         # Phase 3 — Descending curve  (t_peak → t_peak+t_fall): ramp down
         elif self.t_peak < self.percent_gait <= self.t_peak + self.t_fall:
@@ -633,12 +700,23 @@ class ExoBoot:
             )
             self.current = max(min(self.current, PEAK_CURRENT), NO_SLACK_CURRENT)
             self.device.command_motor_current(int(self.current * self.side))
+            _mode = "cur_ramp_down"
 
-        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):  position control
+        # Phase 4 — Late stance / swing  (t_peak+t_fall → 100 %):  hold
+        # slack out with low current.
         elif self.percent_gait > self.t_peak + self.t_fall:
-            self._set_position_gains()
-            motor_target = self._desired_motor_position()
-            self.device.command_motor_position(int(motor_target))
+            self._set_current_gains()
+            cmd = NO_SLACK_CURRENT * self.side
+            self.device.command_motor_current(int(cmd))
+            self.tau = 0.0
+            self.current = NO_SLACK_CURRENT
+            self.motor_pos_setpoint = 0
+            _mode = "late_stance_no_slack"
+
+        if self.logger:
+            self.logger.set_controller_mode(_mode)
+            self.logger.log(tau_Nm=self.tau,
+                            current_cmd_mA=self.current * self.side)
 
     # -----------------------------------------------------------------
     #  Gain‑mode helpers  (avoid redundant set_gains calls)
@@ -806,6 +884,37 @@ class ExoBoot:
         print(f"  motor current   = {self.motorCurrent}")
         print(f"  gait #          = {self.num_gait}")
         print(f"  percent_gait    = {self.percent_gait:.1f}")
+
+    # -----------------------------------------------------------------
+    #  Tag the FlexSEA DataLog file with side / boot-id / participant
+    # -----------------------------------------------------------------
+    def tag_datalog(self, participant_id: str = "", phase: str = ""):
+        """Rename this boot's auto-generated DataLog/Data*.csv file so
+        the side (L/R), boot ID, participant, and phase are obvious.
+
+        Must be called BEFORE ``device.stop_streaming()`` releases the
+        file handle... actually most safely AFTER stop_streaming. Call
+        from the experiment cleanup path.
+        """
+        if not self.datalog_path or not os.path.exists(self.datalog_path):
+            return
+        side_str = "LEFT" if self.side == LEFT else "RIGHT"
+        boot_id = getattr(self, "boot_id", str(self.device.id))
+        base = os.path.basename(self.datalog_path)
+        stem, ext = os.path.splitext(base)
+        parts = [stem.rstrip("_"), side_str, f"id{boot_id}"]
+        if participant_id:
+            parts.append(participant_id)
+        if phase:
+            parts.append(phase)
+        new_name = "_".join(parts) + ext
+        new_path = os.path.join(os.path.dirname(self.datalog_path), new_name)
+        try:
+            os.rename(self.datalog_path, new_path)
+            self.datalog_path = new_path
+            self.log(f"DataLog renamed → {new_name}")
+        except Exception as exc:
+            self.log(f"DataLog rename failed: {exc}")
 
     # -----------------------------------------------------------------
     #  Clean‑up

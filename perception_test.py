@@ -30,6 +30,7 @@ import pandas as pd
 
 from config import *
 from exo_init import ExoBoot
+from exo_logger import ExoLogger
 
 
 class PerceptionExperiment:
@@ -244,6 +245,9 @@ class PerceptionExperiment:
         self.right_boot.reset_gait_state()
         self._log("Sensor check complete — starting control loop.")
 
+        # ---- Attach per-sample diagnostic loggers --------------------
+        self._attach_loggers("Familiarization")
+
         p = self.params
         user_weight = float(p["user_weight"])
         test_mode = p["test_mode"]
@@ -395,6 +399,9 @@ class PerceptionExperiment:
         self.left_boot.reset_gait_state()
         self.right_boot.reset_gait_state()
         self._log("Sensor check complete — starting control loop.")
+
+        # ---- Attach per-sample diagnostic loggers --------------------
+        self._attach_loggers("Perception")
 
         p = self.params
         user_weight = float(p["user_weight"])
@@ -712,19 +719,53 @@ class PerceptionExperiment:
         self._log(f"Familiarization data saved → {d}")
 
     # ==================================================================
+    #  Attach per-sample diagnostic loggers to both boots
+    # ==================================================================
+    def _attach_loggers(self, phase: str):
+        pid = self.params.get("participant_id", "P001")
+        d = self._data_dir()
+        try:
+            self.left_boot.logger = ExoLogger(d, pid, self.left_boot,
+                                              phase, self.params)
+            self.right_boot.logger = ExoLogger(d, pid, self.right_boot,
+                                               phase, self.params)
+            self._log(f"Per-sample loggers attached → {d}")
+        except Exception as exc:
+            self._log(f"⚠ Logger attach failed: {exc}")
+
+    # ==================================================================
     #  Clean‑up
     # ==================================================================
     def _cleanup(self):
         self._log("Shutting down boots …")
+        pid = self.params.get("participant_id", "")
+        # Best-effort phase tag (fall back to current GUI mode)
+        phase_map = {"familiarization": "Familiarization",
+                     "perception": "Perception",
+                     "connect_only": "Connect"}
+        phase_tag = phase_map.get(self.params.get("mode", ""), "")
         for boot in (self.left_boot, self.right_boot):
-            if boot is not None:
-                try:
-                    boot.device.command_motor_current(0)
-                    sleep(0.05)
-                    boot.device.command_motor_current(0)
-                except Exception:
-                    pass
-                boot.clean()
+            if boot is None:
+                continue
+            # Close per-sample logger first (line-buffered so already safe)
+            try:
+                if getattr(boot, "logger", None):
+                    boot.logger.close()
+                    boot.logger = None
+            except Exception:
+                pass
+            try:
+                boot.device.command_motor_current(0)
+                sleep(0.05)
+                boot.device.command_motor_current(0)
+            except Exception:
+                pass
+            boot.clean()
+            # Rename FlexSEA DataLog file with side / boot_id / participant
+            try:
+                boot.tag_datalog(participant_id=pid, phase=phase_tag)
+            except Exception as exc:
+                self._log(f"DataLog tag failed: {exc}")
         self.left_boot = None
         self.right_boot = None
         self._flush_cmd()           # discard stale commands

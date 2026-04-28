@@ -1,0 +1,27 @@
+=== Diagnostic summary (R) ===
+File rows           : 462
+Duration            : 5.0 s  (≈ 92.4 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX3   Weight: 85 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 4
+TRIGGER events      : 4
+% time armed        : 35.3%
+gyroz range         : -7142 .. 12196
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   idle_position              30.1%
+   position_late_stance       26.2%
+   position_early_stance      18.6%
+   cur_ramp_up                17.7%
+   cur_ramp_down               7.4%
+Cmd τ range         : 0.00 .. 10.20 Nm
+Cmd current range   : -15000 .. 0 mA
+Meas current range  : -26538 .. 3765 mA
+Max |pos error|     : 32405 ticks
+Batt V range        : 33205 .. 37385 mV
+
+FLAGS:
+  ⚠ Position error spiked to 32405 ticks — position controller asked for a step the cable couldn't follow. This is the classic 'sudden yank' signature.
+  ⚠ Firmware status non-zero: mn=462 ex=339 re=0 samples — motor / comms / regulator fault reported.
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 73 samples; first at t=2.11s.

@@ -27,7 +27,7 @@ RIGHT = -1
 # ==============================================================================
 ZEROING_CURRENT = 1000              # 1800 -> 1000
 NO_SLACK_CURRENT = 800              # 1200 -> 800
-PEAK_CURRENT = 28000
+PEAK_CURRENT = 15000                #4_28 changed from 28000 to 15000
 WARMUP_CURRENT = 600                # Light current during warm‑up strides
 
 # ==============================================================================
@@ -59,8 +59,8 @@ MAX_ARMED_MS = 900                 # ms — absolute cap when expected_duration 
 DEFAULT_T_RISE = 25.3               # Rise time  (reference value)
 DEFAULT_T_FALL = 10.3               # Fall time  (reference value)
 DEFAULT_T_ONSET = 26.0              # Actuation‑start timing
-DEFAULT_PEAK_TORQUE_NORM = 0.225    # Normalised peak torque  (Nm / kg)
-
+DEFAULT_PEAK_TORQUE_NORM = 0.12    # Normalised peak torque  (Nm / kg)
+        #4_28 changed from 0.225 to 0.12
 # ==============================================================================
 # PID Gains
 # ==============================================================================

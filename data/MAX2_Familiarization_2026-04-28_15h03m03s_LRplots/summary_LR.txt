@@ -1,0 +1,56 @@
+=== Diagnostic summary (L) ===
+File rows           : 1419
+Duration            : 15.2 s  (≈ 93.3 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : MAX2   Weight: 85 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 5
+TRIGGER events      : 5
+% time armed        : 31.7%
+gyroz range         : -8001 .. 13200
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   idle_position              76.8%
+   position_late_stance        8.9%
+   position_early_stance       6.2%
+   cur_ramp_up                 5.8%
+   cur_ramp_down               2.3%
+Cmd τ range         : 0.00 .. 10.19 Nm
+Cmd current range   : 0 .. 15000 mA
+Meas current range  : -1848 .. 26223 mA
+Max |pos error|     : 26908 ticks
+Batt V range        : 33884 .. 37442 mV
+
+FLAGS:
+  ⚠ Position error spiked to 26908 ticks — position controller asked for a step the cable couldn't follow. This is the classic 'sudden yank' signature.
+  ⚠ Firmware status non-zero: mn=1419 ex=386 re=0 samples — motor / comms / regulator fault reported.
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 92 samples; first at t=11.88s.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 1419
+Duration            : 15.2 s  (≈ 93.3 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX2   Weight: 85 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 6
+TRIGGER events      : 6
+% time armed        : 23.8%
+gyroz range         : -7162 .. 12546
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   idle_position              64.4%
+   position_late_stance       11.0%
+   position_early_stance      10.8%
+   cur_ramp_up                10.2%
+   cur_ramp_down               3.6%
+Cmd τ range         : 0.00 .. 10.20 Nm
+Cmd current range   : -15000 .. 0 mA
+Meas current range  : -26288 .. 3720 mA
+Max |pos error|     : 35697 ticks
+Batt V range        : 32997 .. 37571 mV
+
+FLAGS:
+  ⚠ Position error spiked to 35697 ticks — position controller asked for a step the cable couldn't follow. This is the classic 'sudden yank' signature.
+  ⚠ Firmware status non-zero: mn=1419 ex=203 re=0 samples — motor / comms / regulator fault reported.
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 175 samples; first at t=10.06s.
