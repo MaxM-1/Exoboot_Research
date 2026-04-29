@@ -1,0 +1,52 @@
+=== Diagnostic summary (L) ===
+File rows           : 9420
+Duration            : 97.0 s  (≈ 97.1 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : MAX4   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 56
+TRIGGER events      : 56
+% time armed        : 34.7%
+gyroz range         : -10430 .. 14081
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   late_stance_no_slack       43.8%
+   early_stance_no_slack      18.9%
+   cur_ramp_up                18.2%
+   idle_no_slack              11.9%
+   cur_ramp_down               7.2%
+Cmd τ range         : 0.00 .. 11.40 Nm
+Cmd current range   : 800 .. 15000 mA
+Meas current range  : 0 .. 15349 mA
+Max |pos error|     : 53230 ticks
+Batt V range        : 32393 .. 37305 mV
+
+FLAGS:
+  ⚠ Position error spiked to 53230 ticks — position controller asked for a step the cable couldn't follow. This is the classic 'sudden yank' signature.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 9420
+Duration            : 97.0 s  (≈ 97.1 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX4   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 46
+TRIGGER events      : 46
+% time armed        : 38.7%
+gyroz range         : -10215 .. 11706
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   late_stance_no_slack       49.6%
+   early_stance_no_slack      15.1%
+   idle_no_slack              15.0%
+   cur_ramp_up                14.6%
+   cur_ramp_down               5.8%
+Cmd τ range         : 0.00 .. 11.40 Nm
+Cmd current range   : -15000 .. -800 mA
+Meas current range  : -15373 .. 574 mA
+Max |pos error|     : 36676 ticks
+Batt V range        : 33050 .. 37565 mV
+
+FLAGS:
+  ⚠ Position error spiked to 36676 ticks — position controller asked for a step the cable couldn't follow. This is the classic 'sudden yank' signature.

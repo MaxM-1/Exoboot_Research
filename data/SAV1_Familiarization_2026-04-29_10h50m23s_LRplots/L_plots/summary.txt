@@ -1,0 +1,25 @@
+=== Diagnostic summary (L) ===
+File rows           : 7517
+Duration            : 77.6 s  (≈ 96.8 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : SAV1   Weight: 75 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 65
+TRIGGER events      : 65
+% time armed        : 32.0%
+gyroz range         : -11699 .. 15267
+ARM thr / TRG thr   : 3280 / -4920
+Controller-mode time-share:
+   late_stance_no_slack       36.9%
+   early_stance_no_slack      22.1%
+   cur_ramp_up                21.0%
+   idle_no_slack              11.3%
+   cur_ramp_down               8.6%
+Cmd τ range         : 0.00 .. 9.00 Nm
+Cmd current range   : 800 .. 15000 mA
+Meas current range  : -4 .. 16266 mA
+Max |pos error|     : 53204 ticks
+Batt V range        : 32225 .. 37580 mV
+
+FLAGS:
+  ⚠ Position error spiked to 53204 ticks — position controller asked for a step the cable couldn't follow. This is the classic 'sudden yank' signature.
