@@ -1,0 +1,58 @@
+4_30 testing notes 
+
+Testing following changes to ave_gain__num 
+and
+HEELSTRIKE_THRESHOLD_BELOW 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+MAX5 - 1.25m/s - NO MISSES VERY NICE 
+-some cases where a lot of torque is applies 
+--spikes of a lot of torque (a lot from the baseline thats felt)
+.
+SAV2 - 1.25m/s - adjusting weight to be 68kg this time (reflective of actual)
+-sometimes it feels like a lot of torque and sometimes it feels like lower
+--cases where a lot of torque seems to be applied but said it feels like that is dependant on how fast ankle is moving 
+
+Analysis for MAX5 and SAV2:
+-both MAX and SAV have more faults on the right boot from faults graph 
+-MAX has linear line of rincreasing torque (lookup which boot)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Doing another test with another subject (LUCY1)
+-same protocol (familiarization -> treadmill start [1.25m/s]) - 54kg (reflective of actual weight)
+.
+-felt strong at the beginning and then over time said it felt like the torque was getting weaker (only a little bit different) 
+
+Analysis for LUCY1:
+most things seem good; in torque curve there was one spike for right and left boot in torque curve that was above the commanded (both were orange so I assume they were the same one or close to each other sequentially)
+~maybe did not weigh enough to trigger a fault like it did for SAV or MAX (hypothesis)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Doing another test with another subject (LM1) 
+using SAV weight just to test and see what happens (not reflective of actual)
+.
+perception: 'did not feel exos turning on' - false positive bc when exos were turned off then did feel difference 
+
+Analysis for LM1:
+....
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LM2 (same subject) no with 80kg (reflective of actual)
+.
+Perception: felt less in tune with timing of gait but felt more force (more force as should be expected)
+.
+Analysis: LOOKS GOOD! (at least on torque curve and timings)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SAV3 - 68kg 
+same process/speeds and everything 
+.
+dont fuck with walking and this makes things better
+-no random spikes 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+peak_torque vs weight? what should limits be?
+.-look into 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SAV4 - 68kg walking at 1.0m/s
+.
+WALKING at 1.0 m/s
+
+perception: missed at least one timing , felt like torque and timing had a lot of variation
+.

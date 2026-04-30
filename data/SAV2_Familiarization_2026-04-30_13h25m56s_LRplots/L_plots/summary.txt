@@ -1,0 +1,24 @@
+=== Diagnostic summary (L) ===
+File rows           : 5994
+Duration            : 62.5 s  (≈ 95.9 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : SAV2   Weight: 68 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 56
+TRIGGER events      : 56
+% time armed        : 28.4%
+gyroz range         : -9531 .. 14733
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       32.7%
+   early_stance_no_slack      23.2%
+   cur_ramp_up                22.2%
+   idle_no_slack              12.9%
+   cur_ramp_down               9.0%
+Cmd τ range         : -0.00 .. 8.16 Nm
+Cmd current range   : 800 .. 15000 mA
+Meas current range  : 0 .. 19453 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 32714 .. 37322 mV
+
+No critical flags raised.

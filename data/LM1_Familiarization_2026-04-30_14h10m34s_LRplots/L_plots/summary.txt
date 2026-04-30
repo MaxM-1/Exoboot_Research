@@ -1,0 +1,24 @@
+=== Diagnostic summary (L) ===
+File rows           : 3182
+Duration            : 33.2 s  (≈ 95.7 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : LM1   Weight: 68 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 25
+TRIGGER events      : 25
+% time armed        : 24.2%
+gyroz range         : -10125 .. 13984
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       27.3%
+   early_stance_no_slack      22.0%
+   idle_no_slack              21.3%
+   cur_ramp_up                20.8%
+   cur_ramp_down               8.6%
+Cmd τ range         : 0.00 .. 8.16 Nm
+Cmd current range   : 800 .. 15000 mA
+Meas current range  : 0 .. 15035 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 34479 .. 37116 mV
+
+No critical flags raised.

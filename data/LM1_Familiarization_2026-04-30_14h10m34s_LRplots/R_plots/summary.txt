@@ -1,0 +1,24 @@
+=== Diagnostic summary (R) ===
+File rows           : 3182
+Duration            : 33.2 s  (≈ 95.8 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : LM1   Weight: 68 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 25
+TRIGGER events      : 25
+% time armed        : 22.7%
+gyroz range         : -9406 .. 13178
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       27.1%
+   idle_no_slack              22.9%
+   early_stance_no_slack      21.9%
+   cur_ramp_up                19.9%
+   cur_ramp_down               8.2%
+Cmd τ range         : 0.00 .. 8.16 Nm
+Cmd current range   : -13902 .. -800 mA
+Meas current range  : -13881 .. 0 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 34061 .. 37050 mV
+
+No critical flags raised.

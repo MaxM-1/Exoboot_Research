@@ -1,0 +1,51 @@
+=== Diagnostic summary (L) ===
+File rows           : 5021
+Duration            : 52.3 s  (≈ 95.9 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : SAV4   Weight: 68 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 40
+TRIGGER events      : 40
+% time armed        : 27.3%
+gyroz range         : -10107 .. 12965
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       30.5%
+   early_stance_no_slack      21.9%
+   cur_ramp_up                20.9%
+   idle_no_slack              17.9%
+   cur_ramp_down               8.8%
+Cmd τ range         : 0.00 .. 8.16 Nm
+Cmd current range   : 800 .. 15000 mA
+Meas current range  : 2 .. 15702 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 32758 .. 36748 mV
+
+FLAGS:
+  ⚠ status_mn changed 1 times during run — device entered/left a fault or special state.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 5021
+Duration            : 52.3 s  (≈ 95.9 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : SAV4   Weight: 68 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.12
+Final num_gait      : 39
+TRIGGER events      : 39
+% time armed        : 28.2%
+gyroz range         : -9328 .. 14557
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       35.5%
+   early_stance_no_slack      21.6%
+   cur_ramp_up                20.1%
+   idle_no_slack              14.5%
+   cur_ramp_down               8.4%
+Cmd τ range         : 0.00 .. 8.16 Nm
+Cmd current range   : -15000 .. -800 mA
+Meas current range  : -15080 .. 58 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 33190 .. 36842 mV
+
+No critical flags raised.

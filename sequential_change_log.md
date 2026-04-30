@@ -215,6 +215,57 @@ Position control is **still used** in [`encoder_check`](exo_init.py) and [`zero_
 
 ---
 
+## Session 4 — 2026-04-29: First successful walk tests (MAX4, SAV1) → tuned heel-strike sensitivity
+
+### Test details
+- **MAX4** (Max, 95 kg, 1.25 m/s, ~97 s): familiarization started before treadmill — **felt good, worked as intended.** No motor faults. Torque applied at correct times. User reported some missed timings that the controller recovered from on the next stride.
+- **SAV1** (Sav, 75 kg default, 1.25 m/s, ~78 s): also worked. Sav reported 0.12 Nm/kg felt slightly high for her weight.
+- **No "sudden yank" felt by either user**, despite Analysis2.py reporting one in summary.txt.
+
+**🎉 The Session 3 NO_SLACK_CURRENT swap is validated on hardware.** Position-control-during-walking is officially gone for good.
+
+### Diagnosis from logger data
+
+Counting ARM events vs TRIGGER events:
+
+| Run | ARM | TRIGGER | Lost ARMs |
+|---|---|---|---|
+| MAX4 L | 72 | 56 | 16 (22 %) |
+| MAX4 R | 72 | **46** | **26 (36 %)** |
+| SAV1 L | 69 | 65 | 4 (6 %) |
+| SAV1 R | 69 | 61 | 8 (12 %) |
+
+MAX4 had a serious right-side miss rate. Looking at every ARM in 7-25 s for MAX4 R:
+- Successful triggers: `min(gyroz)` reached **−4990 to −6296** in the armed window.
+- Failed (expired) ARMs: `min(gyroz)` only reached **−3776 to −4869** in the armed window.
+
+Old [`HEELSTRIKE_THRESHOLD_BELOW = −150 / BIT_TO_GYRO_COEFF ≈ −4920`](config.py) was set right at MAX's typical heel-strike dip magnitude → ~30 % of his real heel-strikes never crossed it.
+
+### "Sudden yank" warning was a false positive
+In current-control walking, [`mot_pos_setpoint`](exo_init.py) is never updated and stays at 0, so [`mot_pos_error = setpoint − actual ≈ −mot_ang_zeroed`](exo_init.py) is always huge (~11 000 ticks). Old [`Analysis2.py`](DataLog/analysis/Analysis2.py) reported this as a yank. Neither user felt anything — it's a stale-column artifact.
+
+### Treadmill ramp-up
+User noted the treadmill takes ~2 strides per foot to reach steady-state speed after Start. With `NUM_GAIT_TIMES_TO_AVERAGE = 3`, those longer-than-steady-state ramp strides got baked into the median estimate. Bumping the buffer to 5 makes the median robust to that and to single-stride misses.
+
+### Changes made
+
+#### A. [`config.py`](config.py)
+- `HEELSTRIKE_THRESHOLD_BELOW`: **−150 / BIT_TO_GYRO_COEFF (≈ −4920) → −100 / BIT_TO_GYRO_COEFF (≈ −3280)**. Now symmetric with the +3280 ARM threshold. Catches the real HS dips that were being missed for heavier walkers.
+- `NUM_GAIT_TIMES_TO_AVERAGE`: **3 → 5**. Median of 5 strides is robust to (a) the first 1-2 strides being affected by treadmill ramp-up and (b) occasional outliers from missed HS.
+
+#### B. [`Analysis2.py`](DataLog/analysis/Analysis2.py)
+- Position-error "sudden yank" flag now only computes over rows whose `controller_mode` is in `{idle_position, position_early_stance, position_late_stance, encoder_check, zero_boot}`. Walking runs (current control only) report `n/a (no position-control phases in this run)` and never trigger the false yank warning.
+
+### Status
+- **Validated on hardware**: position→current control swap (Session 3 fix) ✅
+- **Pending validation on hardware**: trigger-threshold change and 5-stride averaging (this session). Expected outcome: MAX4-class miss ratio drops from ~30 % to <10 %.
+- **Watch**: with the lower trigger magnitude (−3280 instead of −4920), in principle a contralateral cross-talk dip during own swing could fire a false trigger. Mitigations already in place: `armed_time > 100 ms` AND past refractory (`max(650, 0.6 × exp_dur)` ms). If false triggers appear, push back to `−110 / BIT_TO_GYRO_COEFF (≈ −3608)` as a middle ground.
+
+### Open question (user)
+> "torque felt a little low for me" (MAX, 95 kg). After validating heel-strike fix, can consider gradually raising `DEFAULT_PEAK_TORQUE_NORM` from 0.12 toward Sav-comfortable level (~0.10) up to a published Collins reference (~0.18-0.20). Don't jump back to 0.225 — that's where MAX1 over-currented at 28 A.
+
+---
+
 ## Architectural Decisions (do not undo without reading why)
 
 ### 1. Position control is NOT used during walking

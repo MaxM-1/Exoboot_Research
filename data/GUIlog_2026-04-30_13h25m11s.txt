@@ -1,0 +1,230 @@
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 28723
+  reading 1: mot_ang = 28723
+  reading 2: mot_ang = 28723
+  ankle  = 4308
+  motor actual  = 28723
+  motor desired = 28321.0
+  offset        = 402.0
+  motor shifted = 28723.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -11381
+  reading 1: mot_ang = -11381
+  reading 2: mot_ang = -11381
+  ankle  = 3968
+  motor actual  = -11381
+  motor desired = -11865.0
+  offset        = 484.0
+  motor shifted = -11381.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting familiarization …
+=== Familiarization ===
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [L DBG @1000] gz=7  min/max=-9/23  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-13  min/max=-28/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [L DBG @2000] gz=8  min/max=-9/23  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-14  min/max=-28/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  Left  gyroz  min=-9  max=23  state_time 90902→93102 (Δ=2200)
+  Right gyroz  min=-28  max=-1  state_time 84766→86966 (Δ=2200)
+  Thresholds:  ARM >= 3280   TRIGGER <= -3280
+Sensor check complete — starting control loop.
+Per-sample loggers attached → /home/auburn/Desktop/Exoboot_Research/data
+t_rise=25.3%  t_fall=10.3%  t_peak=51.3%
+  [L ARM] gz=3518  t=96892
+  [R ARM] gz=3714  t=91706
+  Right heel‑strike #1  (armed_time=410  thresh=100.0  exp_dur=-1.0)
+  [L CMD @500] pg=-1.0%  tau=0.00Nm  cur=800mA  exp_dur=-1  HS=0  wm_wa=11.58
+  [R CMD @500] pg=-1.0%  tau=0.00Nm  cur=800mA  exp_dur=-1  HS=1  wm_wa=12.27
+  [L ARM] gz=3846  t=98642
+  [R ARM] gz=3373  t=93116
+  Right heel‑strike #2  (armed_time=330  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=4020  t=99872
+  Left heel‑strike #1  (armed_time=280  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=4700  t=94316
+  Right heel‑strike #3  (armed_time=220  thresh=133.0  exp_dur=1330.0)
+  [L ARM] gz=4977  t=100922
+  Left heel‑strike #2  (armed_time=230  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=4336  t=95276
+  Right heel‑strike #4  (armed_time=270  thresh=133.0  exp_dur=1330.0)
+  [L ARM] gz=4203  t=101912
+  Left heel‑strike #3  (armed_time=270  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=5625  t=96296
+  Right heel‑strike #5  (armed_time=250  thresh=109.0  exp_dur=1090.0)
+  [L ARM] gz=5419  t=102912
+  Left heel‑strike #4  (armed_time=280  thresh=103.0  exp_dur=1030.0)
+  [R ARM] gz=4023  t=97276
+  [L DBG @1000] gz=-2407  min/max=-9301/13611  arm_thr=3280  trg_thr=-3280  armed=False  HS=4  exp_dur=1010
+  [R DBG @1000] gz=14090  min/max=-6766/15077  arm_thr=3280  trg_thr=-3280  armed=True  HS=5  exp_dur=1090
+  Right heel‑strike #6  (armed_time=240  thresh=109.0  exp_dur=1090.0)
+  [L ARM] gz=3731  t=103892
+  Left heel‑strike #5  (armed_time=260  thresh=101.0  exp_dur=1010.0)
+  [R ARM] gz=3704  t=98246
+  Right heel‑strike #7  (armed_time=350  thresh=101.0  exp_dur=1010.0)
+  [L ARM] gz=3752  t=104902
+  Left heel‑strike #6  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  [R ARM] gz=3883  t=99286
+  Right heel‑strike #8  (armed_time=310  thresh=101.0  exp_dur=1010.0)
+  [L ARM] gz=4538  t=105912
+  Left heel‑strike #7  (armed_time=340  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=5262  t=100316
+  Right heel‑strike #9  (armed_time=270  thresh=100.0  exp_dur=1000.0)
+  [L ARM] gz=4434  t=106972
+  Left heel‑strike #8  (armed_time=320  thresh=101.0  exp_dur=1010.0)
+  [R ARM] gz=4796  t=101326
+  Right heel‑strike #10  (armed_time=290  thresh=100.0  exp_dur=1000.0)
+  [L ARM] gz=7359  t=108022
+  Left heel‑strike #9  (armed_time=260  thresh=101.0  exp_dur=1010.0)
+  [R ARM] gz=4715  t=102376
+  [L CMD @1500] pg=42.0%  tau=5.20Nm  cur=8249mA  exp_dur=1000  HS=9  wm_wa=11.91
+  [R CMD @1500] pg=95.0%  tau=0.00Nm  cur=800mA  exp_dur=1000  HS=10  wm_wa=11.84
+  Right heel‑strike #11  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  [L ARM] gz=4058  t=109002
+  Left heel‑strike #10  (armed_time=270  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=4261  t=103386
+  Right heel‑strike #12  (armed_time=280  thresh=101.0  exp_dur=1010.0)
+  [L ARM] gz=5211  t=110032
+  Left heel‑strike #11  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=4670  t=104396
+  Right heel‑strike #13  (armed_time=310  thresh=101.0  exp_dur=1010.0)
+  [L ARM] gz=4567  t=111032
+  Left heel‑strike #12  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  [R ARM] gz=3790  t=105406
+  Right heel‑strike #14  (armed_time=250  thresh=103.0  exp_dur=1030.0)
+  [L ARM] gz=4186  t=112022
+  Left heel‑strike #13  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=5770  t=106396
+  Right heel‑strike #15  (armed_time=250  thresh=103.0  exp_dur=1030.0)
+  [L ARM] gz=3549  t=113002
+  Left heel‑strike #14  (armed_time=270  thresh=100.0  exp_dur=990.0)
+  [R ARM] gz=4871  t=107386
+  Right heel‑strike #16  (armed_time=270  thresh=101.0  exp_dur=1010.0)
+  [L DBG @2000] gz=-3710  min/max=-9301/14709  arm_thr=3280  trg_thr=-3280  armed=False  HS=14  exp_dur=1000
+  [R DBG @2000] gz=-5464  min/max=-8507/15077  arm_thr=3280  trg_thr=-3280  armed=False  HS=16  exp_dur=1010
+  [L ARM] gz=4226  t=114032
+  Left heel‑strike #15  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=3572  t=108386
+  Right heel‑strike #17  (armed_time=280  thresh=101.0  exp_dur=1010.0)
+  [L ARM] gz=4180  t=115042
+  Left heel‑strike #16  (armed_time=280  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=4315  t=109386
+  Right heel‑strike #18  (armed_time=260  thresh=101.0  exp_dur=1010.0)
+  [L ARM] gz=4234  t=116032
+  Left heel‑strike #17  (armed_time=290  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=3381  t=110376
+  Right heel‑strike #19  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  [L ARM] gz=4801  t=117042
+  Left heel‑strike #18  (armed_time=270  thresh=100.0  exp_dur=1000.0)
+  [R ARM] gz=3782  t=111356
+  Right heel‑strike #20  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #19  (armed_time=240  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #21  (armed_time=250  thresh=100.0  exp_dur=990.0)
+  [L CMD @2500] pg=86.0%  tau=0.00Nm  cur=800mA  exp_dur=1000  HS=19  wm_wa=12.22
+  [R CMD @2500] pg=38.4%  tau=3.46Nm  cur=5609mA  exp_dur=990  HS=21  wm_wa=11.62
+  Left heel‑strike #20  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #22  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #21  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Right heel‑strike #23  (armed_time=240  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #22  (armed_time=270  thresh=100.0  exp_dur=980.0)
+  Right heel‑strike #24  (armed_time=290  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #23  (armed_time=250  thresh=100.0  exp_dur=980.0)
+  Right heel‑strike #25  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #24  (armed_time=300  thresh=100.0  exp_dur=980.0)
+  Right heel‑strike #26  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #25  (armed_time=300  thresh=100.0  exp_dur=980.0)
+  [L DBG @3000] gz=-7337  min/max=-9531/14709  arm_thr=3280  trg_thr=-3280  armed=False  HS=25  exp_dur=990
+  [R DBG @3000] gz=-3645  min/max=-8507/15077  arm_thr=3280  trg_thr=-3280  armed=False  HS=26  exp_dur=990
+  Right heel‑strike #27  (armed_time=310  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #26  (armed_time=280  thresh=100.0  exp_dur=990.0)
+  Right heel‑strike #28  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  Left heel‑strike #27  (armed_time=240  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #29  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  Left heel‑strike #28  (armed_time=310  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #30  (armed_time=260  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #29  (armed_time=290  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #31  (armed_time=260  thresh=101.0  exp_dur=1010.0)
+  Left heel‑strike #30  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  [L CMD @3500] pg=47.0%  tau=7.24Nm  cur=11171mA  exp_dur=1000  HS=30  wm_wa=12.22
+  [R CMD @3500] pg=96.1%  tau=0.00Nm  cur=800mA  exp_dur=1020  HS=31  wm_wa=12.05
+  Right heel‑strike #32  (armed_time=300  thresh=102.0  exp_dur=1020.0)
+  Left heel‑strike #31  (armed_time=240  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #33  (armed_time=280  thresh=102.0  exp_dur=1020.0)
+  Left heel‑strike #32  (armed_time=270  thresh=100.0  exp_dur=990.0)
+  Right heel‑strike #34  (armed_time=240  thresh=102.0  exp_dur=1020.0)
+  Left heel‑strike #33  (armed_time=260  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #35  (armed_time=230  thresh=102.0  exp_dur=1020.0)
+  Left heel‑strike #34  (armed_time=300  thresh=100.0  exp_dur=990.0)
+  Right heel‑strike #36  (armed_time=260  thresh=100.0  exp_dur=980.0)
+  Left heel‑strike #35  (armed_time=310  thresh=100.0  exp_dur=990.0)
+  Right heel‑strike #37  (armed_time=270  thresh=100.0  exp_dur=980.0)
+  [L DBG @4000] gz=-1023  min/max=-9531/14709  arm_thr=3280  trg_thr=-3280  armed=False  HS=35  exp_dur=1000
+  [R DBG @4000] gz=-935  min/max=-8611/15613  arm_thr=3280  trg_thr=-3280  armed=False  HS=37  exp_dur=980
+  Left heel‑strike #36  (armed_time=300  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #38  (armed_time=260  thresh=100.0  exp_dur=980.0)
+  Left heel‑strike #37  (armed_time=240  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #39  (armed_time=270  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #38  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #40  (armed_time=320  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #39  (armed_time=300  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #41  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #40  (armed_time=300  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #42  (armed_time=260  thresh=100.0  exp_dur=1000.0)
+  [L CMD @4500] pg=81.2%  tau=0.00Nm  cur=800mA  exp_dur=1010  HS=40  wm_wa=12.20
+  [R CMD @4500] pg=40.0%  tau=4.25Nm  cur=6774mA  exp_dur=1000  HS=42  wm_wa=11.84
+  Left heel‑strike #41  (armed_time=430  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #43  (armed_time=260  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #42  (armed_time=310  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #44  (armed_time=260  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #43  (armed_time=460  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #45  (armed_time=300  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #44  (armed_time=270  thresh=101.0  exp_dur=1010.0)
+  Right heel‑strike #46  (armed_time=290  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #45  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #47  (armed_time=240  thresh=100.0  exp_dur=1000.0)
+  Left heel‑strike #46  (armed_time=300  thresh=100.0  exp_dur=980.0)
+  [L DBG @5000] gz=-2599  min/max=-9531/14709  arm_thr=3280  trg_thr=-3280  armed=False  HS=46  exp_dur=1000
+  [R DBG @5000] gz=-7886  min/max=-8873/15613  arm_thr=3280  trg_thr=-3280  armed=False  HS=47  exp_dur=990
+  Right heel‑strike #48  (armed_time=250  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #47  (armed_time=440  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #49  (armed_time=270  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #48  (armed_time=250  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #50  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #49  (armed_time=250  thresh=100.0  exp_dur=980.0)
+  Right heel‑strike #51  (armed_time=270  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #50  (armed_time=300  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #52  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #51  (armed_time=440  thresh=101.0  exp_dur=1010.0)
+  [L CMD @5500] pg=19.0%  tau=0.00Nm  cur=800mA  exp_dur=1000  HS=51  wm_wa=12.18
+  [R CMD @5500] pg=75.8%  tau=0.00Nm  cur=800mA  exp_dur=990  HS=52  wm_wa=12.36
+  Right heel‑strike #53  (armed_time=260  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #52  (armed_time=280  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #54  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  Left heel‑strike #53  (armed_time=280  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #55  (armed_time=330  thresh=100.0  exp_dur=990.0)
+  Left heel‑strike #54  (armed_time=300  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #56  (armed_time=460  thresh=101.0  exp_dur=1010.0)
+  Left heel‑strike #55  (armed_time=290  thresh=100.0  exp_dur=1000.0)
+  Right heel‑strike #57  (armed_time=250  thresh=101.0  exp_dur=1010.0)
+  Left heel‑strike #56  (armed_time=230  thresh=100.0  exp_dur=1000.0)
+>>> STOP requested
+Familiarization data saved → /home/auburn/Desktop/Exoboot_Research/data
+Familiarization ended.
+Shutting down boots …
+DataLog renamed → Data2026-04-30_13h25m36s_LEFT_idC719_SAV2_Connect.csv
+DataLog renamed → Data2026-04-30_13h25m40s_RIGHT_idC6D9_SAV2_Connect.csv

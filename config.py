@@ -40,10 +40,16 @@ BIT_TO_GYRO_COEFF = 1.0 / 32.8
 # ==============================================================================
 # Gait‑Segmentation (Heel‑Strike Detection)
 # ==============================================================================
-NUM_GAIT_TIMES_TO_AVERAGE = 3
+NUM_GAIT_TIMES_TO_AVERAGE = 5      # 4_29 changed 3 -> 5 (treadmill ramp-up makes
+                                    # first ~2 strides/foot longer than steady state;
+                                    # 5-sample median is robust to that and to
+                                    # occasional missed HS outliers)
 ARMED_DURATION_PERCENT = 10
 HEELSTRIKE_THRESHOLD_ABOVE = 100 / BIT_TO_GYRO_COEFF    # ≈ 3280  (was 150 → 4920)
-HEELSTRIKE_THRESHOLD_BELOW = -150 / BIT_TO_GYRO_COEFF   # ≈ −4920 (was -300 → −9840)
+HEELSTRIKE_THRESHOLD_BELOW = -100 / BIT_TO_GYRO_COEFF   # ≈ −3280 (4_29 was -150 → -4920;
+                                    # MAX4 logs showed real HS dips reaching only
+                                    # -3776 to -4869, so old -4920 missed ~30 %
+                                    # of strides for heavier walkers)
 MIN_STRIDE_PERIOD = 650            # ms — absolute‑minimum refractory period
 REFRACTORY_FRACTION = 0.60         # dynamic refractory = 60 % of expected stride
 REFRACTORY_MAX = 850               # ms — hard cap so refractory can never grow

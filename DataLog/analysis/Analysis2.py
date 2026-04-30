@@ -385,13 +385,22 @@ def write_summary(df: pd.DataFrame, out: Path, label: str = "") -> str:
     if df.controller_mode.eq("idle_position").mean() > 0.95:
         flags.append("⚠ >95 % of time in idle_position — boot never left pre-gait state.")
     if "mot_pos_error" in df.columns:
-        max_err = df.mot_pos_error.abs().max()
-        lines.append(f"Max |pos error|     : {max_err:.0f} ticks")
-        if max_err > 1000:
-            flags.append(
-                f"⚠ Position error spiked to {max_err:.0f} ticks "
-                "— position controller asked for a step the cable couldn't follow. "
-                "This is the classic 'sudden yank' signature.")
+        # Only meaningful in modes that actually use position control.
+        # In current-control walking, mot_pos_setpoint stays at 0 so
+        # mot_pos_error == -mot_ang_zeroed and is huge but irrelevant.
+        pos_modes = ("idle_position", "position_early_stance",
+                     "position_late_stance", "encoder_check", "zero_boot")
+        pos_mask = df.controller_mode.isin(pos_modes) if "controller_mode" in df.columns else None
+        if pos_mask is not None and pos_mask.any():
+            max_err = df.loc[pos_mask, "mot_pos_error"].abs().max()
+            lines.append(f"Max |pos error|     : {max_err:.0f} ticks  (position-control phases only)")
+            if max_err > 1000:
+                flags.append(
+                    f"⚠ Position error spiked to {max_err:.0f} ticks "
+                    "— position controller asked for a step the cable couldn't follow. "
+                    "This is the classic 'sudden yank' signature.")
+        else:
+            lines.append("Max |pos error|     : n/a (no position-control phases in this run)")
     if "batt_volt_mV" in df.columns and df.batt_volt_mV.max() > 0:
         bmin = df.batt_volt_mV[df.batt_volt_mV > 0].min()
         bmax = df.batt_volt_mV.max()
