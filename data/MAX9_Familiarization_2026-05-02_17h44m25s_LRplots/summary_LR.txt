@@ -1,0 +1,54 @@
+=== Diagnostic summary (L) ===
+File rows           : 860
+Duration            : 9.0 s  (≈ 95.3 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : MAX9   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.18
+Final num_gait      : 6
+TRIGGER events      : 6
+% time armed        : 22.6%
+gyroz range         : -9988 .. 13902
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   idle_no_slack              39.1%
+   early_stance_no_slack      19.0%
+   cur_ramp_up                18.6%
+   late_stance_no_slack       17.1%
+   cur_ramp_down               6.3%
+Cmd τ range         : 0.00 .. 17.10 Nm
+Cmd current range   : 800 .. 26000 mA
+Meas current range  : -800 .. 25115 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 32145 .. 37397 mV
+
+FLAGS:
+  ⚠ Firmware fault status: ex=451 re=0 samples — motor / regulator fault reported.
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 368 samples; first at t=0.00s.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 860
+Duration            : 9.0 s  (≈ 95.3 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX9   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.18
+Final num_gait      : 6
+TRIGGER events      : 6
+% time armed        : 20.7%
+gyroz range         : -10366 .. 12035
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   idle_no_slack              46.2%
+   late_stance_no_slack       17.4%
+   early_stance_no_slack      16.2%
+   cur_ramp_up                14.4%
+   cur_ramp_down               5.8%
+Cmd τ range         : 0.00 .. 17.10 Nm
+Cmd current range   : -26000 .. -800 mA
+Meas current range  : -24853 .. 648 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 31913 .. 37445 mV
+
+FLAGS:
+  ⚠ Firmware fault status: ex=191 re=0 samples — motor / regulator fault reported.
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 293 samples; first at t=0.00s.

@@ -2,3 +2,17 @@
 
 changing ki value in CURRENT_GAINS to 250 (400->250)
 .
+MAX7 test w/ new current gain values and changed max_current to 26000mA
+
+MAX8 test with new current gains and max_current at 28000mA 
+and peak torque at 0.2nm/kg
+Faulted and failed 
+
+MAX9 tested with low 26 A max_current
+peak torque at 0.18nm/kg 
+faulted and failed 
+==============================================================
+At 0.12 Nm/kg: ≈ 83 kg ceiling (saturation begins ~75–80 kg in practice).
+At 0.08 Nm/kg: ~125 kg ceiling — comfortably covers MAX at 95 kg.
+=====================================================================
+.

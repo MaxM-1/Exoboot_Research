@@ -27,7 +27,7 @@ RIGHT = -1
 # ==============================================================================
 ZEROING_CURRENT = 1000              # 1800 -> 1000
 NO_SLACK_CURRENT = 800              # 1200 -> 800
-PEAK_CURRENT = 15000                #4_28 changed from 28000 to 15000
+PEAK_CURRENT = 15000                #4_28 changed from 28000 to 15000 | 5_2 changing from 15000 to 26000 then back to 15000
 WARMUP_CURRENT = 600                # Light current during warm‑up strides
 
 # ==============================================================================
@@ -67,11 +67,13 @@ DEFAULT_T_FALL = 10.3               # Fall time  (reference value)
 DEFAULT_T_ONSET = 26.0              # Actuation‑start timing
 DEFAULT_PEAK_TORQUE_NORM = 0.12    # Normalised peak torque  (Nm / kg)
         #4_28 changed from 0.225 to 0.12
+        #5_2 changed from 0.12 to 0.20 then back to 0.12
 # ==============================================================================
 # PID Gains
 # ==============================================================================
 #CURRENT_GAINS = {"kp": 100, "ki": 32, "kd": 0, "k": 0, "b": 0, "ff": 0} old values
-CURRENT_GAINS = {"kp": 40, "ki": 400, "kd": 0, "k": 0, "b": 0, "ff": 128}
+#CURRENT_GAINS = {"kp": 40, "ki": 400, "kd": 0, "k": 0, "b": 0, "ff": 128} pre-5_2
+CURRENT_GAINS = {"kp": 40, "ki": 250, "kd": 0, "k": 0, "b": 0, "ff": 128} #post5_2 changes
 
 
 #POSITION_GAINS = {"kp": 175, "ki": 50, "kd": 0, "k": 0, "b": 0, "ff": 0} old values 

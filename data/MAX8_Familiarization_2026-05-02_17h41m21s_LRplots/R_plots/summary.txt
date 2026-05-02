@@ -1,0 +1,26 @@
+=== Diagnostic summary (R) ===
+File rows           : 1035
+Duration            : 10.8 s  (≈ 95.6 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX8   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.3  t_peak=51.3  peak_τ_norm=0.2
+Final num_gait      : 6
+TRIGGER events      : 6
+% time armed        : 21.4%
+gyroz range         : -9768 .. 11889
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   idle_no_slack              45.5%
+   late_stance_no_slack       19.0%
+   early_stance_no_slack      15.4%
+   cur_ramp_up                14.3%
+   cur_ramp_down               5.8%
+Cmd τ range         : 0.00 .. 19.00 Nm
+Cmd current range   : -28000 .. -800 mA
+Meas current range  : -25452 .. 87 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 31569 .. 37483 mV
+
+FLAGS:
+  ⚠ Firmware fault status: ex=334 re=0 samples — motor / regulator fault reported.
+  ⚠ Motor failed to follow current command (cmd>500, meas<100) in 392 samples; first at t=0.00s.
