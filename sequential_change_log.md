@@ -266,6 +266,93 @@ User noted the treadmill takes ~2 strides per foot to reach steady-state speed a
 
 ---
 
+## Session 5 — 2026-05-03: Torque→current conversion fixed for ActPack 4.1 (root cause of "phantom" over-current)
+
+### Problem reported
+> "I am trying to troubleshoot my current control as I think that there might be an issue with how the current is being calculated [...] I have just been putting bandaids on a larger fix and that fix being the current calculated."
+
+User reviewed the [`ankle_torque_to_current`](exo_init.py) chain with their advisor and questioned the legacy `* sqrt(2) / 0.537` factor that had been inherited verbatim from Peng's controller.
+
+### Diagnosis (from datasheet, not from logger data)
+
+**Smoking gun — ActPack 4.1 datasheet, Table 2 footnote (provided by user):**
+
+> "ActPack 0.2B and 4.1 are electrically the same, but 4.1 reports the **Q-axis motor current** which is **38 % of the magnitude** of the current reported by 0.2B, hence the different rating. This is also reflected by the increase in torque constant from **56 to 140 mNm/A**."
+
+Compute the magic number from the old formula:
+
+$$\frac{0.537}{\sqrt{2}} = 0.3797 \approx 0.38$$
+
+So Peng's line:
+```python
+Dephy_current = q_axis_current * sqrt(2) / 0.537   # = q_axis_current / 0.38
+```
+was converting **q-axis current → 0.2B's "magnitude" current register**. On ActPack 0.2B, `mot_cur` and `command_motor_current` both used peak-phase magnitude units, and `kt ≈ 56 mNm/A` (magnitude frame).
+
+On **ActPack 4.1** (our hardware), `mot_cur` and `command_motor_current` are **already Q-axis**, and the published `kt = 140 mNm/A` is the Q-axis constant. Applying `× sqrt(2)/0.537` on top **scales the command up by 1/0.38 ≈ 2.63×**, asking for 2.63× more current than the desired torque physically requires.
+
+This is consistent with every "phantom" over-current we've seen since Session 1:
+- MAX1 commanding 21.4 Nm (= 0.225 × 95) was *really* trying to deliver ~56 Nm-equivalent of motor torque → 28 A clamp ✓
+- MAX2/MAX3 with 0.12 Nm/kg × 85 = 10.2 Nm cmd τ saw 26 A measured even with 15 A clamps in place → consistent with 2.63× over-command driving the position-control loop into the rails (Session 3 was a real bug too, but this factor was compounding it)
+- Sav reporting 0.12 Nm/kg "felt slightly high" → because she was actually getting ~0.32 Nm/kg
+
+### Changes made
+
+#### A. [`exo_init.py`](exo_init.py) — removed the 0.2B compatibility scale
+Old:
+```python
+def ankle_torque_to_current(self, torque_mnm):
+    q_axis_current = (torque_mnm / self.wm_wa) / 1000.0 / self.kt   # A
+    dephy_current = q_axis_current * sqrt(2) / 0.537
+    return dephy_current  # A
+```
+New:
+```python
+def ankle_torque_to_current(self, torque_mnm):
+    # ActPack 4.1, Direct Drive (1:1). mot_cur and command_motor_current
+    # are already Q-axis; kt = 0.140 Nm/A is Q-axis. No extra scale.
+    q_axis_current = (torque_mnm / self.wm_wa) / 1000.0 / self.kt   # A
+    return q_axis_current
+```
+Also updated the [`self.kt`](exo_init.py) comment block to cite the Table 1 entry and explicitly forbid re-introducing the rescale, and removed the now-unused `from math import sqrt` import.
+
+The corrected analytical relation is:
+
+$$I_{cmd}\,[\text{mA}] = \frac{\tau_{ankle}\,[\text{Nm}]}{w_m/w_a \cdot k_t} \cdot 1000, \quad k_t = 0.140\,\text{Nm/A}$$
+
+#### B. [`AGENTS.md`](AGENTS.md) — added a hard rule
+The "do not regress" list now includes a line forbidding re-introduction of the 0.2B rescale.
+
+#### C. [`CLAUDE.md`](CLAUDE.md) — added datasheet pointers
+Hardware Constraints section now states the device reports Q-axis current and points to this session for the derivation.
+
+### Expected effect on the next walk test
+
+For the same `peak_torque_norm × weight`, commanded mA will drop by factor 0.38 (= ~2.63× lower). Concretely, with the current [`config.py`](config.py) values (`DEFAULT_PEAK_TORQUE_NORM = 0.12`, `PEAK_CURRENT = 15000`):
+
+| Participant | Old peak τ → cmd I (mA, mid-stride wm_wa ≈ 50) | New peak I (mA) |
+|---|---|---|
+| 70 kg | 8.4 Nm → ~12 600 mA (often clipped) | ~4 800 mA |
+| 85 kg (Max@85) | 10.2 Nm → ~15 000 mA (always clipped) | ~5 800 mA |
+| 95 kg (Max@95) | 11.4 Nm → 15 000 mA (clipped) | ~6 500 mA |
+
+So for the first time the controller will deliver the *true* Collins peak torque the user dialed in, instead of ~38 % of it. Participants who said "felt low" (Max in Session 4) and "felt slightly high" (Sav in Session 4) need to be **re-baselined** — their previous comfort settings reflected the over-commanded scale.
+
+### Validation plan (do this before resuming participant runs)
+
+1. **Bench test first** with [`PID testing/Bench_PID_Test3.py`](PID%20testing/Bench_PID_Test3.py) — boot off the participant. Manually rotate the ankle through ROM under a constant `self.tau` setpoint and verify:
+   - Logged `mot_cur` ≈ `(self.tau / wm_wa / kt) × 1000` mA at quasi-static load.
+   - No fault registers fire at the new (lower) commanded currents.
+2. **Re-evaluate [`PEAK_CURRENT`](config.py)**. The 15000 mA clamp was set defensively to mask the 2.63× over-command. After this fix, Collins peaks up to ~0.20 Nm/kg × 95 kg ≈ 19 Nm should request only ~10 800 mA — well under 15 A. Don't reflexively raise the clamp; verify the participant feels the *correct* assistance level first.
+3. **Re-baseline perception**. Sav's comfortable level is now likely 0.20–0.25 Nm/kg (was 0.10–0.12 under the old scale). Max likewise.
+
+### Status
+- **Code change**: Applied. Offline `pytest` passes (no hardware required).
+- **Hardware validation**: NOT yet performed. Bench test is mandatory before next participant.
+- **Open question**: After validation, consider whether [`PEAK_CURRENT`](config.py) and [`DEFAULT_PEAK_TORQUE_NORM`](config.py) should be raised back toward published Collins values (~0.18–0.20 Nm/kg). Do not change them in the same session as this fix — change one variable at a time.
+
+---
+
 ## Architectural Decisions (do not undo without reading why)
 
 ### 1. Position control is NOT used during walking

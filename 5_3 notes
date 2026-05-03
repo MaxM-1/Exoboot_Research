@@ -1,0 +1,66 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│  1. Collins cubic spline → ankle torque                             │
+│     run_collins_profile()                                           │
+│     τ = a·pg³ + b·pg² + c·pg + d            [Nm at the ANKLE]       │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │  self.tau (Nm)
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  2. Nm → mNm                                                        │
+│     nm_to_mnm(τ) = τ * 1000                  [mNm at ANKLE]         │
+└────────────────────────────┬────────────────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  3. Ankle torque → motor q-axis current                             │
+│     ankle_torque_to_current()                                       │
+│                                                                     │
+│     q_axis_current = (τ_mNm / wm_wa) / 1000 / kt                    │
+│                                                                     │
+│     where:                                                          │
+│       wm_wa = dP/dx of ankle→motor poly (motor/ankle vel ratio)     │
+│              = transmission ratio N (motor rev per ankle rev)       │
+│       kt    = 0.14 Nm/A   (q-axis motor torque constant)            │
+│                                                                     │
+│     Physics:  τ_motor = τ_ankle / N      (ideal transmission)       │
+│               I_q     = τ_motor / kt                                │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │  q_axis_current (A)
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  4. q-axis current → "Dephy current"  ◀── THE 0.537 LIVES HERE      │
+│                                                                     │
+│     Dephy_current = q_axis_current * sqrt(2) / 0.537   [A]          │
+└────────────────────────────┬────────────────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  5. A → mA, clamp, apply side                                       │
+│     a_to_ma(I) = I * 1000                                           │
+│     I = clamp(I, NO_SLACK_CURRENT, PEAK_CURRENT)                    │
+│     device.command_motor_current(int(I * self.side))                │
+└─────────────────────────────────────────────────────────────────────┘
+.
+=======================================================================
+.
+fixing 'ankle_torque_to_current' as it was based on Xiangyu code and wrong
+-was calculating for Actpack 0.2B instead of Actpack 4.1  \
+
+
+=======================================================================
+MAX13 - with new ankle_torque_to_current functionran at 0.225nm/kg and 28A limit 
+- felt goof , lighter than before but that was obviously due to how the ankle_torque_to_current was calculated 
+.
+
+SAV5
+- felt much better , felt like old controller 
+-said that when I pressed "stop" in GUI that it felt like got stuck in torque providing planterflexion 
+.
+
+SAV6 - walking at 1.25m/s and doing perception test 
+pressing perception test after 
+====
+need to have rise and fall time connected like I had before and then in the GUI I need 
+to have a better SOP for how I am going to have the participants stop and start the trial
+and then some indication in the GUI . 
+and do adaptive heelstyrikes for different speeds like i needed for savannahs 
+
+and for experiment savannah says that the experiment that Dr. Acostas 

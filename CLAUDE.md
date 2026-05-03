@@ -49,6 +49,7 @@ Signal constants defined in config.py (SIG_STOP, SIG_FAM_BEGIN, etc.)
 - Streaming at **100 Hz** (not 1000 — the firmware-internal control loop is faster, but the host-side stream we read is 100 Hz)
 - Serial ports: `/dev/ttyACM0` and `/dev/ttyACM1` (configurable in GUI and config.py)
 - Current limits are safety-critical. Current values in [config.py](config.py): `PEAK_CURRENT = 15000` mA, `NO_SLACK_CURRENT = 800` mA, `DEFAULT_PEAK_TORQUE_NORM = 0.12` Nm/kg. **Do not raise `PEAK_CURRENT` above 15000 without first reviewing [sequential_change_log.md](sequential_change_log.md) — the firmware ceiling of 28000 mA over-currents the motor under sustained load.**
+- **Torque→current conversion (CRITICAL)**: This codebase runs on **ActPack 4.1 (Direct Drive 1:1)**. The device reports `mot_cur` and accepts `command_motor_current` in **Q-axis** units, and the published `kt = 140 mNm/A` is the Q-axis torque constant (datasheet Table 1, 1:1 column). [`ankle_torque_to_current`](exo_init.py) therefore computes `I_q = (tau_mNm / wm_wa) / 1000 / kt` with **no extra scale factors**. Peng's reference controller in [`RESOURCES/`](RESOURCES/) was written for ActPack 0.2B, where `mot_cur` was reported in peak-magnitude units (38 % larger numerical value) and `kt ≈ 56 mNm/A`; that controller multiplied by `sqrt(2) / 0.537` to convert Q-axis→magnitude. **Do not copy that line into the 4.1 controller** — doing so over-commands current by ~2.63×. See Session 5 in [sequential_change_log.md](sequential_change_log.md).
 
 ## Important Notes
 

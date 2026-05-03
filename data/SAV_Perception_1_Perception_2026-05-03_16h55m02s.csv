@@ -1,0 +1,4 @@
+Trial #,Sweep #,Delta,Test Mode,Reference Value,Comparison Value,Response,Catch Trial
+1,0,1.0,rise_time,25.3,28.3,Same,No
+2,0,1.0,rise_time,25.3,29.3,Different,No
+3,0,1.0,rise_time,25.3,25.3,Same,Yes

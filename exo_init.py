@@ -22,7 +22,6 @@ Author:  Max Miller — Auburn University
 
 import os
 import numpy as np
-from math import sqrt
 from time import sleep
 import configparser
 from scipy.signal import butter
@@ -248,7 +247,16 @@ class ExoBoot:
         self.magnitude = 40 * 45.5111
 
         # ---- Motor constant ------------------------------------------
-        self.kt = 0.14  # Nm / A (q‑axis)
+        # ActPack 4.1, Direct Drive (1:1) Q-axis torque constant.
+        # Source: Dephy ActPack 4.1 datasheet, Table 1 ("Motor Torque
+        # Constant" = 140 mNm/A in the 1:1 column).
+        # NOTE: ActPack 4.1 reports `mot_cur` and accepts
+        # `command_motor_current` in Q-AXIS units already, so this kt
+        # is consistent with the values logged and commanded. Do NOT
+        # re-introduce the legacy `* sqrt(2) / 0.537` rescale that
+        # Peng's 0.2B-firmware controller used; see Session 5 of
+        # sequential_change_log.md.
+        self.kt = 0.14  # Nm / A (Q-axis, ActPack 4.1)
 
         # ---- Gains‑mode tracker (avoid re‑sending same gains) --------
         self._gains_mode: str | None = None   # 'current' | 'position'
@@ -550,13 +558,46 @@ class ExoBoot:
             self.wm_wa = 1.0
 
     # -----------------------------------------------------------------
-    #  Torque → motor current
+    #  Torque → motor current  (ActPack 4.1, Direct Drive)
     # -----------------------------------------------------------------
     def ankle_torque_to_current(self, torque_mnm):
-        """Convert ankle torque (mNm) to Dephy motor current (A)."""
+        """Convert ankle torque (mNm) to Dephy motor current (A).
+
+        Hardware: Dephy ActPack 4.1, Direct Drive (1:1) configuration.
+
+        Equation (no extra scale factors needed on 4.1):
+
+            I_q [A] = (tau_ankle_mNm / wm_wa) / 1000 / kt
+
+        where
+            wm_wa : derivative of the ankle->motor calibration polynomial
+                    = motor-ticks per ankle-tick (cable/pulley ratio,
+                    unitless). See _calc_wm_wa().
+            kt    : 0.140 Nm/A, the Q-axis torque constant from the
+                    ActPack 4.1 datasheet (Table 1, 1:1 column).
+
+        IMPORTANT (2026-05-03):
+            The legacy `* sqrt(2) / 0.537` factor that lived here was
+            inherited from Peng's controller, which targeted ActPack
+            0.2B firmware. On 0.2B, `mot_cur` and the commanded current
+            were reported in *peak phase magnitude* units, and kt was
+            ~56 mNm/A. The factor 0.537 / sqrt(2) = 0.38 is exactly the
+            38 % ratio called out in the ActPack 4.1 datasheet footnote
+            ("4.1 reports the Q-axis motor current which is 38 % of the
+            magnitude reported by 0.2B; torque constant increased from
+            56 to 140 mNm/A accordingly").
+
+            ActPack 4.1 already reports and accepts Q-axis current
+            directly. Applying the 0.2B rescale on top of a 4.1 device
+            over-commanded current by 1/0.38 ~= 2.63x and was the root
+            cause of months of "phantom" over-current behaviour that
+            had been masked by lowering PEAK_CURRENT and
+            DEFAULT_PEAK_TORQUE_NORM. DO NOT REINTRODUCE THIS FACTOR.
+            See sequential_change_log.md Session 5 for the full
+            derivation.
+        """
         q_axis_current = (torque_mnm / self.wm_wa) / 1000.0 / self.kt   # A
-        dephy_current = q_axis_current * sqrt(2) / 0.537
-        return dephy_current  # A
+        return q_axis_current  # A (Q-axis; passed straight to ActPack 4.1)
 
     # -----------------------------------------------------------------
     #  Collins torque‑profile coefficients

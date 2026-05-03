@@ -11,6 +11,7 @@ User-facing setup, calibration, and experiment workflow live in [README.md](READ
 
 - **Walking control = current control only.** During walking, only `cur_ramp_up` / `cur_ramp_down` drive the Collins torque pulse. Pre-gait, early-stance, and late-stance hold a low constant current (`NO_SLACK_CURRENT * side`). Position control during walking caused 20 000+ tick error spikes at heel-strike — see Session 3 in [sequential_change_log.md](sequential_change_log.md). Position control is allowed only in `encoder_check` and `zero_boot` (stationary).
 - **Do not raise `PEAK_CURRENT` above 15000 mA** in [config.py](config.py) without first reviewing the change log. The 28000 mA firmware ceiling over-currents the motor under sustained load.
+- **Torque→current conversion is for ActPack 4.1 (Q-axis) ONLY.** [`ankle_torque_to_current`](exo_init.py) returns `(tau_mNm / wm_wa) / 1000 / kt` with `kt = 0.140 Nm/A`. Do **NOT** multiply by `sqrt(2) / 0.537` (or equivalently divide by 0.38) — that is the legacy ActPack 0.2B-firmware rescale from Peng's controller and applying it on 4.1 over-commands current by ~2.63×. See Session 5 in [sequential_change_log.md](sequential_change_log.md) for the datasheet derivation.
 - **All experiment constants live in [config.py](config.py)** — do not hard-code values elsewhere. Change parameters there.
 - **Thread safety**: GUI ↔ experiment thread communicate only via `command_queue` / `status_queue`. No shared mutable state.
 

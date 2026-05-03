@@ -1,0 +1,39 @@
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 29890
+  reading 1: mot_ang = 29890
+  reading 2: mot_ang = 29890
+  ankle  = 4411
+  motor actual  = 29890
+  motor desired = 29608.0
+  offset        = 282.0
+  motor shifted = 29890.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -12309
+  reading 1: mot_ang = -12309
+  reading 2: mot_ang = -12309
+  ankle  = 3885
+  motor actual  = -12309
+  motor desired = -12878.0
+  offset        = 569.0
+  motor shifted = -12309.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Keep the participant standing still, press 'Start Familiarization' or 'Start Perception Test', wait 2-3 s, then start the treadmill.
+Waiting for start command — start the treadmill now …
+>>> STOP requested
+Shutting down boots …
+DataLog renamed → Data2026-05-03_08h57m37s_LEFT_idC719_MAX11_Connect.csv
+DataLog renamed → Data2026-05-03_08h57m41s_RIGHT_idC6D9_MAX11_Connect.csv
