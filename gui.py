@@ -131,6 +131,24 @@ class ExperimentGUI(QMainWindow):
         dir_widget.setLayout(dir_layout)
         form.addRow("Approach:", dir_widget)
 
+        # Radio — experiment type (MAX = peak time, SAV = peak torque)
+        exp_layout = QHBoxLayout()
+        self.radio_max = QRadioButton("MAX (peak time)")
+        self.radio_sav = QRadioButton("SAV (peak torque)")
+        self.radio_max.setChecked(DEFAULT_EXPERIMENT == MAX_EXPERIMENT)
+        self.radio_sav.setChecked(DEFAULT_EXPERIMENT == SAV_EXPERIMENT)
+        self.experiment_group = QButtonGroup(self)
+        self.experiment_group.addButton(self.radio_max)
+        self.experiment_group.addButton(self.radio_sav)
+        self.experiment_group.buttonClicked.connect(
+            self._on_experiment_type_changed)
+        exp_layout.addWidget(self.radio_max)
+        exp_layout.addWidget(self.radio_sav)
+        exp_layout.addStretch()
+        exp_widget = QWidget()
+        exp_widget.setLayout(exp_layout)
+        form.addRow("Experiment:", exp_widget)
+
         group.setLayout(form)
         return group
 
@@ -287,16 +305,50 @@ class ExperimentGUI(QMainWindow):
     def _collect_params(self, mode: str) -> dict:
         approach = (APPROACH_FROM_ABOVE if self.radio_above.isChecked()
                     else APPROACH_FROM_BELOW)
+        experiment_type = (SAV_EXPERIMENT if self.radio_sav.isChecked()
+                           else MAX_EXPERIMENT)
         return {
             "participant_id": self.edit_pid.text(),
             "user_weight": self.edit_weight.text(),
             "test_mode": PEAK_TIME_TEST,
+            "experiment_type": experiment_type,
             "approach": approach,
             "left_port": self.edit_lport.text(),
             "right_port": self.edit_rport.text(),
             "firmware": self.edit_fw.text(),
             "mode": mode,
         }
+
+    def _on_experiment_type_changed(self, *_):
+        """Refresh reference label when the experiment radio toggles."""
+        self._refresh_reference_label()
+
+    def _current_experiment_type(self) -> str:
+        return (SAV_EXPERIMENT if self.radio_sav.isChecked()
+                else MAX_EXPERIMENT)
+
+    def _current_total_sweeps(self) -> int:
+        return (SAV_TOTAL_SWEEPS
+                if self._current_experiment_type() == SAV_EXPERIMENT
+                else MAX_TOTAL_SWEEPS)
+
+    def _refresh_reference_label(self):
+        if not hasattr(self, "lbl_ref"):
+            return
+        if self._current_experiment_type() == SAV_EXPERIMENT:
+            self.lbl_ref.setText(
+                f"Reference peak_tn: {SAV_REFERENCE_PEAK_TN:.3f}Nm/kg   "
+                f"(t_peak={DEFAULT_T_PEAK:.1f}% held constant)")
+            self.lbl_comp.setText("Comparison peak_tn: --")
+        else:
+            self.lbl_ref.setText(
+                f"Reference t_peak: {DEFAULT_T_PEAK:.1f}%   "
+                f"(start={T_ACT_START:.1f}%  end={T_ACT_END:.1f}%)")
+            self.lbl_comp.setText("Comparison t_peak: --")
+        # Update sweep total in the progress label
+        if hasattr(self, "lbl_progress"):
+            self.lbl_progress.setText(
+                f"Trial: --   Sweep: --/{self._current_total_sweeps()}")
 
     def _on_connect_zero(self):
         """Connect to boots and zero them, then wait for user to start
@@ -462,14 +514,20 @@ class ExperimentGUI(QMainWindow):
             sweep = msg.get("sweep", "--")
             ref = msg.get("reference", DEFAULT_T_PEAK)
             comp = msg.get("comparison", "--")
+            var_label = msg.get("var_label", "t_peak")
+            var_units = msg.get("var_units", "% gait")
+            total_sweeps = msg.get("total_sweeps",
+                                   self._current_total_sweeps())
+            fmt = ".3f" if var_units == "Nm/kg" else ".1f"
             self.lbl_progress.setText(
-                f"Trial: {trial}   Sweep: {sweep}/{TOTAL_SWEEPS}")
+                f"Trial: {trial}   Sweep: {sweep}/{total_sweeps}")
             try:
                 self.lbl_comp.setText(
-                    f"Comparison t_peak: {comp:.1f}%   "
-                    f"(\u0394 vs ref = {comp - ref:+.1f}%)")
+                    f"Comparison {var_label}: {comp:{fmt}}{var_units}   "
+                    f"(\u0394 vs ref = {comp - ref:+{fmt}}{var_units})")
             except (TypeError, ValueError):
-                self.lbl_comp.setText(f"Comparison t_peak: {comp}")
+                self.lbl_comp.setText(
+                    f"Comparison {var_label}: {comp}")
 
         elif t == "condition_announce":
             label = msg.get("label", "Condition")
@@ -492,10 +550,16 @@ class ExperimentGUI(QMainWindow):
         elif t == "trial_phase":
             phase = msg.get("phase", "")
             label = msg.get("label", "")
-            tp = msg.get("t_peak", None)
+            value = msg.get("value", msg.get("t_peak", None))
+            var_label = msg.get("var_label", "t_peak")
+            var_units = msg.get("var_units", "% gait")
             extra = ""
-            if tp is not None:
-                extra = f"  (t_peak={tp:.1f}%)"
+            if value is not None:
+                fmt = ".3f" if var_units == "Nm/kg" else ".1f"
+                try:
+                    extra = f"  ({var_label}={value:{fmt}}{var_units})"
+                except (TypeError, ValueError):
+                    extra = f"  ({var_label}={value})"
             colors = {
                 "warmup_light":   ("Warm-up (light)",      "#ddd"),
                 "warmup_collins": ("Warm-up (Collins)",    "#ddd"),

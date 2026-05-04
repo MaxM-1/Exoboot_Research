@@ -33,6 +33,69 @@ from exo_init import ExoBoot
 from exo_logger import ExoLogger
 
 
+# ======================================================================
+#  Staircase-variable abstraction
+# ======================================================================
+class _StaircaseVar:
+    """Encapsulates which Collins parameter the perception staircase
+    varies and the per-experiment step / clamp / format rules.
+
+    For ``MAX_EXPERIMENT`` the staircase value is ``t_peak`` (% gait);
+    peak torque is held constant at ``MAX_FAM_PEAK_TN``.
+
+    For ``SAV_EXPERIMENT`` the staircase value is ``peak_torque_norm``
+    (Nm/kg); ``t_peak`` is held constant at ``DEFAULT_T_PEAK``.
+    """
+
+    def __init__(self, experiment_type: str):
+        if experiment_type == SAV_EXPERIMENT:
+            self.experiment_type = SAV_EXPERIMENT
+            self.reference = SAV_REFERENCE_PEAK_TN
+            self.delta = SAV_DELTA
+            self.initial_offset = SAV_INITIAL_OFFSET
+            self.total_sweeps = SAV_TOTAL_SWEEPS
+            self.rest_strides = SAV_REST_STRIDES
+            self.fam_delta = SAV_FAM_DELTA
+            self.fam_value = SAV_FAM_PEAK_TN
+            self.fixed_peak_tn = SAV_REFERENCE_PEAK_TN  # peak_tn IS the var
+            self.label = "peak_tn"
+            self.units = "Nm/kg"
+            self.fmt = ".3f"
+        else:
+            self.experiment_type = MAX_EXPERIMENT
+            self.reference = DEFAULT_T_PEAK
+            self.delta = MAX_DELTA
+            self.initial_offset = MAX_INITIAL_OFFSET
+            self.total_sweeps = MAX_TOTAL_SWEEPS
+            self.rest_strides = MAX_REST_STRIDES
+            self.fam_delta = MAX_FAM_DELTA
+            self.fam_value = DEFAULT_T_PEAK
+            self.fixed_peak_tn = MAX_FAM_PEAK_TN
+            self.label = "t_peak"
+            self.units = "% gait"
+            self.fmt = ".1f"
+
+    # ------------------------------------------------------------------
+    def clamp(self, value: float) -> float:
+        if self.experiment_type == SAV_EXPERIMENT:
+            return min(max(float(value), SAV_MIN_PEAK_TN), SAV_MAX_PEAK_TN)
+        return PerceptionExperiment._clamp_peak(float(value))
+
+    # ------------------------------------------------------------------
+    def profile_args(self, value: float) -> tuple[float, float]:
+        """Return ``(t_peak, peak_tn)`` for a given staircase value."""
+        if self.experiment_type == SAV_EXPERIMENT:
+            return DEFAULT_T_PEAK, self.clamp(value)
+        return self.clamp(value), self.fixed_peak_tn
+
+    # ------------------------------------------------------------------
+    def format(self, value: float) -> str:
+        try:
+            return f"{float(value):{self.fmt}}{self.units}"
+        except (TypeError, ValueError):
+            return str(value)
+
+
 class PerceptionExperiment:
     """Manages boot connections and runs experiment protocols."""
 
@@ -250,29 +313,36 @@ class PerceptionExperiment:
 
         p = self.params
         user_weight = float(p["user_weight"])
+        var = _StaircaseVar(p.get("experiment_type", DEFAULT_EXPERIMENT))
 
-        # Single staircase variable: t_peak.  Rise/fall derived to keep
-        # T_ACT_START and T_ACT_END constant.
-        t_peak = DEFAULT_T_PEAK
-        peak_tn = DEFAULT_PEAK_TORQUE_NORM
+        # Single staircase variable — t_peak (MAX) or peak_tn (SAV).
+        # For familiarization the value sits at the experiment's
+        # reference and is nudged manually with the GUI ▲ / ▼ buttons.
+        cur_value = var.fam_value
+        ref_value = var.fam_value
+        t_peak, peak_tn = var.profile_args(cur_value)
         prof = self._make_profile(t_peak, user_weight, peak_tn)
         t_rise = prof["t_rise"]; t_fall = prof["t_fall"]
 
         self.left_boot.init_collins_profile(**prof)
         self.right_boot.init_collins_profile(**prof)
 
-        self._log(f"t_peak={t_peak:.1f}%  (t_rise={t_rise:.1f}%  "
-                  f"t_fall={t_fall:.1f}%)  start={T_ACT_START:.1f}%  "
-                  f"end={T_ACT_END:.1f}%")
+        self._log(f"Familiarization [{var.experiment_type}]  "
+                  f"{var.label}={var.format(cur_value)}  "
+                  f"(t_peak={t_peak:.1f}%  peak_tn={peak_tn:.3f}Nm/kg)")
+        ref_t_peak, ref_peak_tn = var.profile_args(ref_value)
         self._send("profile_preview",
-                   ref=self._collins_curve(DEFAULT_T_PEAK, user_weight, peak_tn),
+                   ref=self._collins_curve(ref_t_peak, user_weight,
+                                           ref_peak_tn),
                    comp=self._collins_curve(t_peak, user_weight, peak_tn),
-                   ref_label=f"reference  t_peak={DEFAULT_T_PEAK:.1f}%",
-                   comp_label=f"current    t_peak={t_peak:.1f}%")
+                   ref_label=f"reference  {var.label}={var.format(ref_value)}",
+                   comp_label=f"current    {var.label}={var.format(cur_value)}")
 
         # Data log
         fam_data = {
-            "state_time": [], "t_peak": [], "t_rise": [], "t_fall": [],
+            "state_time": [], "experiment_type": [],
+            "t_peak": [], "t_rise": [], "t_fall": [],
+            "peak_tn": [],
             "est_stride_dur": [], "actual_stride_dur": [],
         }
         left_prev_gait = self.left_boot.num_gait
@@ -290,14 +360,16 @@ class PerceptionExperiment:
             if cmd == STOP_SIGNAL:
                 break
             if cmd == INCREASE_SIGNAL:
-                t_peak = self._clamp_peak(t_peak + FAMILIARIZATION_DELTA)
+                cur_value = var.clamp(cur_value + var.fam_delta)
+                t_peak, peak_tn = var.profile_args(cur_value)
                 prof = self._make_profile(t_peak, user_weight, peak_tn)
                 t_rise = prof["t_rise"]; t_fall = prof["t_fall"]
                 current_left_num = self.left_boot.num_gait
                 current_right_num = self.right_boot.num_gait
                 update_left = update_right = True
             if cmd == DECREASE_SIGNAL:
-                t_peak = self._clamp_peak(t_peak - FAMILIARIZATION_DELTA)
+                cur_value = var.clamp(cur_value - var.fam_delta)
+                t_peak, peak_tn = var.profile_args(cur_value)
                 prof = self._make_profile(t_peak, user_weight, peak_tn)
                 t_rise = prof["t_rise"]; t_fall = prof["t_fall"]
                 current_left_num = self.left_boot.num_gait
@@ -307,30 +379,36 @@ class PerceptionExperiment:
             # Apply at next heel‑strike
             if update_left and self.left_boot.num_gait > current_left_num:
                 self.left_boot.init_collins_profile(**prof)
-                self._log(f"Left  → t_peak={t_peak:.1f}  "
-                          f"(rise={t_rise:.1f}, fall={t_fall:.1f})")
+                self._log(f"Left  → {var.label}={var.format(cur_value)}  "
+                          f"(rise={t_rise:.1f}, fall={t_fall:.1f}, "
+                          f"peak_tn={peak_tn:.3f})")
                 update_left = False
             if update_right and self.right_boot.num_gait > current_right_num:
                 self.right_boot.init_collins_profile(**prof)
-                self._log(f"Right → t_peak={t_peak:.1f}  "
-                          f"(rise={t_rise:.1f}, fall={t_fall:.1f})")
+                self._log(f"Right → {var.label}={var.format(cur_value)}  "
+                          f"(rise={t_rise:.1f}, fall={t_fall:.1f}, "
+                          f"peak_tn={peak_tn:.3f})")
                 update_right = False
                 # Send live preview update once both boots are on new profile
                 self._send("profile_preview",
-                           ref=self._collins_curve(DEFAULT_T_PEAK,
-                                                   user_weight, peak_tn),
+                           ref=self._collins_curve(ref_t_peak,
+                                                   user_weight, ref_peak_tn),
                            comp=self._collins_curve(t_peak, user_weight,
                                                     peak_tn),
-                           ref_label=f"reference  t_peak={DEFAULT_T_PEAK:.1f}%",
-                           comp_label=f"current    t_peak={t_peak:.1f}%")
+                           ref_label=f"reference  {var.label}="
+                                     f"{var.format(ref_value)}",
+                           comp_label=f"current    {var.label}="
+                                      f"{var.format(cur_value)}")
 
             # ---- Per‑stride logging ----------------------------------
             if self.left_boot.num_gait > left_prev_gait:
                 fam_data["actual_stride_dur"].append(self.left_boot.current_duration)
                 fam_data["state_time"].append(self.left_boot.current_time)
+                fam_data["experiment_type"].append(var.experiment_type)
                 fam_data["t_rise"].append(self.left_boot.t_rise)
                 fam_data["t_fall"].append(self.left_boot.t_fall)
                 fam_data["t_peak"].append(self.left_boot.t_peak)
+                fam_data["peak_tn"].append(peak_tn)
                 fam_data["est_stride_dur"].append(self.left_boot.expected_duration)
                 left_prev_gait = self.left_boot.num_gait
 
@@ -404,36 +482,42 @@ class PerceptionExperiment:
         p = self.params
         user_weight = float(p["user_weight"])
         approach = p["approach"]
+        var = _StaircaseVar(p.get("experiment_type", DEFAULT_EXPERIMENT))
 
-        # Single staircase variable: t_peak.
-        peak_tn = DEFAULT_PEAK_TORQUE_NORM
-        reference_value = DEFAULT_T_PEAK   # reference t_peak (% gait)
+        # Staircase variable — t_peak (MAX) or peak_tn (SAV).
+        reference_value = var.reference
 
         if approach == APPROACH_FROM_ABOVE:
-            init_comparison = reference_value + INITIAL_OFFSET
+            init_comparison = reference_value + var.initial_offset
             direction = -1     # must decrease to approach reference
         else:
-            init_comparison = reference_value - INITIAL_OFFSET
+            init_comparison = reference_value - var.initial_offset
             direction = 1      # must increase to approach reference
 
-        init_comparison = self._clamp_peak(init_comparison)
+        init_comparison = var.clamp(init_comparison)
         adaptive_comp = init_comparison
         comparison_value = init_comparison
 
         # Reference Collins profile
-        ref_profile = self._make_profile(reference_value, user_weight, peak_tn)
+        ref_t_peak, ref_peak_tn = var.profile_args(reference_value)
+        ref_profile = self._make_profile(ref_t_peak, user_weight, ref_peak_tn)
         self.left_boot.init_collins_profile(**ref_profile)
         self.right_boot.init_collins_profile(**ref_profile)
 
         # Initial profile preview (reference vs first comparison)
+        comp_t_peak, comp_peak_tn = var.profile_args(adaptive_comp)
         self._send("profile_preview",
-                   ref=self._collins_curve(reference_value, user_weight, peak_tn),
-                   comp=self._collins_curve(adaptive_comp, user_weight, peak_tn),
-                   ref_label=f"reference  t_peak={reference_value:.1f}%",
-                   comp_label=f"comparison t_peak={adaptive_comp:.1f}%")
+                   ref=self._collins_curve(ref_t_peak, user_weight,
+                                           ref_peak_tn),
+                   comp=self._collins_curve(comp_t_peak, user_weight,
+                                            comp_peak_tn),
+                   ref_label=f"reference  {var.label}="
+                             f"{var.format(reference_value)}",
+                   comp_label=f"comparison {var.label}="
+                              f"{var.format(adaptive_comp)}")
 
         # Estimate total trials for progress display (~6 trials per sweep)
-        est_total_trials = NUM_PRACTICE_TRIALS + int(TOTAL_SWEEPS * 6)
+        est_total_trials = NUM_PRACTICE_TRIALS + int(var.total_sweeps * 6)
 
         # ---- Warm‑up: light current ----------------------------------
         self._send("trial_phase", phase="warmup_light")
@@ -461,13 +545,18 @@ class PerceptionExperiment:
         # ---- Data containers -----------------------------------------
         trial_data = {
             "Trial #": [], "Sweep #": [], "Delta": [],
-            "Approach": [], "Reference t_peak": [], "Comparison t_peak": [],
+            "Approach": [], "Experiment Type": [],
+            "Reference t_peak": [], "Comparison t_peak": [],
+            "Reference peak_tn": [], "Comparison peak_tn": [],
+            "Staircase Var": [],   # "t_peak" or "peak_tn"
+            "Reference Value": [], "Comparison Value": [],
             "t_rise_comp": [], "t_fall_comp": [],
             "Phase Order": [],   # "ref_first" or "comp_first"
             "Is Reversal": [], "Response": [], "Catch Trial": [],
         }
         stride_data_L = {
-            "state_time": [], "t_peak": [], "trial_phase": [],
+            "state_time": [], "t_peak": [], "peak_tn": [],
+            "experiment_type": [], "trial_phase": [],
             "stride_in_condition": [],
             "est_stride_dur": [], "actual_stride_dur": [],
         }
@@ -487,7 +576,7 @@ class PerceptionExperiment:
         #  Trial loop
         # ==============================================================
         while (trial_num < TOTAL_TRIALS_MAX
-               and sweep_num < TOTAL_SWEEPS
+               and sweep_num < var.total_sweeps
                and not self.stop_event.is_set()):
 
             # ---- Determine catch trial --------------------------------
@@ -503,8 +592,12 @@ class PerceptionExperiment:
                 trial_comp = adaptive_comp
 
             # ---- Build profiles for Timing A & B ---------------------
-            ref_prof = self._make_profile(reference_value, user_weight, peak_tn)
-            comp_prof = self._make_profile(trial_comp, user_weight, peak_tn)
+            ref_t_peak, ref_peak_tn = var.profile_args(reference_value)
+            comp_t_peak, comp_peak_tn = var.profile_args(trial_comp)
+            ref_prof = self._make_profile(ref_t_peak, user_weight,
+                                          ref_peak_tn)
+            comp_prof = self._make_profile(comp_t_peak, user_weight,
+                                           comp_peak_tn)
             timing_list = [
                 ("ref",  reference_value, ref_prof),
                 ("comp", trial_comp,      comp_prof),
@@ -523,7 +616,7 @@ class PerceptionExperiment:
             catch_str = "CATCH " if is_catch else ""
             self._log(f"\n--- {catch_str}Trial {trial_num+1}  "
                       f"sweep={int(sweep_num)}  "
-                      f"comp_t_peak={trial_comp:.1f}%  ---")
+                      f"comp_{var.label}={var.format(trial_comp)}  ---")
 
             # Update GUI: announcement banner + profile preview + trial info
             self._send("condition_announce",
@@ -537,14 +630,20 @@ class PerceptionExperiment:
                        sweep=int(sweep_num),
                        catch=is_catch,
                        reference=reference_value,
-                       comparison=trial_comp)
+                       comparison=trial_comp,
+                       experiment_type=var.experiment_type,
+                       var_label=var.label,
+                       var_units=var.units,
+                       total_sweeps=var.total_sweeps)
             self._send("profile_preview",
-                       ref=self._collins_curve(reference_value,
-                                               user_weight, peak_tn),
-                       comp=self._collins_curve(trial_comp,
-                                                user_weight, peak_tn),
-                       ref_label=f"reference  t_peak={reference_value:.1f}%",
-                       comp_label=f"comparison t_peak={trial_comp:.1f}%")
+                       ref=self._collins_curve(ref_t_peak,
+                                               user_weight, ref_peak_tn),
+                       comp=self._collins_curve(comp_t_peak,
+                                                user_weight, comp_peak_tn),
+                       ref_label=f"reference  {var.label}="
+                                 f"{var.format(reference_value)}",
+                       comp_label=f"comparison {var.label}="
+                                  f"{var.format(trial_comp)}")
 
             # ---- Run Timing A ----------------------------------------
             cur_L = self.left_boot.num_gait
@@ -552,7 +651,8 @@ class PerceptionExperiment:
 
             self.left_boot.init_collins_profile(**prof_A)
             self._send("trial_phase", phase="timing_A", label=label_A,
-                       t_peak=val_A)
+                       value=val_A, var_label=var.label,
+                       var_units=var.units)
             self._send("stride_progress", k=0, n=STRIDES_PER_CONDITION,
                        phase="A")
 
@@ -582,10 +682,12 @@ class PerceptionExperiment:
                     cur_R = self.right_boot.num_gait
                     current_phase = "B"
                     self._send("trial_phase", phase="timing_B",
-                               label=label_B, t_peak=val_B)
+                               label=label_B, value=val_B,
+                               var_label=var.label, var_units=var.units)
                     self._send("stride_progress", k=0,
                                n=STRIDES_PER_CONDITION, phase="B")
-                    self._log(f"  Timing B ({label_B}) = {val_B:.1f}%")
+                    self._log(f"  Timing B ({label_B}) "
+                              f"{var.label}={var.format(val_B)}")
 
                 if (self.right_boot.num_gait > cur_R
                         and not right_B and left_B):
@@ -620,11 +722,18 @@ class PerceptionExperiment:
                     if current_phase == "B":
                         k_in_cond = (self.left_boot.num_gait - cur_L
                                      - STRIDES_PER_CONDITION)
+                    # Determine which value (ref vs comp) is active in
+                    # the current phase to log the right peak_tn.
+                    cur_val = (val_A if current_phase == "A" else val_B)
+                    cur_t_peak, cur_peak_tn = var.profile_args(cur_val)
                     stride_data_L["actual_stride_dur"].append(
                         self.left_boot.current_duration)
                     stride_data_L["state_time"].append(
                         self.left_boot.current_time)
                     stride_data_L["t_peak"].append(self.left_boot.t_peak)
+                    stride_data_L["peak_tn"].append(cur_peak_tn)
+                    stride_data_L["experiment_type"].append(
+                        var.experiment_type)
                     stride_data_L["trial_phase"].append(current_phase)
                     stride_data_L["stride_in_condition"].append(
                         max(1, k_in_cond + 1))
@@ -642,11 +751,16 @@ class PerceptionExperiment:
                                phase=current_phase)
 
                 if self.right_boot.num_gait > right_prev_gait:
+                    cur_val_r = (val_A if current_phase == "A" else val_B)
+                    _, cur_peak_tn_r = var.profile_args(cur_val_r)
                     stride_data_R["actual_stride_dur"].append(
                         self.right_boot.current_duration)
                     stride_data_R["state_time"].append(
                         self.right_boot.current_time)
                     stride_data_R["t_peak"].append(self.right_boot.t_peak)
+                    stride_data_R["peak_tn"].append(cur_peak_tn_r)
+                    stride_data_R["experiment_type"].append(
+                        var.experiment_type)
                     stride_data_R["trial_phase"].append(current_phase)
                     stride_data_R["stride_in_condition"].append(0)
                     stride_data_R["est_stride_dur"].append(
@@ -666,15 +780,15 @@ class PerceptionExperiment:
             is_reversal = False
             if not is_catch:
                 if response == DIFFERENCE_RESPONSE:
-                    new_val = adaptive_comp + direction * DELTA
+                    new_val = adaptive_comp + direction * var.delta
                     # Don't cross reference
                     if direction == 1:
                         adaptive_comp = min(new_val, reference_value)
                     else:
                         adaptive_comp = max(new_val, reference_value)
                 elif response == SAME_RESPONSE:
-                    adaptive_comp -= direction * DELTA
-                adaptive_comp = self._clamp_peak(adaptive_comp)
+                    adaptive_comp -= direction * var.delta
+                adaptive_comp = var.clamp(adaptive_comp)
 
                 if prev_response is not None and response != prev_response:
                     sweep_num += 0.5
@@ -686,10 +800,16 @@ class PerceptionExperiment:
             # ---- Log trial -------------------------------------------
             trial_data["Trial #"].append(trial_num + 1)
             trial_data["Sweep #"].append(int(sweep_num))
-            trial_data["Delta"].append(DELTA)
+            trial_data["Delta"].append(var.delta)
             trial_data["Approach"].append(approach)
-            trial_data["Reference t_peak"].append(reference_value)
-            trial_data["Comparison t_peak"].append(trial_comp)
+            trial_data["Experiment Type"].append(var.experiment_type)
+            trial_data["Reference t_peak"].append(ref_t_peak)
+            trial_data["Comparison t_peak"].append(comp_t_peak)
+            trial_data["Reference peak_tn"].append(ref_peak_tn)
+            trial_data["Comparison peak_tn"].append(comp_peak_tn)
+            trial_data["Staircase Var"].append(var.label)
+            trial_data["Reference Value"].append(reference_value)
+            trial_data["Comparison Value"].append(trial_comp)
             trial_data["t_rise_comp"].append(comp_prof["t_rise"])
             trial_data["t_fall_comp"].append(comp_prof["t_fall"])
             trial_data["Phase Order"].append(phase_order)
@@ -697,12 +817,17 @@ class PerceptionExperiment:
             trial_data["Response"].append(resp_str)
             trial_data["Catch Trial"].append("Yes" if is_catch else "No")
 
-            self._log(f"  Next comparison t_peak = {adaptive_comp:.1f}%  "
+            self._log(f"  Next comparison {var.label}="
+                      f"{var.format(adaptive_comp)}  "
                       f"sweep = {int(sweep_num)}")
             self._send("trial_info", trial=trial_num + 1,
                        sweep=int(sweep_num), catch=is_catch,
                        reference=reference_value,
-                       comparison=adaptive_comp)
+                       comparison=adaptive_comp,
+                       experiment_type=var.experiment_type,
+                       var_label=var.label,
+                       var_units=var.units,
+                       total_sweeps=var.total_sweeps)
 
             trial_num += 1
 
@@ -715,11 +840,11 @@ class PerceptionExperiment:
                 self._log("Practice complete — real recording starts.")
 
             # ---- Rest period -----------------------------------------
-            self._log(f"  Rest ({REST_STRIDES} strides) …")
+            self._log(f"  Rest ({var.rest_strides} strides) …")
             self._send("state", value="Resting …")
             self._send("trial_phase", phase="rest")
             rest_start = self.left_boot.num_gait
-            while (self.left_boot.num_gait - rest_start < REST_STRIDES
+            while (self.left_boot.num_gait - rest_start < var.rest_strides
                    and not self.stop_event.is_set()):
                 self.left_boot.run_collins_profile()
                 self.right_boot.run_collins_profile()
@@ -737,9 +862,11 @@ class PerceptionExperiment:
         """Return a dict suitable for ``init_collins_profile(**d)``.
 
         The actuation start (``T_ACT_START``) and end (``T_ACT_END``)
-        are held constant; rise/fall durations are derived from the
-        single staircase variable ``t_peak`` so that there is never a
-        flat region at the top of the torque curve.
+        are held constant; rise/fall durations are derived from
+        ``t_peak`` so that there is never a flat region at the top of
+        the torque curve.  ``peak_tn`` is held constant for MAX
+        experiments and varies (per-trial) for SAV experiments — the
+        builder accepts both transparently.
         """
         t_p = self._clamp_peak(t_peak)
         t_r = t_p - T_ACT_START

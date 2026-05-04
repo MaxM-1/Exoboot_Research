@@ -149,19 +149,23 @@ def collins_curve(t_peak, t_act_start=26.0, t_act_end=61.6,
 # ---------------------------------------------------------------------------
 #  Plot 1: Staircase trajectory
 # ---------------------------------------------------------------------------
-def plot_staircase(df: pd.DataFrame, out: Path, ref: float):
+def plot_staircase(df: pd.DataFrame, out: Path, ref: float,
+                   var_label: str = "t_peak", var_units: str = "% gait",
+                   comp_col: str = "Comparison t_peak"):
     approaches = sorted(df["Approach"].dropna().unique())
     n = max(1, len(approaches))
     fig, axes = plt.subplots(n, 1, figsize=(9, 3 * n + 0.2),
                              sharex=False, squeeze=False)
+    fmt = ".3f" if var_units == "Nm/kg" else ".1f"
     for i, app in enumerate(approaches):
         ax = axes[i, 0]
         sub = df[df["Approach"] == app].copy()
         sub["idx"] = np.arange(1, len(sub) + 1)
-        ax.axhline(ref, color="k", lw=0.8, ls=":", label=f"reference {ref:.1f}%")
+        ax.axhline(ref, color="k", lw=0.8, ls=":",
+                   label=f"reference {ref:{fmt}}{var_units}")
         # Plot trajectory line (real trials only)
         real = sub[sub["Catch Trial"] != "Yes"]
-        ax.plot(real["idx"], real["Comparison t_peak"], "-", color="#888",
+        ax.plot(real["idx"], real[comp_col], "-", color="#888",
                 lw=1, alpha=0.6)
         # Markers by response and catch
         for resp, marker, color in [("Same", "o", "#2a8"),
@@ -170,19 +174,19 @@ def plot_staircase(df: pd.DataFrame, out: Path, ref: float):
                 mask = (sub["Response"] == resp) & (sub["Catch Trial"] == catch)
                 if mask.any():
                     ax.scatter(sub.loc[mask, "idx"],
-                               sub.loc[mask, "Comparison t_peak"],
+                               sub.loc[mask, comp_col],
                                marker=marker, c=mfc, edgecolors=color,
                                s=55, linewidths=1.4,
                                label=f"{resp} {'(catch)' if catch=='Yes' else ''}")
         # Mark reversals
         rev = sub[sub["Is Reversal"] == "Yes"]
         if len(rev):
-            ax.scatter(rev["idx"], rev["Comparison t_peak"],
+            ax.scatter(rev["idx"], rev[comp_col],
                        s=160, facecolors="none", edgecolors="#06f",
                        lw=1.2, label="reversal")
         ax.set_title(f"Approach: {app}")
         ax.set_xlabel("Trial #")
-        ax.set_ylabel("Comparison t_peak (% gait)")
+        ax.set_ylabel(f"Comparison {var_label} ({var_units})")
         ax.grid(alpha=0.3)
         # Deduplicate legend
         h, l = ax.get_legend_handles_labels()
@@ -198,18 +202,22 @@ def plot_staircase(df: pd.DataFrame, out: Path, ref: float):
 # ---------------------------------------------------------------------------
 #  Plot 2: Reversals only
 # ---------------------------------------------------------------------------
-def plot_reversals(df: pd.DataFrame, out: Path, ref: float):
+def plot_reversals(df: pd.DataFrame, out: Path, ref: float,
+                   var_label: str = "t_peak", var_units: str = "% gait",
+                   comp_col: str = "Comparison t_peak"):
     fig, ax = plt.subplots(figsize=(9, 4))
-    ax.axhline(ref, color="k", lw=0.8, ls=":", label=f"reference {ref:.1f}%")
+    fmt = ".3f" if var_units == "Nm/kg" else ".1f"
+    ax.axhline(ref, color="k", lw=0.8, ls=":",
+               label=f"reference {ref:{fmt}}{var_units}")
     for app, color in [("from_above", "#c33"), ("from_below", "#2a8")]:
         sub = df[(df["Approach"] == app)
                  & (df["Is Reversal"] == "Yes")].reset_index(drop=True)
         if not len(sub):
             continue
-        ax.plot(np.arange(1, len(sub) + 1), sub["Comparison t_peak"],
+        ax.plot(np.arange(1, len(sub) + 1), sub[comp_col],
                 "o-", color=color, lw=1.5, label=f"{app}")
     ax.set_xlabel("Reversal #")
-    ax.set_ylabel("Comparison t_peak at reversal (% gait)")
+    ax.set_ylabel(f"Comparison {var_label} at reversal ({var_units})")
     ax.set_title("Reversals only — convergence toward reference")
     ax.legend()
     ax.grid(alpha=0.3)
@@ -257,23 +265,44 @@ def plot_stride_dur(stride_L: pd.DataFrame | None,
 # ---------------------------------------------------------------------------
 #  Plot 4: Torque profile gallery
 # ---------------------------------------------------------------------------
-def plot_profile_gallery(df: pd.DataFrame, out: Path, weight: float):
+def plot_profile_gallery(df: pd.DataFrame, out: Path, weight: float,
+                         experiment_type: str = "max"):
+    """Overlay every comparison's Collins curve.
+
+    For MAX, the curves vary in t_peak (peak time slides).  For SAV,
+    t_peak is fixed at 51.3 % and curves vary in peak torque magnitude.
+    """
     fig, ax = plt.subplots(figsize=(8, 4))
-    uniq = df.dropna(subset=["Comparison t_peak"]).copy()
-    uniq["Comparison t_peak"] = pd.to_numeric(uniq["Comparison t_peak"],
-                                              errors="coerce")
-    uniq = uniq.dropna(subset=["Comparison t_peak"])
+    is_sav = (experiment_type == "sav")
+    comp_col = "Comparison peak_tn" if is_sav else "Comparison t_peak"
+    if comp_col not in df.columns:
+        # Fall back to MAX schema (pre-SAV CSVs)
+        comp_col = "Comparison t_peak"
+        is_sav = False
+    uniq = df.dropna(subset=[comp_col]).copy()
+    uniq[comp_col] = pd.to_numeric(uniq[comp_col], errors="coerce")
+    uniq = uniq.dropna(subset=[comp_col])
     if not len(uniq):
         plt.close(fig); return
     cmap = plt.get_cmap("viridis")
     n = len(uniq)
     for i, (_, row) in enumerate(uniq.iterrows()):
-        xs, ys = collins_curve(row["Comparison t_peak"], weight=weight)
+        if is_sav:
+            xs, ys = collins_curve(51.3, weight=weight,
+                                   peak_tn=float(row[comp_col]))
+        else:
+            xs, ys = collins_curve(float(row[comp_col]), weight=weight)
         ax.plot(xs, ys, color=cmap(i / max(1, n - 1)), lw=0.8, alpha=0.7)
     # Reference profile in black
-    ref = uniq["Reference t_peak"].iloc[0]
-    xs, ys = collins_curve(ref, weight=weight)
-    ax.plot(xs, ys, "k-", lw=2.2, label=f"reference {ref:.1f}%")
+    if is_sav:
+        ref = float(uniq["Reference peak_tn"].iloc[0])
+        xs, ys = collins_curve(51.3, weight=weight, peak_tn=ref)
+        ref_lbl = f"reference {ref:.3f}Nm/kg"
+    else:
+        ref = float(uniq["Reference t_peak"].iloc[0])
+        xs, ys = collins_curve(ref, weight=weight)
+        ref_lbl = f"reference {ref:.1f}%"
+    ax.plot(xs, ys, "k-", lw=2.2, label=ref_lbl)
     ax.set_xlabel("% gait")
     ax.set_ylabel("Torque (Nm)")
     ax.set_title(f"Torque-profile gallery — {n} comparisons "
@@ -329,16 +358,42 @@ def main():
     trial_csv = _find_trial_csv(args)
     print(f"Trial CSV: {trial_csv}")
     df = pd.read_csv(trial_csv)
-    if "Reference t_peak" in df.columns:
-        ref = float(pd.to_numeric(df["Reference t_peak"],
+
+    # Detect experiment type (MAX = peak-time staircase, SAV = peak-torque).
+    if "Experiment Type" in df.columns:
+        exp_type = str(df["Experiment Type"].dropna().iloc[0]).lower()
+    elif "Staircase Var" in df.columns:
+        sv = str(df["Staircase Var"].dropna().iloc[0]).lower()
+        exp_type = "sav" if sv == "peak_tn" else "max"
+    else:
+        exp_type = "max"   # legacy CSVs predate dual-experiment support
+
+    if exp_type == "sav":
+        var_label, var_units = "peak_tn", "Nm/kg"
+        comp_col = ("Comparison peak_tn" if "Comparison peak_tn" in df.columns
+                    else "Comparison Value")
+        ref_col = ("Reference peak_tn" if "Reference peak_tn" in df.columns
+                   else "Reference Value")
+    else:
+        var_label, var_units = "t_peak", "% gait"
+        comp_col = "Comparison t_peak"
+        ref_col = "Reference t_peak"
+
+    if ref_col in df.columns:
+        ref = float(pd.to_numeric(df[ref_col],
                                   errors="coerce").dropna().iloc[0])
     else:
-        ref = 51.3
+        ref = 0.18 if exp_type == "sav" else 51.3
+
     out_dir = trial_csv.parent / f"{trial_csv.stem}_plots"
     out_dir.mkdir(exist_ok=True)
 
-    plot_staircase(df, out_dir / "staircase.png", ref)
-    plot_reversals(df, out_dir / "reversals.png", ref)
+    plot_staircase(df, out_dir / "staircase.png", ref,
+                   var_label=var_label, var_units=var_units,
+                   comp_col=comp_col)
+    plot_reversals(df, out_dir / "reversals.png", ref,
+                   var_label=var_label, var_units=var_units,
+                   comp_col=comp_col)
 
     stride_L_path = _find_stride_csv(trial_csv, "L")
     stride_R_path = _find_stride_csv(trial_csv, "R")
@@ -346,7 +401,8 @@ def main():
     sR = pd.read_csv(stride_R_path) if stride_R_path else None
     plot_stride_dur(sL, sR, out_dir / "stride_dur.png")
 
-    plot_profile_gallery(df, out_dir / "profile_gallery.png", args.weight)
+    plot_profile_gallery(df, out_dir / "profile_gallery.png", args.weight,
+                         experiment_type=exp_type)
     summary = write_summary(df, out_dir / "summary.txt")
     print(summary)
     print(f"\nFigures saved → {out_dir}")

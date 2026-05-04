@@ -77,6 +77,16 @@ MIN_FALL = 2.0                      # Minimum fall duration (% gait) — clamp g
 DEFAULT_PEAK_TORQUE_NORM = 0.225    # Normalised peak torque  (Nm / kg)
         #4_28 changed from 0.225 to 0.12
         #5_2 changed from 0.12 to 0.20 then back to 0.12
+
+# ------------------------------------------------------------------
+# Per-experiment familiarization peak torque (Nm/kg)
+# ------------------------------------------------------------------
+# MAX experiment varies t_peak; the torque magnitude during MAX
+# familiarization & MAX perception is held at 0.225 Nm/kg (legacy).
+# SAV experiment varies peak torque; familiarization & the SAV
+# reference both sit at the published Collins value of 0.18 Nm/kg.
+MAX_FAM_PEAK_TN = 0.225
+SAV_FAM_PEAK_TN = 0.18
 # ==============================================================================
 # PID Gains
 # ==============================================================================
@@ -96,18 +106,38 @@ POSITION_GAINS = {"kp": 100, "ki": 20, "kd": 35, "k": 0, "b": 0, "ff": 0}
 # ==============================================================================
 # Perception‑Test Protocol
 # ==============================================================================
-DELTA = 1.0                         # Adaptive step‑size (% stride period)
-INITIAL_OFFSET = 3.0                # Starting offset from reference
+# MAX experiment (peak‑time staircase) — values in % stride period.
+MAX_DELTA = 1.0                     # Adaptive step‑size (% stride period)
+MAX_INITIAL_OFFSET = 3.0            # Starting offset from reference (% stride)
+MAX_TOTAL_SWEEPS = 9                # Sweeps per approach direction
+MAX_REST_STRIDES = 8                # Rest strides between trials (≈ 8 s)
+MAX_FAM_DELTA = 1.0                 # Manual fam. adjustment step (% stride)
+
+# SAV experiment (peak‑torque staircase) — values in Nm/kg.
+SAV_DELTA = 0.005                   # Adaptive step‑size (Nm/kg)
+SAV_INITIAL_OFFSET = 0.05           # Starting offset from reference (Nm/kg)
+SAV_TOTAL_SWEEPS = 9                # Sweeps per approach direction
+SAV_REST_STRIDES = 15               # Rest strides between trials (≈ 15 s)
+SAV_FAM_DELTA = 0.005               # Manual fam. adjustment step (Nm/kg)
+SAV_REFERENCE_PEAK_TN = SAV_FAM_PEAK_TN  # Reference torque for SAV staircase
+SAV_MIN_PEAK_TN = 0.05              # Lower clamp on staircase value (Nm/kg)
+SAV_MAX_PEAK_TN = 0.30              # Upper clamp on staircase value (Nm/kg)
+
+# Legacy aliases (back-compat — old callers / tests).  These mirror MAX.
+DELTA = MAX_DELTA
+INITIAL_OFFSET = MAX_INITIAL_OFFSET
+TOTAL_SWEEPS = MAX_TOTAL_SWEEPS
+REST_STRIDES = MAX_REST_STRIDES
+FAMILIARIZATION_DELTA = MAX_FAM_DELTA
+
+# Shared protocol constants (both experiments).
 STRIDES_PER_CONDITION = 5           # Strides per condition inside a trial
 TOTAL_STRIDES_PER_TRIAL = 10        # 2 × STRIDES_PER_CONDITION
-TOTAL_SWEEPS = 9                    # Sweeps per approach direction
 TOTAL_TRIALS_MAX = 55               # Hard upper limit on trial count
 CATCH_TRIAL_DENOMINATOR = 4         # 1 / 4 → 25 % catch‑trial rate
-REST_STRIDES = 8                    # Rest strides between trials
 WARMUP_STRIDES = 10                 # Light‑current warm‑up strides
 WARMUP_AUGMENTED_STRIDES = 10       # Collins‑profile warm‑up strides
 NUM_PRACTICE_TRIALS = 2             # Practice trials before real recording
-FAMILIARIZATION_DELTA = 1.0         # Step for manual fam. adjustment
 
 # ==============================================================================
 # Experiment Modes
@@ -122,6 +152,16 @@ RISE_TIME_TEST = PEAK_TIME_TEST     # legacy alias
 FALL_TIME_TEST = PEAK_TIME_TEST     # legacy alias
 APPROACH_FROM_ABOVE = "from_above"
 APPROACH_FROM_BELOW = "from_below"
+
+# ------------------------------------------------------------------
+# Experiment type — selects which Collins parameter the perception
+# staircase varies.
+#   MAX  → peak time   (t_peak, % gait)        — varies timing
+#   SAV  → peak torque (peak_torque_norm, Nm/kg) — varies magnitude
+# ------------------------------------------------------------------
+MAX_EXPERIMENT = "max"
+SAV_EXPERIMENT = "sav"
+DEFAULT_EXPERIMENT = MAX_EXPERIMENT
 
 # ==============================================================================
 # GUI ↔ Controller Signal Constants

@@ -18,7 +18,7 @@ held onto right ankle for 2 heelstrikes when I turned the exo off
 might be better to stop the treadmill and then turn off the exo's 
 ================================================================
 =========
-NEED TO FIX ANALYSIS OF PERCEPTION 
+NEED TO FIX ANALYSIS OF PERCEPTION - DONE 
 =========
 ================================================================
 YA2 - familiarization - 1.25m/s
@@ -43,3 +43,8 @@ need to have gyroZ limits lower
 ================================================================
 ~need to adjust gyroz and timing thresholds as it needs to work for both 1.25m/s and 1.00m/s (different thresholds values)
 .
+
+
+
+
+~need to make a exo_off walking trial to get gyroz data to adjust for tomorrow and record gyroz 

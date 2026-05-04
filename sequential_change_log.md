@@ -468,6 +468,261 @@ CLI: `--latest`, `--participant <pid>`, positional path, `--weight` (default 75 
 
 ---
 
+## Session 7 — 2026-05-04: Dual-experiment refactor (MAX + SAV)
+
+### Problem reported
+
+The codebase was built around a single perception protocol (MAX — vary peak
+**time** while holding peak torque, actuation start, and actuation end
+constant). A second IRB-approved protocol (SAV — vary peak **torque magnitude**
+while holding ALL timing parameters constant) needs to share the same
+controller, GUI, logger, and analysis tooling. The user provided screenshots
+of both protocol documents:
+
+| Concern | MAX experiment | SAV experiment |
+|---|---|---|
+| Staircase variable | `t_peak` (% gait) | `peak_torque_norm` (Nm/kg) |
+| Reference value | 51.3 % | 0.18 Nm/kg |
+| Step size (Δ) | 1.0 % stride | 0.005 Nm/kg |
+| Initial offset from ref | 3.0 % stride | 0.05 Nm/kg |
+| Sweeps per direction | 9 | 9 |
+| Rest between trials | 8 strides (≈ 8 s) | 15 strides (≈ 15 s) |
+| Familiarization torque | 0.225 Nm/kg | 0.18 Nm/kg |
+| Held constant | torque, start, end | t_peak, rise, fall, start, end |
+
+Everything else (5 strides per condition, 2 conditions per trial, 25 % catch
+trials, A/B random order, up–down adaptive rule, response prompt) is identical
+between the two.
+
+### Diagnosis
+
+This was an **architectural extension**, not a bug. The Collins profile
+generator [`init_collins_profile`](exo_init.py) already accepted both `t_peak`
+and `peak_torque_norm` per call, and [`exo_logger.py`](exo_logger.py) already
+had a `peak_torque_norm` column in `HEADER`. What was missing:
+
+- A single source of truth for "which knob does the staircase turn".
+- Per-experiment constants (Δ, initial offset, rest, fam value, clamps).
+- A GUI selector + adapted units in status messages and the live preview.
+- Trial-CSV columns for the SAV staircase value (only `t_peak`/`Comparison
+  t_peak` existed).
+- Branching in the analysis suite so plots key off the right column.
+
+### Hard rules locked in by this session
+
+- **Walking control rules from Sessions 3 & 5 are unchanged.** This session
+  only refactors what the staircase varies — torque-pulse delivery (current
+  control, NO_SLACK_CURRENT hold, ActPack 4.1 Q-axis kt) is identical.
+- **MAX defaults remain authoritative for legacy code paths.** Any caller that
+  doesn't pass `experiment_type` falls back to `DEFAULT_EXPERIMENT =
+  MAX_EXPERIMENT`. Tests and old CSVs continue to work.
+- **MAX_FAM_PEAK_TN = 0.225 Nm/kg, SAV_FAM_PEAK_TN = 0.18 Nm/kg** — these are
+  experiment-specific reference torques. Don't unify them; the protocols
+  *intentionally* familiarize at different magnitudes.
+- **SAV holds `t_peak = DEFAULT_T_PEAK = 51.3 %` constant.** Do not let the
+  SAV staircase touch timing — that's the MAX experiment's job.
+- **MAX holds `peak_torque_norm = MAX_FAM_PEAK_TN = 0.225 Nm/kg` constant.**
+  Do not let the MAX staircase touch torque magnitude.
+- **Rest is stride-based for both experiments**, per user direction
+  (2026-05-04). Wall-clock seconds were considered and deferred. If the
+  treadmill cadence drifts far from 1 stride/s, revisit.
+- **`PEAK_CURRENT = 28000 mA` is the current ceiling**, restored after Session
+  5's kt fix made the 15000 mA bandaid unnecessary. The Session 5 derivation
+  is the authoritative reference; the AGENTS.md hard rule that previously
+  named 15000 mA was a holdover from before the kt fix and has been corrected
+  in this session.
+
+### Changes made
+
+#### A. [`config.py`](config.py) — experiment-type plumbing + per-experiment constants
+
+- Added experiment selector:
+  - `MAX_EXPERIMENT = "max"`, `SAV_EXPERIMENT = "sav"`,
+    `DEFAULT_EXPERIMENT = MAX_EXPERIMENT`.
+- Added per-experiment familiarization torque:
+  - `MAX_FAM_PEAK_TN = 0.225`, `SAV_FAM_PEAK_TN = 0.18`.
+- Namespaced staircase constants. MAX values are unchanged from Session 6;
+  SAV values are new:
+  - `MAX_DELTA / MAX_INITIAL_OFFSET / MAX_TOTAL_SWEEPS / MAX_REST_STRIDES /
+    MAX_FAM_DELTA` = 1.0 / 3.0 / 9 / 8 / 1.0.
+  - `SAV_DELTA / SAV_INITIAL_OFFSET / SAV_TOTAL_SWEEPS / SAV_REST_STRIDES /
+    SAV_FAM_DELTA` = 0.005 / 0.05 / 9 / 15 / 0.005.
+  - `SAV_REFERENCE_PEAK_TN = SAV_FAM_PEAK_TN` (= 0.18 Nm/kg).
+  - `SAV_MIN_PEAK_TN = 0.05`, `SAV_MAX_PEAK_TN = 0.30` (clamp; chosen
+    conservatively well inside the post-Session-5 current envelope at
+    `PEAK_CURRENT = 28000 mA`).
+- Legacy aliases retained as `MAX_*` mirrors so old callers/tests continue
+  to import: `DELTA`, `INITIAL_OFFSET`, `TOTAL_SWEEPS`, `REST_STRIDES`,
+  `FAMILIARIZATION_DELTA`.
+
+#### B. [`perception_test.py`](perception_test.py) — `_StaircaseVar` helper + dispatch
+
+New top-level helper class:
+
+```python
+class _StaircaseVar:
+    def __init__(self, experiment_type: str): ...
+    def clamp(self, value: float) -> float: ...
+    def profile_args(self, value: float) -> tuple[float, float]:
+        """Return (t_peak, peak_tn) for the given staircase value."""
+    def format(self, value: float) -> str: ...
+```
+
+Encapsulates `reference / delta / initial_offset / total_sweeps /
+rest_strides / fam_value / fixed_peak_tn / label / units / fmt` so the
+trial loop reads once at the top of `_run_perception` and `_run_familiarization`.
+
+- **MAX dispatch**: staircase value → `t_peak`; peak_tn pinned to
+  `MAX_FAM_PEAK_TN`; clamp via the existing `_clamp_peak`.
+- **SAV dispatch**: staircase value → `peak_tn`; t_peak pinned to
+  `DEFAULT_T_PEAK`; clamp `[SAV_MIN_PEAK_TN, SAV_MAX_PEAK_TN]`.
+
+`_run_familiarization`:
+- `cur_value = var.fam_value`; `var.profile_args(cur_value)` builds the
+  `(t_peak, peak_tn)` tuple every time the user nudges Increase/Decrease.
+- Per-stride `fam_data` dict gains `experiment_type` and `peak_tn` columns.
+- Live preview labels render in the right units (`% gait` for MAX, `Nm/kg`
+  for SAV) via `var.format()`.
+
+`_run_perception`:
+- Reference + initial comparison computed from `var.reference ±
+  var.initial_offset`. Direction sign unchanged (Different → toward
+  reference; Same → away).
+- Profile build uses `var.profile_args(value)` → `_make_profile(...)`.
+- `var.total_sweeps` and `var.rest_strides` consumed inline (no more
+  references to the old top-level `TOTAL_SWEEPS` / `REST_STRIDES`).
+- Status messages include `experiment_type`, `var_label`, `var_units`,
+  `total_sweeps` so the GUI doesn't have to guess.
+- Trial CSV columns expanded (additive — old MAX columns preserved):
+  - `Experiment Type` (`max` | `sav`)
+  - `Reference t_peak`, `Comparison t_peak` (always present, even in SAV
+    where they're constant at `DEFAULT_T_PEAK` for diagnostic clarity)
+  - **New** `Reference peak_tn`, `Comparison peak_tn`
+  - **New** `Staircase Var` (`t_peak` | `peak_tn`) — terse self-describing tag
+  - **New** `Reference Value`, `Comparison Value` — the staircase quantity in
+    its native units, regardless of experiment
+- Per-stride CSV gains `peak_tn` and `experiment_type` columns.
+
+`_make_profile` is unchanged in signature `(t_peak, weight, peak_tn)` — it was
+already capable of accepting a per-trial peak_tn; the docstring was clarified
+to call out that SAV varies the third arg per trial.
+
+#### C. [`gui.py`](gui.py) — experiment radio + adaptive unit rendering
+
+- New radio group in the Setup pane: `MAX (peak time)` / `SAV (peak torque)`.
+  Default = MAX (matches `DEFAULT_EXPERIMENT`).
+- `_collect_params` adds `experiment_type` to the params dict sent to the
+  experiment thread.
+- `_refresh_reference_label()` (called on radio change and on connect)
+  switches the static reference label between `Reference t_peak: 51.3% (start
+  / end)` and `Reference peak_tn: 0.180 Nm/kg (t_peak=51.3% held constant)`,
+  and rewrites `Sweep: --/{N}` with the correct total.
+- `_handle_status` now reads `var_label` / `var_units` / `total_sweeps` from
+  the status messages instead of importing `TOTAL_SWEEPS` and hard-coding
+  `t_peak` formatting:
+  - `trial_info` → comparison label rendered with `.3f`Nm/kg or `.1f`% gait.
+  - `trial_phase` → A/B labels show `peak_tn=0.180Nm/kg` for SAV,
+    `t_peak=51.3% gait` for MAX.
+- The `t_peak` key in `trial_phase` messages is still accepted as a fallback
+  so any external tool sending the old shape continues to render.
+- The matplotlib preview plots torque (Nm) for both experiments — only the
+  reference curve is fixed in time and the comparison curve varies in either
+  timing (MAX) or magnitude (SAV). The `T_ACT_START` / `T_ACT_END` axvlines
+  remain meaningful for both.
+
+#### D. [`DataLog/analysis/perception_plots.py`](DataLog/analysis/perception_plots.py) — auto-detect mode
+
+- `main()` inspects the trial CSV for `Experiment Type` (preferred) or
+  `Staircase Var` (fallback) to choose:
+  - `var_label` ∈ `{t_peak, peak_tn}`,
+  - `var_units` ∈ `{% gait, Nm/kg}`,
+  - `comp_col` ∈ `{Comparison t_peak, Comparison peak_tn}`,
+  - `ref_col` ∈ `{Reference t_peak, Reference peak_tn}`.
+- `plot_staircase` and `plot_reversals` accept these as kwargs so the
+  y-axis label, reference legend formatting, and column selection follow the
+  experiment.
+- `plot_profile_gallery` accepts `experiment_type=`. For SAV, it overlays
+  Collins curves at fixed `t_peak = 51.3 %` with varying `peak_tn`; for MAX
+  it sweeps `t_peak` at fixed `peak_tn` (legacy behaviour).
+- Pre-Session-7 CSVs (no `Experiment Type` column) default to MAX — old data
+  still renders.
+
+#### E. [`tests/test_perception_sav.py`](tests/test_perception_sav.py) — **NEW**
+
+Pure-Python unit tests (no hardware) covering the staircase-variable abstraction:
+
+- MAX dispatch reads MAX constants; `profile_args` holds `peak_tn` constant.
+- SAV dispatch reads SAV constants; `profile_args` holds `t_peak` constant
+  at `DEFAULT_T_PEAK`.
+- Clamp uses `[SAV_MIN_PEAK_TN, SAV_MAX_PEAK_TN]` for SAV and the
+  rise/fall-floor `_clamp_peak` for MAX.
+- `SAV_INITIAL_OFFSET == 10 × SAV_DELTA` (protocol invariant — 0.05 = 10 ×
+  0.005).
+- `_make_profile` round-trips a per-trial `peak_tn` while holding timing
+  constant.
+- Unknown experiment type falls back to MAX.
+
+All 35 perception/config/analysis tests pass; the one pre-existing
+`test_exo_math.py::test_stride_duration_uses_median_and_rejects_outlier`
+failure is on `main` and unrelated to this session.
+
+### Reasoning notes for future agents
+
+- **Why an `_StaircaseVar` helper instead of two parallel `_run_perception_*`
+  methods?** The trial loop, response handling, A/B randomization, catch-trial
+  logic, warm-up sequence, sensor pre-flight check, and per-stride CSV writer
+  are all identical between MAX and SAV. Forking the method would have
+  duplicated ~250 lines of code that must stay in lock-step. The helper
+  isolates the four things that genuinely differ (knob, step, clamp, rest)
+  in ~50 lines.
+- **Why is `Reference t_peak` still written for SAV trials (constant 51.3)?**
+  Diagnostic clarity. Anyone glancing at a SAV trial CSV can immediately
+  confirm timing was held fixed at the design value. Storage cost is
+  negligible (one float per trial × ≤55 trials).
+- **Why not promote `experiment_type` to a participant-ID convention (e.g.
+  `MAX_*` / `SAV_*` prefixes auto-select)?** The user has historically used
+  participant codes like `MAX1`, `SAV1`, `MAX_Perception_3` interchangeably
+  across experiments. A naming convention would make the radio redundant
+  *most* of the time but silently break the unusual cases. Explicit radio +
+  default = MAX is safer.
+- **Why is the SAV clamp `[0.05, 0.30]` Nm/kg and not derived dynamically
+  from `PEAK_CURRENT`?** A static clamp is auditable and stable across
+  participant weights. At 100 kg the SAV upper bound (0.30 × 100 = 30 Nm) is
+  still well below the post-Session-5 ActPack 4.1 envelope under typical
+  `wm_wa` (~50). If a participant weight × upper-clamp combination starts
+  hitting `PEAK_CURRENT`, revisit; but per the user (Session 7 chat,
+  2026-05-04), 5/3 and 5/4 walk tests at 100 kg did not approach the 28 A
+  ceiling.
+- **AGENTS.md hard-rule update**: the previous "do not raise PEAK_CURRENT
+  above 15000 mA" line was a Session-2 bandaid that became obsolete after
+  Session 5 fixed `ankle_torque_to_current`. AGENTS.md was updated in this
+  session to reflect the current `PEAK_CURRENT = 28000 mA` value and to add
+  a new hard rule about not letting either experiment's staircase touch the
+  other's pinned variable.
+
+### Status
+
+- **Code change**: Applied. Offline `pytest -q` passes 35/36 tests; the lone
+  failure (`test_stride_duration_uses_median_and_rejects_outlier`) was on
+  `main` before this session.
+- **Hardware validation**: NOT yet performed. Next walk test should run a
+  short SAV familiarization first (Increase/Decrease nudges 0.18 → 0.19 →
+  0.18) to confirm the GUI labels render correctly and the per-stride CSV
+  records peak_tn changes. Then run a 2-trial SAV practice to validate the
+  trial-CSV schema.
+- **Open items**:
+  1. The `_collect_params` dict still passes `test_mode = PEAK_TIME_TEST`
+     for both experiments — `test_mode` and `experiment_type` are now
+     parallel concepts. Future cleanup may remove `test_mode` entirely.
+  2. `perception_plots.py` does not yet plot peak_tn vs trial for legacy
+     CSVs that pre-date the new column families. The auto-detect treats
+     them as MAX; they are not retro-tagged.
+  3. `data_analysis.py` (per-session JND fitter) was not touched and still
+     keys off the old MAX schema — update if/when JND fitting moves into
+     this codebase.
+
+---
+
 ## Architectural Decisions (do not undo without reading why)
 
 ### 1. Position control is NOT used during walking
@@ -528,14 +783,16 @@ When the user asks for a code change:
 |---|---|---|
 | [`exo_logger.py`](exo_logger.py) | **NEW** (Session 1) | Per-sample CSV logger |
 | [`DataLog/analysis/Analysis2.py`](DataLog/analysis/Analysis2.py) | **NEW** (Session 1) | Diagnostic plots + summary |
-| [`DataLog/analysis/perception_plots.py`](DataLog/analysis/perception_plots.py) | **NEW** (Session 6) | Per-session perception diagnostics (staircase, reversals, stride-dur, profile gallery) |
+| [`DataLog/analysis/perception_plots.py`](DataLog/analysis/perception_plots.py) | **NEW** (Session 6); modified (S7) | Per-session perception diagnostics; auto-detects MAX vs SAV |
 | [`exo_init.py`](exo_init.py) | Modified (S1, S2, S3, S5) | DataLog tag, logger hook, sensor expansion, position→current control swap, kt fix |
-| [`perception_test.py`](perception_test.py) | Modified (S1, S6) | Logger attach/detach, DataLog rename in cleanup; peak-time staircase + new status messages |
-| [`gui.py`](gui.py) | Modified (S1, S6) | Persistent `GUIlog_*.txt`; condition banner / phase indicator / stride counter / live torque preview |
-| [`config.py`](config.py) | Modified (S2, S5, S6) | `PEAK_CURRENT`, `DEFAULT_PEAK_TORQUE_NORM`; peak-time constants `T_ACT_START`/`T_ACT_END`/`DEFAULT_T_PEAK`/`MIN_RISE`/`MIN_FALL`/`PEAK_TIME_TEST` |
+| [`perception_test.py`](perception_test.py) | Modified (S1, S6, S7) | Logger attach/detach, DataLog rename in cleanup; peak-time staircase + new status messages; `_StaircaseVar` dispatch for MAX/SAV |
+| [`gui.py`](gui.py) | Modified (S1, S6, S7) | Persistent `GUIlog_*.txt`; condition banner / phase indicator / stride counter / live torque preview; experiment-type radio + adaptive units |
+| [`config.py`](config.py) | Modified (S2, S5, S6, S7) | `PEAK_CURRENT`, `DEFAULT_PEAK_TORQUE_NORM`; peak-time constants; per-experiment constants (`MAX_*` / `SAV_*`, `MAX_FAM_PEAK_TN`, `SAV_FAM_PEAK_TN`, `MAX_EXPERIMENT` / `SAV_EXPERIMENT`) |
 | [`tests/test_perception_helpers.py`](tests/test_perception_helpers.py) | Modified (S6) | Updated to peak-time `_make_profile` API |
+| [`tests/test_perception_sav.py`](tests/test_perception_sav.py) | **NEW** (Session 7) | Pure-Python tests for `_StaircaseVar` MAX/SAV dispatch + `_make_profile` per-trial peak_tn |
+| [`AGENTS.md`](AGENTS.md) | Modified (S5, S7) | Hard rules; PEAK_CURRENT ceiling corrected to 28000 mA; dual-experiment dispatch rule added |
 | [`sequential_change_log.md`](sequential_change_log.md) | **NEW** (this file) | Cross-session memory |
-| [`CLAUDE.md`](CLAUDE.md) | Pre-existing | General onboarding (some entries now stale; see this file for current state) |
+| [`CLAUDE.md`](CLAUDE.md) | Pre-existing; modified (S7) | General onboarding; dual-experiment notes added |
 
 ---
 
