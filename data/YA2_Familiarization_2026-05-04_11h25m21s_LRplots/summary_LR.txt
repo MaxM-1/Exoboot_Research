@@ -1,0 +1,50 @@
+=== Diagnostic summary (L) ===
+File rows           : 4999
+Duration            : 52.0 s  (≈ 96.2 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : YA2   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 41
+TRIGGER events      : 41
+% time armed        : 26.0%
+gyroz range         : -8935 .. 13604
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       34.9%
+   early_stance_no_slack      23.7%
+   cur_ramp_up                22.5%
+   idle_no_slack               9.7%
+   cur_ramp_down               9.1%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : 800 .. 12694 mA
+Meas current range  : 2 .. 12751 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 33874 .. 36289 mV
+
+No critical flags raised.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 4999
+Duration            : 52.0 s  (≈ 96.2 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : YA2   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 39
+TRIGGER events      : 39
+% time armed        : 30.3%
+gyroz range         : -9116 .. 13903
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       34.5%
+   early_stance_no_slack      22.3%
+   cur_ramp_up                21.2%
+   idle_no_slack              13.2%
+   cur_ramp_down               8.7%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : -12910 .. -800 mA
+Meas current range  : -13718 .. 0 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 33736 .. 36595 mV
+
+No critical flags raised.

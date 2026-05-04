@@ -1,0 +1,25 @@
+=== Diagnostic summary (L) ===
+File rows           : 5469
+Duration            : 56.4 s  (≈ 96.9 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : YA4   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 48
+TRIGGER events      : 48
+% time armed        : 28.2%
+gyroz range         : -11063 .. 15616
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       33.6%
+   early_stance_no_slack      23.4%
+   cur_ramp_up                22.5%
+   idle_no_slack              11.5%
+   cur_ramp_down               9.1%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : 800 .. 12637 mA
+Meas current range  : 1 .. 12767 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 32241 .. 36020 mV
+
+FLAGS:
+  ⚠ status_mn changed 2 times during run — device entered/left a fault or special state.

@@ -1,0 +1,52 @@
+=== Diagnostic summary (L) ===
+File rows           : 10587
+Duration            : 109.7 s  (≈ 96.5 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : YA3   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 93
+TRIGGER events      : 93
+% time armed        : 27.2%
+gyroz range         : -10303 .. 15393
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       36.2%
+   early_stance_no_slack      25.2%
+   cur_ramp_up                24.0%
+   cur_ramp_down               9.8%
+   idle_no_slack               4.8%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : 800 .. 13207 mA
+Meas current range  : -12701 .. 13038 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 32613 .. 36300 mV
+
+FLAGS:
+  ⚠ status_mn changed 2 times during run — device entered/left a fault or special state.
+
+
+=== Diagnostic summary (R) ===
+File rows           : 10587
+Duration            : 109.7 s  (≈ 96.5 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : YA3   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 93
+TRIGGER events      : 93
+% time armed        : 27.6%
+gyroz range         : -8872 .. 14427
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       36.6%
+   early_stance_no_slack      25.4%
+   cur_ramp_up                24.0%
+   cur_ramp_down               9.9%
+   idle_no_slack               4.1%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : -13226 .. -800 mA
+Meas current range  : -13117 .. 551 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 33320 .. 36422 mV
+
+FLAGS:
+  ⚠ status_mn changed 2 times during run — device entered/left a fault or special state.

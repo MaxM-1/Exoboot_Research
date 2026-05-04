@@ -1,51 +1,55 @@
 import queue
 
 from config import (
-    DEFAULT_T_FALL,
-    DEFAULT_T_ONSET,
-    DEFAULT_T_RISE,
-    FALL_TIME_TEST,
-    RISE_TIME_TEST,
+    DEFAULT_T_PEAK,
+    MIN_FALL,
+    MIN_RISE,
+    T_ACT_END,
+    T_ACT_START,
 )
 from perception_test import PerceptionExperiment, _pad
 
 
-def test_make_profile_for_rise_time():
+def test_make_profile_at_reference_peak():
     exp = PerceptionExperiment()
 
     profile = exp._make_profile(
-        value=30.0,
-        test_mode=RISE_TIME_TEST,
+        t_peak=DEFAULT_T_PEAK,
         weight=75.0,
         peak_tn=0.2,
     )
 
-    assert profile == {
-        "t_rise": 30.0,
-        "t_fall": DEFAULT_T_FALL,
-        "t_peak": DEFAULT_T_ONSET + 30.0,
-        "weight": 75.0,
-        "peak_torque_norm": 0.2,
-    }
+    assert profile["t_peak"] == DEFAULT_T_PEAK
+    assert profile["t_rise"] == DEFAULT_T_PEAK - T_ACT_START
+    assert profile["t_fall"] == T_ACT_END - DEFAULT_T_PEAK
+    assert profile["weight"] == 75.0
+    assert profile["peak_torque_norm"] == 0.2
 
 
-def test_make_profile_for_fall_time():
+def test_make_profile_couples_rise_and_fall():
+    """Sliding t_peak should keep actuation start/end constant; only
+    rise and fall durations change in opposite directions."""
     exp = PerceptionExperiment()
 
-    profile = exp._make_profile(
-        value=12.0,
-        test_mode=FALL_TIME_TEST,
-        weight=70.0,
-        peak_tn=0.25,
-    )
+    p_low = exp._make_profile(t_peak=DEFAULT_T_PEAK - 3.0,
+                              weight=70.0, peak_tn=0.2)
+    p_hi = exp._make_profile(t_peak=DEFAULT_T_PEAK + 3.0,
+                             weight=70.0, peak_tn=0.2)
 
-    assert profile == {
-        "t_rise": DEFAULT_T_RISE,
-        "t_fall": 12.0,
-        "t_peak": DEFAULT_T_ONSET + DEFAULT_T_RISE,
-        "weight": 70.0,
-        "peak_torque_norm": 0.25,
-    }
+    # Actuation start & end recovered from t_peak ± rise/fall
+    assert abs((p_low["t_peak"] - p_low["t_rise"]) - T_ACT_START) < 1e-9
+    assert abs((p_low["t_peak"] + p_low["t_fall"]) - T_ACT_END) < 1e-9
+    assert abs((p_hi["t_peak"] - p_hi["t_rise"]) - T_ACT_START) < 1e-9
+    assert abs((p_hi["t_peak"] + p_hi["t_fall"]) - T_ACT_END) < 1e-9
+    # Sliding peak later → longer rise, shorter fall
+    assert p_hi["t_rise"] > p_low["t_rise"]
+    assert p_hi["t_fall"] < p_low["t_fall"]
+
+
+def test_clamp_peak_respects_min_rise_fall():
+    assert PerceptionExperiment._clamp_peak(0.0) == T_ACT_START + MIN_RISE
+    assert PerceptionExperiment._clamp_peak(1000.0) == T_ACT_END - MIN_FALL
+    assert PerceptionExperiment._clamp_peak(DEFAULT_T_PEAK) == DEFAULT_T_PEAK
 
 
 def test_pad_extends_all_lists_to_same_length():

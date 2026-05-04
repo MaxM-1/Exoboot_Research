@@ -353,6 +353,121 @@ So for the first time the controller will deliver the *true* Collins peak torque
 
 ---
 
+## Session 6 — 2026-05-04: Perception-test architectural overhaul (peak-time mode + GUI/analysis upgrade)
+
+### Problem reported (SAV6, first perception-test run)
+
+After a successful familiarization series, the user attempted the full perception protocol for the first time and surfaced five issues:
+
+1. **Rise/fall coupling was wrong.** The perception protocol independently varied either rise time *or* fall time while holding the other constant. With actuation start (`T_ACT_START`) and end (`T_ACT_END`) both fixed in the user's experimental design, varying only one of rise/fall produced a flat plateau at the top of the torque curve — *not* the cubic-cubic Collins shape the participant was supposed to be feeling. The varying parameter is conceptually **peak time**, with rise and fall durations coupled to it.
+2. **GUI did not clearly indicate when a response was required**, what the current torque curve looked like, or where the experimenter was within the sweep schedule.
+3. **No stride-within-condition counter** — experimenter could not see "stride 3 of 5" inside Timing A or Timing B.
+4. **No analysis tooling** for perception-test CSV output (only the per-sample `Analysis2.py` for walk diagnostics).
+5. **No "condition is being presented" announcement** — the experimenter could not narrate "Condition 7 starting now" to the participant because the staircase boundaries were invisible from the GUI.
+
+### Diagnosis
+
+This was an **architectural mismatch**, not a bug. Reading [`perception_test.py`](perception_test.py) `_make_profile` confirmed:
+
+- `RISE_TIME_TEST` mode held `t_fall = DEFAULT_T_FALL` constant and slid `t_peak = DEFAULT_T_ONSET + value`. Actuation **start** stayed fixed but actuation **end** drifted.
+- `FALL_TIME_TEST` mode held `t_peak = DEFAULT_T_ONSET + DEFAULT_T_RISE` constant. Actuation **start** drifted (because `t0 = t_peak - t_rise = T_ACT_START`, ✅) — wait, actually `t1 = t_peak + t_fall` drifted with `t_fall`. So in fall-mode, `t1` drifted.
+
+Neither mode satisfied the user's actual experimental design where **both** `T_ACT_START` and `T_ACT_END` are constants. The correct single staircase variable is `t_peak`; rise and fall are coupled derivatives.
+
+User-confirmed design constants from the figure annotations (Peng et al. 2022, peak-torque pattern):
+
+- `T_ACT_START = 26.0 %` (actuation onset)
+- `T_ACT_END   = 61.6 %` (actuation offset)
+- `T_PEAK_REF  = 51.3 %` (reference peak time → reference rise = 25.3 %, fall = 10.3 %)
+
+### Changes made
+
+#### A. [`config.py`](config.py) — peak-time constants
+- Added `T_ACT_START = 26.0`, `T_ACT_END = 61.6`, `DEFAULT_T_PEAK = 51.3`, and clamp guards `MIN_RISE = MIN_FALL = 2.0` (% gait) so the cubic does not degenerate near the endpoints.
+- Renamed test-mode constant: `PEAK_TIME_TEST = "peak_time"`. `RISE_TIME_TEST` and `FALL_TIME_TEST` are kept as aliases of `PEAK_TIME_TEST` so legacy code/tests continue to import without crashing, but new logic ignores them.
+- Existing `DEFAULT_T_RISE`, `DEFAULT_T_FALL`, `DEFAULT_T_ONSET` retained as derived/back-compat values.
+
+#### B. [`perception_test.py`](perception_test.py) — single-variable staircase, richer status
+
+- **`_make_profile`** rewritten as `_make_profile(t_peak, weight, peak_tn)` — derives `t_rise = t_peak - T_ACT_START` and `t_fall = T_ACT_END - t_peak`. No flat plateau is geometrically possible.
+- New static helpers:
+  - `_clamp_peak(t_peak)` — clamps to `[T_ACT_START + MIN_RISE, T_ACT_END - MIN_FALL]`.
+  - `_collins_curve(t_peak, weight, peak_tn, n_pts=201)` — pure-Python Collins cubic-cubic curve sampler (mirrors [`exo_init.init_collins_profile`](exo_init.py) coefficients). Used to send live torque curves to the GUI without any flexsea dependency.
+- **Familiarization mode**: Increase/Decrease now slides `t_peak` (not `t_rise` / `t_fall`). Per-stride CSV gains `t_peak` column.
+- **Perception mode** (`_run_perception`):
+  - `reference_value = DEFAULT_T_PEAK`. Initial comparison `= reference ± INITIAL_OFFSET` with clamping. Direction sign unchanged (Different → step toward reference; Same → step away).
+  - New status messages emitted to the GUI:
+    - `condition_announce {label, trial, est_total, is_practice}` — sent once at trial start so the experimenter can read aloud "Condition N".
+    - `catch_flag {is_catch}` — small experimenter-only red tag.
+    - `trial_phase {phase, label?, t_peak?}` — `warmup_light | warmup_collins | timing_A | timing_B | response_wait | rest`.
+    - `stride_progress {k, n, phase}` — current stride within condition (1..5).
+    - `profile_preview {ref, comp, ref_label, comp_label}` — two `(xs, ys)` lists for the live matplotlib preview. Sent twice per trial (warm-up + every trial start), not per loop.
+  - **Trial CSV schema changed** (breaking change for any old reader):
+    - `Trial #, Sweep #, Delta, Approach, Reference t_peak, Comparison t_peak, t_rise_comp, t_fall_comp, Phase Order, Is Reversal, Response, Catch Trial`.
+    - Old columns `Test Mode`, `Reference Value`, `Comparison Value` are gone.
+  - **Per-stride CSV schema changed**:
+    - `state_time, t_peak, trial_phase, stride_in_condition, est_stride_dur, actual_stride_dur`.
+    - Old `varied_value` column is gone.
+
+#### C. [`gui.py`](gui.py) — peak-time UI, embedded torque preview
+
+- **Setup pane**: Removed the rise/fall radio (`mode_group`). Only the from-above / from-below approach radio remains. `_collect_params` always sends `test_mode = PEAK_TIME_TEST`.
+- **Status pane** completely rebuilt:
+  - Big condition banner (16 pt bold, blue background; yellow background during practice trials).
+  - Color-coded phase indicator (gray = warm-up / rest, blue = Timing A, orange = Timing B, **green** = "▶ RESPOND  Same / Different").
+  - Stride counter "Stride k/5 (phase A|B)".
+  - Trial / sweep progress "Trial: N   Sweep: x/9".
+  - Reference and comparison `t_peak` lines, with the comparison showing Δ vs reference.
+  - Small red **CATCH TRIAL** tag on the State row (experimenter-only).
+  - **Embedded matplotlib preview** (`FigureCanvasQTAgg`) — two persistent `Line2D` artists (reference black, comparison dashed red) updated via `set_data` + `draw_idle`. Only redraws on `profile_preview` messages (twice per trial), so cost is negligible.
+- **Button gating** (`_update_button_states`): tracks `_mode_active ∈ {fam, perception, None}`. Familiarization Increase/Decrease are now disabled during perception, and re-disabled when the experiment thread terminates.
+- Window title is now `"Peak-Time Perception Experiment"`. Resized to 820×980 to fit the preview canvas.
+
+#### D. [`DataLog/analysis/perception_plots.py`](DataLog/analysis/perception_plots.py) — **NEW** diagnostic suite
+
+Per-session diagnostics for perception data. **Does not** fit psychometric functions / PSE / JND (per user request, this is graphs-only).
+
+Outputs (all PNG @ 130 dpi, written to `<trial-csv-stem>_plots/`):
+
+| File | Content |
+|---|---|
+| `staircase.png` | Comparison `t_peak` vs trial #, separate panels per approach. Markers: ○ Same, ■ Different. White-fill = catch. Blue halo = reversal. Reference dotted line. |
+| `reversals.png` | Reversal-only trajectory per approach, connected. |
+| `stride_dur.png` | Boxplot of `actual_stride_dur` grouped by `trial_phase` (A vs B), separate axes for L and R. |
+| `profile_gallery.png` | Every comparison's Collins curve overlaid, viridis-colored by trial order, with reference in black. Vertical dotted lines at `T_ACT_START` and `T_ACT_END`. |
+| `summary.txt` | Total / real / catch trial counts, reversal count, **catch false-alarm rate**, per-approach trial counts. |
+
+CLI: `--latest`, `--participant <pid>`, positional path, `--weight` (default 75 kg).
+
+**File-discovery gotcha (real bug, fixed during the session)**: `data/` contains both the trial CSV (`{pid}_Perception_{ts}.csv`) and per-sample `ExoLogger` files (`{pid}_Perception_{L|R}_{ts}_full.csv`) and per-stride files (`{pid}_PerceptionStride_{L|R}_{ts}.csv`). The first glob attempted on `SAV_Perception_3_Perception_*.csv` matched the `..._Perception_R_..._full.csv` ExoLogger file and crashed with `KeyError: 'Approach'`. The script now uses `_is_trial_csv` to reject any path containing `PerceptionStride`, ending in `_full.csv`, or whose post-`_Perception_` suffix starts with `L_` or `R_`.
+
+#### E. [`tests/test_perception_helpers.py`](tests/test_perception_helpers.py) — updated to peak-time API
+
+- `test_make_profile_for_rise_time` / `test_make_profile_for_fall_time` removed.
+- New tests:
+  - `test_make_profile_at_reference_peak` — `t_rise + t_fall = T_ACT_END - T_ACT_START`.
+  - `test_make_profile_couples_rise_and_fall` — sliding peak later increases rise, decreases fall, and `t_peak ± rise/fall` recovers `T_ACT_START` / `T_ACT_END` to within 1e-9.
+  - `test_clamp_peak_respects_min_rise_fall`.
+- All 26 perception/config tests pass. (One pre-existing failure in `tests/test_exo_math.py::test_stride_duration_uses_median_and_rejects_outlier` — present on `main` before this session, **not introduced by this work**.)
+
+### Reasoning notes for future agents
+
+- **Why drop the rise/fall radio entirely?** Both modes now compute the same thing internally (`t_peak` staircase). Keeping the radio would only let the user pick the *initial offset sign*, which the from-above / from-below approach radio already handles. Removed to avoid a redundant control that confused the user during SAV6.
+- **Why a live matplotlib preview, not a static image?** Two reasons: (a) the comparison curve changes every trial, so a static image would lie; (b) it's also useful in familiarization mode where the user is dialing `t_peak` manually — they can now see the curve update each time they press Increase/Decrease. Performance cost is bounded by `draw_idle` rate-limiting and the two-call-per-trial cadence in perception mode.
+- **Why expose Δ vs reference in the GUI but hide the comparison `t_peak` numeric only behind a toggle?** This was *discussed* in the further-considerations list (Option 3 in the planning step) but the user did not opt in. The numeric `t_peak` is shown by default. If experimenter-blinding becomes a concern later, hide `lbl_comp` behind a checkbox.
+- **Backward compatibility of trial CSVs**: any legacy CSV using `Test Mode` / `Reference Value` / `Comparison Value` columns will fail in `perception_plots.py` because the column names changed. There are no committed legacy perception CSVs in the repo right now, so this is a clean break — but if old files surface, write a one-shot migration helper rather than re-introducing the old columns.
+
+### Status
+
+- **Code change**: Applied. Offline `pytest` passes (26 perception/config tests; one unrelated `test_exo_math.py` failure pre-dates this session).
+- **Hardware validation**: Partial. SAV_Perception_3 walk run completed (31 trials, 19 reversals, 25 % catch false-alarm rate per `summary.txt`). Trial CSV is well-formed and `perception_plots.py --participant SAV_Perception_3` produces all four PNGs successfully. Live GUI feedback (banner / phase / stride / preview) was not yet stress-tested across a multi-sweep session.
+- **Open items**:
+  1. Audio cue for response prompt was deliberately **not** added (user opted out).
+  2. Catch-trial blinding policy: currently the red **CATCH TRIAL** tag is visible on the same screen the participant might glance at. If this becomes an issue, move it to a separate experimenter-only display or a small status-bar strip.
+  3. The reversal-count progress (`sweep_num`) only updates on response polarity changes. For sessions where the participant gives many same-direction responses in a row, the GUI may seem stuck. Consider also surfacing the trial count toward `est_total_trials`.
+
+---
+
 ## Architectural Decisions (do not undo without reading why)
 
 ### 1. Position control is NOT used during walking
@@ -413,10 +528,12 @@ When the user asks for a code change:
 |---|---|---|
 | [`exo_logger.py`](exo_logger.py) | **NEW** (Session 1) | Per-sample CSV logger |
 | [`DataLog/analysis/Analysis2.py`](DataLog/analysis/Analysis2.py) | **NEW** (Session 1) | Diagnostic plots + summary |
-| [`exo_init.py`](exo_init.py) | Modified (S1, S2, S3) | DataLog tag, logger hook, sensor expansion, position→current control swap |
-| [`perception_test.py`](perception_test.py) | Modified (S1) | Logger attach/detach, DataLog rename in cleanup |
-| [`gui.py`](gui.py) | Modified (S1) | Persistent `GUIlog_*.txt` |
-| [`config.py`](config.py) | Modified (S2) | `PEAK_CURRENT`, `DEFAULT_PEAK_TORQUE_NORM` lowered |
+| [`DataLog/analysis/perception_plots.py`](DataLog/analysis/perception_plots.py) | **NEW** (Session 6) | Per-session perception diagnostics (staircase, reversals, stride-dur, profile gallery) |
+| [`exo_init.py`](exo_init.py) | Modified (S1, S2, S3, S5) | DataLog tag, logger hook, sensor expansion, position→current control swap, kt fix |
+| [`perception_test.py`](perception_test.py) | Modified (S1, S6) | Logger attach/detach, DataLog rename in cleanup; peak-time staircase + new status messages |
+| [`gui.py`](gui.py) | Modified (S1, S6) | Persistent `GUIlog_*.txt`; condition banner / phase indicator / stride counter / live torque preview |
+| [`config.py`](config.py) | Modified (S2, S5, S6) | `PEAK_CURRENT`, `DEFAULT_PEAK_TORQUE_NORM`; peak-time constants `T_ACT_START`/`T_ACT_END`/`DEFAULT_T_PEAK`/`MIN_RISE`/`MIN_FALL`/`PEAK_TIME_TEST` |
+| [`tests/test_perception_helpers.py`](tests/test_perception_helpers.py) | Modified (S6) | Updated to peak-time `_make_profile` API |
 | [`sequential_change_log.md`](sequential_change_log.md) | **NEW** (this file) | Cross-session memory |
 | [`CLAUDE.md`](CLAUDE.md) | Pre-existing | General onboarding (some entries now stale; see this file for current state) |
 
@@ -428,6 +545,8 @@ When the user asks for a code change:
 2. **Inter-subject robustness for very slow walkers** is not yet verified. Fixed gyroz thresholds in [`config.py`](config.py) may not fire for participants walking < 0.7 m/s. Adaptive auto-calibration was discussed but not implemented (would go in [`sensor_check`](perception_test.py) at start of each phase).
 3. **Battery / status / position-error columns** are only present in CSVs from Session 2 onward. Older CSVs (MAX1 and earlier) still work with [`Analysis2.py`](DataLog/analysis/Analysis2.py) but those plots will be skipped.
 4. **No automated end-to-end hardware test.** The pytest suite ([`tests/`](tests/)) covers offline math but cannot detect issues like the position-error spike — those only show up on a real boot under walking load.
+5. **Perception-test trial CSV schema changed in Session 6.** Old columns `Test Mode`, `Reference Value`, `Comparison Value` are gone; replaced with `Approach`, `Reference t_peak`, `Comparison t_peak`, `t_rise_comp`, `t_fall_comp`, `Phase Order`, `Is Reversal`. [`perception_plots.py`](DataLog/analysis/perception_plots.py) only reads the new schema. If old-schema CSVs surface, write a migration helper rather than re-introducing legacy columns.
+6. **Catch-trial blinding.** The red `CATCH TRIAL` tag in the GUI is currently visible to anyone glancing at the screen. If participant blinding becomes a concern, hide the tag behind an experimenter-only toggle or move it to a separate display.
 
 ---
 

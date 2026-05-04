@@ -30,6 +30,12 @@ from PyQt5.QtWidgets import (
     QPushButton, QTextEdit, QMessageBox,
 )
 
+# matplotlib (Qt5 backend) for live torque-profile preview
+import matplotlib
+matplotlib.use("Qt5Agg")
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
 from config import *
 from perception_test import PerceptionExperiment
 
@@ -44,7 +50,7 @@ class ExperimentGUI(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Rise / Fall Time Perception Experiment")
+        self.setWindowTitle("Peak-Time Perception Experiment")
 
         # ---- Persistent GUI log file (data/GUIlog_*.txt) ----------
         log_dir = os.path.join(
@@ -65,6 +71,7 @@ class ExperimentGUI(QMainWindow):
         self._awaiting_response = False
         self._connected = False       # True after Connect & Zero
         self._closing = False         # True while safe-shutdown in progress
+        self._mode_active = None      # 'fam' | 'perception' | None
 
         # ---- Build UI ---------------------------------------------
         central = QWidget()
@@ -109,21 +116,6 @@ class ExperimentGUI(QMainWindow):
         form.addRow("Left port:", self.edit_lport)
         form.addRow("Right port:", self.edit_rport)
 
-        # Radio — test mode
-        mode_layout = QHBoxLayout()
-        self.radio_rise = QRadioButton("Rise time")
-        self.radio_fall = QRadioButton("Fall time")
-        self.radio_rise.setChecked(True)
-        self.mode_group = QButtonGroup(self)
-        self.mode_group.addButton(self.radio_rise)
-        self.mode_group.addButton(self.radio_fall)
-        mode_layout.addWidget(self.radio_rise)
-        mode_layout.addWidget(self.radio_fall)
-        mode_layout.addStretch()
-        mode_widget = QWidget()
-        mode_widget.setLayout(mode_layout)
-        form.addRow("Test mode:", mode_widget)
-
         # Radio — approach direction
         dir_layout = QHBoxLayout()
         self.radio_above = QRadioButton("From above")
@@ -137,7 +129,7 @@ class ExperimentGUI(QMainWindow):
         dir_layout.addStretch()
         dir_widget = QWidget()
         dir_widget.setLayout(dir_layout)
-        form.addRow("Direction:", dir_widget)
+        form.addRow("Approach:", dir_widget)
 
         group.setLayout(form)
         return group
@@ -205,19 +197,71 @@ class ExperimentGUI(QMainWindow):
         group = QGroupBox("Status")
         layout = QVBoxLayout()
 
+        # ---- State line + small CATCH tag (experimenter-only) ----
+        state_row = QHBoxLayout()
         self.lbl_state = QLabel("State:  Idle")
         self.lbl_state.setFont(QFont("", 11, QFont.Bold))
-        self.lbl_trial = QLabel("Trial: --   Sweep: --   Catch: --")
-        self.lbl_ref = QLabel(
-            f"Reference: t_rise={DEFAULT_T_RISE}%  "
-            f"t_fall={DEFAULT_T_FALL}%"
-        )
-        self.lbl_comp = QLabel("Comparison: --")
+        self.lbl_catch = QLabel("")        # "CATCH" in red when active
+        self.lbl_catch.setStyleSheet("color: #b00; font-weight: bold;")
+        state_row.addWidget(self.lbl_state)
+        state_row.addStretch()
+        state_row.addWidget(self.lbl_catch)
+        layout.addLayout(state_row)
 
-        layout.addWidget(self.lbl_state)
-        layout.addWidget(self.lbl_trial)
+        # ---- Big condition-announcement banner -------------------
+        self.lbl_condition = QLabel("Condition: \u2014")
+        self.lbl_condition.setFont(QFont("", 16, QFont.Bold))
+        self.lbl_condition.setStyleSheet(
+            "background:#e8f0ff; padding:6px; border:1px solid #88a;")
+        self.lbl_condition.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.lbl_condition)
+
+        # ---- Trial-phase indicator (color-coded) -----------------
+        self.lbl_phase = QLabel("Phase: \u2014")
+        self.lbl_phase.setFont(QFont("", 12, QFont.Bold))
+        self.lbl_phase.setStyleSheet(
+            "background:#ddd; padding:4px;")
+        self.lbl_phase.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.lbl_phase)
+
+        # ---- Stride counter / trial-progress ---------------------
+        progress_row = QHBoxLayout()
+        self.lbl_stride = QLabel("Stride: --/--")
+        self.lbl_progress = QLabel("Trial: --   Sweep: --/{}".format(
+            TOTAL_SWEEPS))
+        progress_row.addWidget(self.lbl_stride)
+        progress_row.addStretch()
+        progress_row.addWidget(self.lbl_progress)
+        layout.addLayout(progress_row)
+
+        # ---- Reference / comparison numeric --------------------------
+        self.lbl_ref = QLabel(
+            f"Reference t_peak: {DEFAULT_T_PEAK:.1f}%   "
+            f"(start={T_ACT_START:.1f}%  end={T_ACT_END:.1f}%)"
+        )
+        self.lbl_comp = QLabel("Comparison t_peak: --")
         layout.addWidget(self.lbl_ref)
         layout.addWidget(self.lbl_comp)
+
+        # ---- Live torque-profile preview (matplotlib) ----------------
+        self._fig = Figure(figsize=(5, 2.4), tight_layout=True)
+        self._canvas = FigureCanvas(self._fig)
+        self._canvas.setMinimumHeight(220)
+        self._ax = self._fig.add_subplot(111)
+        self._ax.set_xlabel("% gait")
+        self._ax.set_ylabel("Torque (Nm)")
+        self._ax.set_xlim(0, 100)
+        self._ax.grid(True, alpha=0.3)
+        # Persistent line artists — updated via set_data on each preview msg
+        (self._ln_ref,) = self._ax.plot([], [], "k-", lw=2,
+                                        label="reference")
+        (self._ln_comp,) = self._ax.plot([], [], color="#c33",
+                                         lw=2, ls="--",
+                                         label="comparison")
+        self._ax.axvline(T_ACT_START, color="#88a", lw=0.7, ls=":")
+        self._ax.axvline(T_ACT_END, color="#88a", lw=0.7, ls=":")
+        self._ax.legend(loc="upper right", fontsize=8)
+        layout.addWidget(self._canvas)
 
         group.setLayout(layout)
         return group
@@ -241,14 +285,12 @@ class ExperimentGUI(QMainWindow):
     #  Button callbacks
     # ==================================================================
     def _collect_params(self, mode: str) -> dict:
-        test_mode = (RISE_TIME_TEST if self.radio_rise.isChecked()
-                     else FALL_TIME_TEST)
         approach = (APPROACH_FROM_ABOVE if self.radio_above.isChecked()
                     else APPROACH_FROM_BELOW)
         return {
             "participant_id": self.edit_pid.text(),
             "user_weight": self.edit_weight.text(),
-            "test_mode": test_mode,
+            "test_mode": PEAK_TIME_TEST,
             "approach": approach,
             "left_port": self.edit_lport.text(),
             "right_port": self.edit_rport.text(),
@@ -293,6 +335,7 @@ class ExperimentGUI(QMainWindow):
                 "before pressing Start Familiarization.")
             return
         self._running = True
+        self._mode_active = "fam"
         self._update_button_states()
         self._append_log(">>> Starting familiarization \u2026")
         self.experiment.command_queue.put(FAMILIARIZATION_BEGIN_SIGNAL)
@@ -307,6 +350,7 @@ class ExperimentGUI(QMainWindow):
                 "before pressing Start Perception Test.")
             return
         self._running = True
+        self._mode_active = "perception"
         self._update_button_states()
         self._append_log(">>> Starting perception test \u2026")
         self.experiment.command_queue.put(PERCEPTION_TEST_BEGIN_SIGNAL)
@@ -354,9 +398,10 @@ class ExperimentGUI(QMainWindow):
         # Stop: when connected or running
         self.btn_stop.setEnabled(running or connected)
 
-        # Familiarization adjust: only while running
-        self.btn_inc.setEnabled(running)
-        self.btn_dec.setEnabled(running)
+        # Familiarization adjust: only while running familiarization
+        fam_running = running and self._mode_active == "fam"
+        self.btn_inc.setEnabled(fam_running)
+        self.btn_dec.setEnabled(fam_running)
 
         # Response buttons: only while awaiting response
         self.btn_diff.setEnabled(awaiting)
@@ -403,6 +448,10 @@ class ExperimentGUI(QMainWindow):
                 self._running = False
                 self._connected = False
                 self._awaiting_response = False
+                self._mode_active = None
+                self.lbl_phase.setText("Phase: \u2014")
+                self.lbl_phase.setStyleSheet("background:#ddd; padding:4px;")
+                self.lbl_catch.setText("")
                 self._update_button_states()
                 # If we were waiting on shutdown to close, do it now
                 if self._closing:
@@ -411,26 +460,86 @@ class ExperimentGUI(QMainWindow):
         elif t == "trial_info":
             trial = msg.get("trial", "--")
             sweep = msg.get("sweep", "--")
-            catch = msg.get("catch", False)
+            ref = msg.get("reference", DEFAULT_T_PEAK)
             comp = msg.get("comparison", "--")
-            catch_str = "Yes" if catch else "No"
-            self.lbl_trial.setText(
-                f"Trial: {trial}   Sweep: {sweep}   "
-                f"Catch: {catch_str}")
-            test_mode = (RISE_TIME_TEST if self.radio_rise.isChecked()
-                         else FALL_TIME_TEST)
-            if test_mode == RISE_TIME_TEST:
+            self.lbl_progress.setText(
+                f"Trial: {trial}   Sweep: {sweep}/{TOTAL_SWEEPS}")
+            try:
                 self.lbl_comp.setText(
-                    f"Comparison: t_rise={comp}%  "
-                    f"t_fall={DEFAULT_T_FALL}%")
+                    f"Comparison t_peak: {comp:.1f}%   "
+                    f"(\u0394 vs ref = {comp - ref:+.1f}%)")
+            except (TypeError, ValueError):
+                self.lbl_comp.setText(f"Comparison t_peak: {comp}")
+
+        elif t == "condition_announce":
+            label = msg.get("label", "Condition")
+            self.lbl_condition.setText(label)
+            if msg.get("is_practice"):
+                self.lbl_condition.setStyleSheet(
+                    "background:#fff5cc; padding:6px; "
+                    "border:1px solid #cc8;")
             else:
-                self.lbl_comp.setText(
-                    f"Comparison: t_rise={DEFAULT_T_RISE}%  "
-                    f"t_fall={comp}%")
+                self.lbl_condition.setStyleSheet(
+                    "background:#e8f0ff; padding:6px; "
+                    "border:1px solid #88a;")
+
+        elif t == "catch_flag":
+            if msg.get("is_catch"):
+                self.lbl_catch.setText("CATCH TRIAL")
+            else:
+                self.lbl_catch.setText("")
+
+        elif t == "trial_phase":
+            phase = msg.get("phase", "")
+            label = msg.get("label", "")
+            tp = msg.get("t_peak", None)
+            extra = ""
+            if tp is not None:
+                extra = f"  (t_peak={tp:.1f}%)"
+            colors = {
+                "warmup_light":   ("Warm-up (light)",      "#ddd"),
+                "warmup_collins": ("Warm-up (Collins)",    "#ddd"),
+                "timing_A":       (f"Timing A {label}{extra}", "#cce0ff"),
+                "timing_B":       (f"Timing B {label}{extra}", "#ffd9b3"),
+                "response_wait":  ("Awaiting response",    "#c8eccc"),
+                "rest":           ("Rest",                 "#eee"),
+            }
+            text, bg = colors.get(phase, (phase, "#ddd"))
+            self.lbl_phase.setText(f"Phase: {text}")
+            self.lbl_phase.setStyleSheet(
+                f"background:{bg}; padding:4px;")
+
+        elif t == "stride_progress":
+            k = msg.get("k", 0); n = msg.get("n", 0)
+            ph = msg.get("phase", "")
+            self.lbl_stride.setText(f"Stride {k}/{n}  (phase {ph})")
+
+        elif t == "profile_preview":
+            ref = msg.get("ref")
+            comp = msg.get("comp")
+            ref_lbl = msg.get("ref_label", "reference")
+            comp_lbl = msg.get("comp_label", "comparison")
+            try:
+                if ref is not None:
+                    self._ln_ref.set_data(ref[0], ref[1])
+                    self._ln_ref.set_label(ref_lbl)
+                if comp is not None:
+                    self._ln_comp.set_data(comp[0], comp[1])
+                    self._ln_comp.set_label(comp_lbl)
+                self._ax.relim(); self._ax.autoscale_view(scaley=True)
+                self._ax.set_xlim(0, 100)
+                self._ax.legend(loc="upper right", fontsize=8)
+                self._canvas.draw_idle()
+            except Exception as exc:
+                self._append_log(f"preview draw failed: {exc}")
 
         elif t == "awaiting_response":
             self._awaiting_response = True
             self._update_button_states()
+            self.lbl_phase.setText("Phase: \u25B6 RESPOND  Same / Different")
+            self.lbl_phase.setStyleSheet(
+                "background:#9bd99e; padding:6px; "
+                "font-weight:bold;")
             self._append_log(f"   {msg.get('prompt', 'Respond')}")
 
         elif t == "error":
@@ -493,7 +602,7 @@ class ExperimentGUI(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     window = ExperimentGUI()
-    window.resize(700, 650)
+    window.resize(820, 980)
     window.show()
     sys.exit(app.exec_())
 

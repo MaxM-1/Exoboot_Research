@@ -1,0 +1,45 @@
+need to manually stop after experiment as it does it auto 
+.
+still holds ankle when it stops 
+=======================================================
+Running perception part of experiment (perception 3 as 1&2 messed up initializing due to core dumped)
+SAV_Perception_3 :
+
+Savannah says when it was switching conditions on the first step that the exo felt 
+like it was aggressivly bending ankle (not all the time) usually just only one step when it happened 
+
+'SHE THINKS'
+================================================================
+SAV8 doing familiarization 
+
+was increasing peak time every now and then just to see if it would do it 
+held onto right ankle for 2 heelstrikes when I turned the exo off 
+
+might be better to stop the treadmill and then turn off the exo's 
+================================================================
+=========
+NEED TO FIX ANALYSIS OF PERCEPTION 
+=========
+================================================================
+YA2 - familiarization - 1.25m/s
+~left and right felt different
+
+================================================================
+YA3 same procedure as 2  
+mainly the left was messing up and sometimes the right 
+had to walk in very specific pattern to feel both 
+need to look at heelstrike detections thresholds 
+
+*in regular gait it should be about a second for stride length 
+also with the measured torque curve that we have observed being a little later than the commanded - attributed to heelstrike 
+================================================================
+YA4  walking at now 1.35m/s
+
+felt like really needed to pick the heel up to get good timing on both 
+GyroZ detection and thresholds 
+
+need to have gyroZ limits lower 
+.
+================================================================
+~need to adjust gyroz and timing thresholds as it needs to work for both 1.25m/s and 1.00m/s (different thresholds values)
+.

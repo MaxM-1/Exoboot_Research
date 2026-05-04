@@ -62,9 +62,18 @@ MAX_ARMED_MS = 900                 # ms — absolute cap when expected_duration 
 # ==============================================================================
 # Collins Torque‑Profile Defaults  (% of gait cycle)
 # ==============================================================================
-DEFAULT_T_RISE = 25.3               # Rise time  (reference value)
-DEFAULT_T_FALL = 10.3               # Fall time  (reference value)
-DEFAULT_T_ONSET = 26.0              # Actuation‑start timing
+# Actuation start and end times are HELD CONSTANT throughout the perception
+# experiment.  Only the peak time slides between them; rise and fall
+# durations are derived from t_peak so that there is never a flat region
+# at the top of the torque curve.
+T_ACT_START = 26.0                  # Actuation‑start timing (% gait) — CONSTANT
+T_ACT_END   = 61.6                  # Actuation‑end   timing (% gait) — CONSTANT
+DEFAULT_T_RISE = 25.3               # Reference rise time  (= T_PEAK_REF - T_ACT_START)
+DEFAULT_T_FALL = 10.3               # Reference fall time  (= T_ACT_END   - T_PEAK_REF)
+DEFAULT_T_PEAK = T_ACT_START + DEFAULT_T_RISE   # 51.3 % — reference peak time
+DEFAULT_T_ONSET = T_ACT_START       # Backwards-compat alias
+MIN_RISE = 2.0                      # Minimum rise duration (% gait) — clamp guard
+MIN_FALL = 2.0                      # Minimum fall duration (% gait) — clamp guard
 DEFAULT_PEAK_TORQUE_NORM = 0.225    # Normalised peak torque  (Nm / kg)
         #4_28 changed from 0.225 to 0.12
         #5_2 changed from 0.12 to 0.20 then back to 0.12
@@ -103,8 +112,14 @@ FAMILIARIZATION_DELTA = 1.0         # Step for manual fam. adjustment
 # ==============================================================================
 # Experiment Modes
 # ==============================================================================
-RISE_TIME_TEST = "rise_time"
-FALL_TIME_TEST = "fall_time"
+# The perception test now varies a single quantity — the peak time t_peak
+# — with rise/fall durations derived to keep actuation start and end
+# constant.  RISE_TIME_TEST / FALL_TIME_TEST are kept as legacy aliases
+# (treated as PEAK_TIME_TEST) for backwards compatibility with old data
+# files; new code should use PEAK_TIME_TEST.
+PEAK_TIME_TEST = "peak_time"
+RISE_TIME_TEST = PEAK_TIME_TEST     # legacy alias
+FALL_TIME_TEST = PEAK_TIME_TEST     # legacy alias
 APPROACH_FROM_ABOVE = "from_above"
 APPROACH_FROM_BELOW = "from_below"
 

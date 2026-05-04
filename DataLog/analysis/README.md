@@ -48,3 +48,40 @@ Pass `--simple --hs-threshold N` to use a single rising-edge threshold
 instead (easier to tune visually for new participants).
 
 Output of each run lives in `DataLog/analysis/<csv_stem>_plots/`.
+
+## perception_plots.py
+
+Diagnostic figures for one perception-test session. Reads the trial CSV
+(`data/{pid}_Perception_{ts}.csv`) plus matching per-stride CSVs. **Does
+not** fit psychometric functions or compute PSE / JND — graphs only.
+
+Outputs into `data/<trial-csv-stem>_plots/`:
+
+- `staircase.png` — comparison `t_peak` vs trial #, separate panels per
+  approach direction. Markers: ○ Same, ■ Different. White-fill = catch
+  trial. Blue halo = reversal. Reference dotted line.
+- `reversals.png` — reversals only, connected, per approach.
+- `stride_dur.png` — boxplot of `actual_stride_dur` grouped by trial
+  phase (A vs B), separately for L and R.
+- `profile_gallery.png` — every comparison's Collins curve overlaid,
+  viridis-colored by trial order, with reference in black. Vertical
+  dotted lines mark `T_ACT_START` (26 %) and `T_ACT_END` (61.6 %).
+- `summary.txt` — trial / real / catch / reversal counts and catch-trial
+  false-alarm rate.
+
+### Quick start
+
+```bash
+# Most recent perception trial CSV in data/
+python DataLog/analysis/perception_plots.py --latest
+
+# Specific participant id (uses the latest matching trial)
+python DataLog/analysis/perception_plots.py --participant SAV_Perception_3
+
+# Specific file
+python DataLog/analysis/perception_plots.py data/P001_Perception_2026-05-04_10h44m56s.csv
+```
+
+The script automatically rejects per-sample ExoLogger files
+(`..._full.csv`) and per-stride files (`..._PerceptionStride_...`) — only
+the trial CSV is selected.
