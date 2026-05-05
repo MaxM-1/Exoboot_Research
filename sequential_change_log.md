@@ -807,6 +807,130 @@ When the user asks for a code change:
 
 ---
 
+## Session 8 — 2026-05-05: Exo-off recorder for heel-strike threshold tuning
+
+### Problem reported
+
+From the [5_4 notes](5_4%20notes) (YA2/YA3/YA4 walk tests at 1.00, 1.25, and
+1.35 m/s):
+
+- "left and right felt different" / "mainly the left was messing up and
+  sometimes the right" / "had to walk in very specific pattern to feel both"
+  → suggests inconsistent heel-strike detection, **not** a torque-profile bug.
+- "with the measured torque curve being a little later than the commanded —
+  attributed to heelstrike" → confirms latency is being read off the torque
+  curve, but the root cause is HS-detection timing.
+- "need to have gyroZ limits lower" / "need to adjust gyroz and timing
+  thresholds — needs to work for both 1.25 m/s and 1.00 m/s (different
+  threshold values)" → user wants per-speed thresholds.
+- Action item from the note: **"need to make a exo_off walking trial to get
+  gyroz data to adjust for tomorrow and record gyroz."**
+
+The existing walk-test pipeline always commands torque, which contaminates
+the gyroZ trace (the boot's own actuation perturbs the IMU) and makes
+threshold-only diagnostics noisy. There was no "sensors-only" entry point
+in the codebase — the closest existing modes (`encoder_check`, `zero_boot`)
+are stationary and still command current.
+
+### Diagnosis
+
+This is a **tooling addition**, not a controller bug fix. No existing code
+was changed. The new requirement is purely a clean data-collection path:
+run both boots at 100 Hz, command zero current, and log the standard
+per-iter [`ExoLogger`](exo_logger.py) CSV so heel-strike detection inside
+[`ExoBoot.read_data`](exo_init.py) populates `gyroz_signed`, `seg_trigger`,
+arm/trigger thresholds, and stride bookkeeping for offline analysis.
+
+### Hard rules locked in by this session
+
+- **"Exo off" means motors-unpowered (zero current commanded).** The boots
+  themselves remain powered and USB-streaming because the IMU signal path
+  is the FlexSEA `Device.read()` — there is no other way to get gyroZ.
+  Physically depowering the boot would yield no data.
+- **The exo-off recorder must never call any current-producing method.**
+  Forbidden inside this script: `cur_ramp_up`, `cur_ramp_down`,
+  `set_motor_current`, `cal_motor_offset`, `zero_boot`, and
+  `init_collins_profile`. The only motor command emitted is a defensive
+  `command_motor_current(0)` per iter.
+- **Threshold tuning stays manual.** The analysis script *suggests*
+  per-speed values (5th / 95th percentile of observed stride peaks with a
+  15 % margin) but does not edit [`config.py`](config.py). A human reads
+  the printout and decides.
+
+### Changes made
+
+#### A. New folder [`exo_off_tests/`](exo_off_tests/) — sensors-only walking-data tooling
+
+- [`exo_off_tests/exo_off_recorder.py`](exo_off_tests/exo_off_recorder.py)
+  — argparse-driven recorder. Constructs two
+  [`ExoBoot`](exo_init.py) instances (constructor opens the device and
+  starts streaming + reads `bootCal.txt`), attaches two
+  [`ExoLogger`](exo_logger.py) instances with `phase="ExoOff"` (or
+  `ExoOff_v1p25` etc. when `--speed` is given), runs a 100 Hz loop calling
+  `read_data()` + `command_motor_current(0)` + `logger.log(0, 0)` for both
+  sides paced by `time.perf_counter`. Handles Ctrl-C and `--duration`.
+  On stop: `tag_datalog` → `logger.close()` → `boot.clean()` → writes a
+  combined merged CSV joined on `loop_iter` so the per-iter rows from L
+  and R sit side-by-side in one file.
+- [`exo_off_tests/exo_off_analysis.py`](exo_off_tests/exo_off_analysis.py)
+  — `--latest` or explicit `--left`/`--right`. Per side: gyroZ trace with
+  vertical HS markers (`seg_trigger==1`) and horizontal lines at the
+  current [`HEELSTRIKE_THRESHOLD_ABOVE`](config.py) /
+  [`HEELSTRIKE_THRESHOLD_BELOW`](config.py); ankle-angle overlay with the
+  same markers; stride-duration histogram with reference lines for
+  [`MIN_STRIDE_PERIOD`](config.py) and [`REFRACTORY_MAX`](config.py).
+  Prints a per-side summary (stride count, mean/std/min/max duration,
+  outlier count) and a `→ suggested HEELSTRIKE_THRESHOLD_*` block derived
+  from observed stride peaks.
+- [`exo_off_tests/README.md`](exo_off_tests/README.md) — usage, the
+  "powered + USB / motors at 0 mA" definition, and an explicit list of
+  forbidden methods.
+- [`exo_off_tests/data/`](exo_off_tests/data/) — output directory
+  (auto-created on first run; isolated from the main [`data/`](data/)
+  folder so exo-off recordings don't pollute experiment data).
+
+#### B. [`CLAUDE.md`](CLAUDE.md) — file responsibilities updated
+
+Added a paragraph in *File Responsibilities* describing
+`exo_off_tests/` so future agents know where to look when the user asks
+about heel-strike threshold tuning at different treadmill speeds.
+
+### Reasoning
+
+Heel-strike-detection threshold tuning has been a recurring theme
+(Session 4 lowered the thresholds the first time; Session 1 added the
+diagnostic logging that surfaced the issue). The 5/4 walk tests showed
+that thresholds set for 1.25 m/s do not generalize to 1.00 or 1.35 m/s
+without verification. A no-torque recording is the cleanest possible
+input for that tuning — it isolates the gait-induced gyroZ signature from
+any actuation perturbation. Building this as a separate folder/script
+(rather than a flag inside the experiment thread) keeps the walking
+controller untouched and makes it impossible to accidentally command
+torque during data collection.
+
+### Validation status
+
+- **Offline tests**: `python -m pytest` still passes (no existing modules
+  modified).
+- **Hardware**: Not yet validated. First-use plan is to record YA5+ at
+  1.00 / 1.25 / 1.35 m/s, run the analysis script, and use the printed
+  `→ suggested HEELSTRIKE_THRESHOLD_*` values to update
+  [`config.py`](config.py) per speed. Update this session entry with the
+  resulting numbers when validated.
+
+### Files
+
+| File | Status |
+|---|---|
+| [`exo_off_tests/exo_off_recorder.py`](exo_off_tests/exo_off_recorder.py) | New |
+| [`exo_off_tests/exo_off_analysis.py`](exo_off_tests/exo_off_analysis.py) | New |
+| [`exo_off_tests/README.md`](exo_off_tests/README.md) | New |
+| [`exo_off_tests/data/`](exo_off_tests/data/) | New (output dir) |
+| [`CLAUDE.md`](CLAUDE.md) | Modified — added entry under *File Responsibilities* |
+| [`sequential_change_log.md`](sequential_change_log.md) | Modified — this session |
+
+---
+
 ## Update protocol for this file
 
 When you (the AI agent) make a change that:

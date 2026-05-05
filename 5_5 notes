@@ -15,3 +15,20 @@ In savannah IRB protocol - 0.01nm/kg instead of 0.005nm/kg
 
 TODO familiarization .csv output fix (maybe look at pre roll back code)
 .
+===============================================================
+===============================================================
+Look at troubleshooting changes (exo_OFF / latency analysis)
+we just have a delay in our system of 2% compared to Xiangyu net 1.7% delay 
+looked at data for YA and no missed heelstrikes....
+===============================================================
+===============================================================
+SAV_Perception_4 | 1.25m/s | perception test from below | 68kg | 
+*same procedure and process as SAV_Perception_3 but from BELOW instead of ABOVE
+.
+
+right boots turned off at sweep 8/9 and then they came back on when I stopped the treadmill 
+
+notes for the GUI (look at screenshot in files): need to update A/B
+"condition" is the pair of comparisons 
+When I ask participant I always just say "Condition 1" and then "Condition 2" which works but it not indicative (truelly) of what an actual Condition actually is
+.
