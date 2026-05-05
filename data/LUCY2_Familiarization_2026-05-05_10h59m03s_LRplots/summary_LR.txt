@@ -23,6 +23,12 @@ Batt V range        : 33852 .. 35757 mV
 
 No critical flags raised.
 
+LATENCY:
+  ARM→TRIG armed_time      : median=290  mean=289  std=14  5/95 pct=270/310 ms
+  current_dur − expected   : median=+0  mean=-0  std=44 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%
+
 
 === Diagnostic summary (R) ===
 File rows           : 13154
@@ -48,3 +54,9 @@ Max |pos error|     : n/a (no position-control phases in this run)
 Batt V range        : 35436 .. 37045 mV
 
 No critical flags raised.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=280  mean=286  std=23  5/95 pct=270/300 ms
+  current_dur − expected   : median=+0  mean=-2  std=38 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%

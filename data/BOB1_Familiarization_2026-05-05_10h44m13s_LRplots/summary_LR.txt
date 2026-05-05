@@ -26,6 +26,12 @@ FLAGS:
   ⚠ Firmware fault status: ex=1 re=0 samples — motor / regulator fault reported.
   ⚠ status_mn changed 6 times during run — device entered/left a fault or special state.
 
+LATENCY:
+  ARM→TRIG armed_time      : median=310  mean=312  std=19  5/95 pct=290/340 ms
+  current_dur − expected   : median=+0  mean=-8  std=35 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%
+
 
 === Diagnostic summary (R) ===
 File rows           : 14982
@@ -54,3 +60,9 @@ FLAGS:
   ⚠ Battery sagged to 4353 mV — likely brownout under load.
   ⚠ Firmware fault status: ex=1 re=0 samples — motor / regulator fault reported.
   ⚠ status_mn changed 8 times during run — device entered/left a fault or special state.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=300  mean=306  std=44  5/95 pct=270/350 ms
+  current_dur − expected   : median=+0  mean=-7  std=48 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%

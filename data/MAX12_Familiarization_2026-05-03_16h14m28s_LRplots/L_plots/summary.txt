@@ -22,3 +22,9 @@ Max |pos error|     : n/a (no position-control phases in this run)
 Batt V range        : 35483 .. 36611 mV
 
 No critical flags raised.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=300  mean=306  std=25  5/95 pct=280/328 ms
+  current_dur − expected   : median=+0  mean=-21  std=59 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=51.5%  meas=52.5%  Δ=+1.0%

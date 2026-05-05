@@ -340,7 +340,187 @@ def plot_battery_status(df: pd.DataFrame, out: Path, title_suffix: str = ""):
     plt.close(fig)
 
 
-def write_summary(df: pd.DataFrame, out: Path, label: str = "") -> str:
+# ---------------------------------------------------------------------
+#  NEW: latency diagnostics — localise where lag lives
+# ---------------------------------------------------------------------
+def latency_diagnostics(df: pd.DataFrame, out: Path,
+                        title_suffix: str = "") -> dict:
+    """Compute and plot four latency metrics and return a stats dict.
+
+    1. ARM → TRIGGER latency   (= ``armed_time_ms`` sampled at trigger rows)
+    2. ``current_dur − expected_dur`` drift per stride (estimator bias)
+    3. Cross-correlation lag of ``current_cmd_mA`` × ``mot_cur_meas_mA``
+       inside the actuation window (motor / current-loop lag)
+    4. Δ % gait between mean-cmd peak and mean-meas peak
+       (combined effect of estimator + motor lag on the delivered curve)
+
+    Metrics 3 & 4 require torque to have been commanded; on exo-off
+    runs only metrics 1 & 2 are populated. Returns a dict that
+    :func:`write_summary` can append to ``summary.txt``.
+    """
+    stats: dict = {}
+    if len(df) == 0:
+        return stats
+
+    triggers = df[df.seg_trigger == 1]
+    n_trig = len(triggers)
+    stats["n_triggers"] = n_trig
+
+    # Sample armed_time / current_dur from the row IMMEDIATELY before the
+    # trigger row, because the trigger handler resets armed_time to -1
+    # and updates expected_dur on the trigger sample itself.
+    trig_idx = triggers.index.values
+    pre_idx = np.array([i - 1 for i in trig_idx if i > 0], dtype=int)
+
+    # ---- Metric 1 ----------------------------------------------------
+    if len(pre_idx) > 0:
+        at = df.armed_time_ms.iloc[pre_idx].values.astype(float)
+        at = at[at > 0]   # drop -1 sentinels (rare, e.g. very first event)
+        if len(at) > 0:
+            stats["arm2trig_ms_median"] = float(np.median(at))
+            stats["arm2trig_ms_mean"]   = float(np.mean(at))
+            stats["arm2trig_ms_p5"]     = float(np.percentile(at, 5))
+            stats["arm2trig_ms_p95"]    = float(np.percentile(at, 95))
+            stats["arm2trig_ms_std"]    = float(np.std(at))
+
+    # ---- Metric 2 ----------------------------------------------------
+    # At trigger row i, the prediction USED during the stride that just
+    # ended is expected_dur_ms one sample earlier (the trigger row
+    # itself updates expected_dur from the new current_dur).
+    drift_ms: list[float] = []
+    if len(pre_idx) > 0:
+        for i in pre_idx:
+            cd = df.current_dur_ms.iloc[i + 1]   # trigger row has the new dur
+            ed_prev = df.expected_dur_ms.iloc[i]
+            if cd > 0 and ed_prev > 0:
+                drift_ms.append(float(cd - ed_prev))
+    drift = np.asarray(drift_ms, dtype=float)
+    if len(drift) > 0:
+        stats["dur_drift_ms_median"] = float(np.median(drift))
+        stats["dur_drift_ms_mean"]   = float(np.mean(drift))
+        stats["dur_drift_ms_std"]    = float(np.std(drift))
+
+    # ---- Metric 3 ----------------------------------------------------
+    has_torque = df.current_cmd_mA.abs().max() > 100
+    motor_lag_list: list[float] = []
+    if has_torque and "stride_idx_in_phase" in df.columns:
+        for s in df.stride_idx_in_phase.unique():
+            sub = df[(df.stride_idx_in_phase == s) &
+                     (df.percent_gait >= 20) &
+                     (df.percent_gait <= 70)]
+            if len(sub) < 20:
+                continue
+            x = sub.current_cmd_mA.values.astype(float)
+            y = sub.mot_cur_meas_mA.values.astype(float)
+            if x.std() < 50 or y.std() < 50:
+                continue
+            x = x - x.mean(); y = y - y.mean()
+            corr = np.correlate(y, x, mode="full")
+            lags = np.arange(-len(x) + 1, len(x))
+            mask = (lags >= -20) & (lags <= 60)   # ±200 / +600 ms @100 Hz
+            if mask.sum() == 0:
+                continue
+            best = lags[mask][int(np.argmax(corr[mask]))]
+            motor_lag_list.append(best * 10.0)    # 10 ms / sample
+    motor_lag = np.asarray(motor_lag_list, dtype=float)
+    if len(motor_lag) > 0:
+        stats["motor_lag_ms_median"] = float(np.median(motor_lag))
+        stats["motor_lag_ms_p5"]     = float(np.percentile(motor_lag, 5))
+        stats["motor_lag_ms_p95"]    = float(np.percentile(motor_lag, 95))
+
+    # ---- Metric 4 ----------------------------------------------------
+    cmd_mean = meas_mean = None; xx = None
+    peak_offset_pct = None
+    if has_torque:
+        m = df.percent_gait >= 0
+        if m.sum() > 0:
+            bins = np.arange(0, 101, 1); xx = bins[:-1] + 0.5
+            cats = pd.cut(df.loc[m, "percent_gait"], bins)
+            cmd_mean = df.loc[m].groupby(cats, observed=False)["current_cmd_mA"].mean().values
+            meas_mean = df.loc[m].groupby(cats, observed=False)["mot_cur_meas_mA"].mean().values
+            sgn = 1 if abs(np.nanmin(cmd_mean)) <= abs(np.nanmax(cmd_mean)) else -1
+            try:
+                cmd_pg  = float(xx[int(np.nanargmax(sgn * cmd_mean))])
+                meas_pg = float(xx[int(np.nanargmax(sgn * meas_mean))])
+                peak_offset_pct = meas_pg - cmd_pg
+                stats["cmd_peak_pct_gait"]   = cmd_pg
+                stats["meas_peak_pct_gait"]  = meas_pg
+                stats["peak_offset_pct_gait"] = peak_offset_pct
+            except (ValueError, IndexError):
+                pass
+
+    # ---- Plot --------------------------------------------------------
+    fig, ax = plt.subplots(2, 2, figsize=(13, 9))
+
+    if len(pre_idx) > 0:
+        at = df.armed_time_ms.iloc[pre_idx].values.astype(float)
+        at = at[at > 0]
+        if len(at) > 0:
+            ax[0, 0].hist(at, bins=30, color="C0", edgecolor="black", alpha=0.8)
+            ax[0, 0].axvline(np.median(at), color="red", ls="--",
+                             label=f"median={np.median(at):.0f} ms")
+            ax[0, 0].set_xlabel("ARM → TRIGGER latency (ms)")
+            ax[0, 0].set_ylabel("count")
+            ax[0, 0].legend(fontsize=8)
+            ax[0, 0].set_title(f"Metric 1: detector latency  (n={len(at)})")
+        else:
+            ax[0, 0].set_title("Metric 1: armed_time unavailable")
+    else:
+        ax[0, 0].set_title("Metric 1: no triggers")
+    ax[0, 0].grid(alpha=0.3)
+
+    if len(drift) > 0:
+        ax[0, 1].plot(np.arange(len(drift)), drift, "o-", lw=0.5, ms=3)
+        ax[0, 1].axhline(0, color="k", lw=0.5)
+        ax[0, 1].axhline(np.median(drift), color="red", ls="--",
+                         label=f"median={np.median(drift):.0f} ms")
+        ax[0, 1].set_xlabel("stride #")
+        ax[0, 1].set_ylabel("current_dur − expected_dur (ms)")
+        ax[0, 1].set_title("Metric 2: stride-duration estimator drift")
+        ax[0, 1].legend(fontsize=8)
+    else:
+        ax[0, 1].set_title("Metric 2: insufficient strides")
+    ax[0, 1].grid(alpha=0.3)
+
+    if has_torque and cmd_mean is not None and xx is not None:
+        ax[1, 0].plot(xx, cmd_mean, "C0", lw=2, label="cmd mean")
+        ax[1, 0].plot(xx, meas_mean, "r-", lw=1.5, alpha=0.85, label="meas mean")
+        if peak_offset_pct is not None:
+            ax[1, 0].axvline(stats["cmd_peak_pct_gait"], color="C0", ls=":")
+            ax[1, 0].axvline(stats["meas_peak_pct_gait"], color="r", ls=":")
+            ax[1, 0].set_title(
+                f"Metric 4: cmd vs meas peak — Δ={peak_offset_pct:+.1f}% gait")
+        else:
+            ax[1, 0].set_title("Metric 4: peaks not resolvable")
+        ax[1, 0].set_xlabel("% gait")
+        ax[1, 0].set_ylabel("current (mA)")
+        ax[1, 0].legend(fontsize=8)
+    else:
+        ax[1, 0].set_title("Metric 4: no torque commanded")
+    ax[1, 0].grid(alpha=0.3)
+
+    if len(motor_lag) > 0:
+        ax[1, 1].hist(motor_lag, bins=20, color="C2",
+                      edgecolor="black", alpha=0.8)
+        ax[1, 1].axvline(np.median(motor_lag), color="red", ls="--",
+                         label=f"median={np.median(motor_lag):.0f} ms")
+        ax[1, 1].set_xlabel("cmd→meas xcorr lag (ms)")
+        ax[1, 1].set_ylabel("count")
+        ax[1, 1].legend(fontsize=8)
+        ax[1, 1].set_title(f"Metric 3: motor / current-loop lag  (n={len(motor_lag)})")
+    else:
+        ax[1, 1].set_title("Metric 3: no torque commanded")
+    ax[1, 1].grid(alpha=0.3)
+
+    fig.suptitle(f"Latency diagnostics {title_suffix}")
+    fig.tight_layout()
+    fig.savefig(out / "latency.png", dpi=120)
+    plt.close(fig)
+    return stats
+
+
+def write_summary(df: pd.DataFrame, out: Path, label: str = "",
+                  latency: dict | None = None) -> str:
     lines = [f"=== Diagnostic summary {label} ==="]
     if len(df) == 0:
         lines.append("EMPTY FILE")
@@ -439,6 +619,37 @@ def write_summary(df: pd.DataFrame, out: Path, label: str = "") -> str:
     else:
         lines.append("\nNo critical flags raised.")
 
+    # ---- Latency block ----------------------------------------------
+    if latency:
+        lines.append("\nLATENCY:")
+        if "arm2trig_ms_median" in latency:
+            lines.append(
+                f"  ARM→TRIG armed_time      : "
+                f"median={latency['arm2trig_ms_median']:.0f}  "
+                f"mean={latency['arm2trig_ms_mean']:.0f}  "
+                f"std={latency['arm2trig_ms_std']:.0f}  "
+                f"5/95 pct={latency['arm2trig_ms_p5']:.0f}/"
+                f"{latency['arm2trig_ms_p95']:.0f} ms")
+        if "dur_drift_ms_median" in latency:
+            lines.append(
+                f"  current_dur − expected   : "
+                f"median={latency['dur_drift_ms_median']:+.0f}  "
+                f"mean={latency['dur_drift_ms_mean']:+.0f}  "
+                f"std={latency['dur_drift_ms_std']:.0f} ms  "
+                f"(positive = estimator under-predicts)")
+        if "motor_lag_ms_median" in latency:
+            lines.append(
+                f"  cmd→meas xcorr lag       : "
+                f"median={latency['motor_lag_ms_median']:+.0f}  "
+                f"5/95 pct={latency['motor_lag_ms_p5']:+.0f}/"
+                f"{latency['motor_lag_ms_p95']:+.0f} ms")
+        if "peak_offset_pct_gait" in latency:
+            lines.append(
+                f"  cmd vs meas peak %gait   : "
+                f"cmd={latency['cmd_peak_pct_gait']:.1f}%  "
+                f"meas={latency['meas_peak_pct_gait']:.1f}%  "
+                f"Δ={latency['peak_offset_pct_gait']:+.1f}%")
+
     text = "\n".join(lines)
     (out / "summary.txt").write_text(text + "\n")
     return text
@@ -456,7 +667,8 @@ def analyze_single(path: Path) -> pd.DataFrame:
     plot_startup_zoom(df, out, title_suffix=f"({path.stem})")
     plot_faults(df, out, title_suffix=f"({path.stem})")
     plot_battery_status(df, out, title_suffix=f"({path.stem})")
-    summary = write_summary(df, out, label=f"({path.stem})")
+    lat = latency_diagnostics(df, out, title_suffix=f"({path.stem})")
+    summary = write_summary(df, out, label=f"({path.stem})", latency=lat)
     print(summary)
     return df
 
@@ -547,7 +759,8 @@ def analyze_pair(left: Path, right: Path):
         plot_startup_zoom(df, sub, f"({name})")
         plot_faults(df, sub, f"({name})")
         plot_battery_status(df, sub, f"({name})")
-        write_summary(df, sub, f"({name})")
+        lat = latency_diagnostics(df, sub, f"({name})")
+        write_summary(df, sub, f"({name})", latency=lat)
     # Combined summary
     summary_L = (out / "L_plots" / "summary.txt").read_text()
     summary_R = (out / "R_plots" / "summary.txt").read_text()

@@ -24,6 +24,12 @@ Batt V range        : 32613 .. 36300 mV
 FLAGS:
   ⚠ status_mn changed 2 times during run — device entered/left a fault or special state.
 
+LATENCY:
+  ARM→TRIG armed_time      : median=290  mean=309  std=53  5/95 pct=260/360 ms
+  current_dur − expected   : median=-10  mean=-5  std=97 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%
+
 
 === Diagnostic summary (R) ===
 File rows           : 10587
@@ -50,3 +56,9 @@ Batt V range        : 33320 .. 36422 mV
 
 FLAGS:
   ⚠ status_mn changed 2 times during run — device entered/left a fault or special state.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=290  mean=305  std=38  5/95 pct=266/360 ms
+  current_dur − expected   : median=+0  mean=-8  std=72 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%

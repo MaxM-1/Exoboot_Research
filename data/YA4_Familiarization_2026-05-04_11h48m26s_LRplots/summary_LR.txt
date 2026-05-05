@@ -24,6 +24,12 @@ Batt V range        : 32241 .. 36020 mV
 FLAGS:
   ⚠ status_mn changed 2 times during run — device entered/left a fault or special state.
 
+LATENCY:
+  ARM→TRIG armed_time      : median=290  mean=302  std=49  5/95 pct=244/369 ms
+  current_dur − expected   : median=+5  mean=+3  std=92 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%
+
 
 === Diagnostic summary (R) ===
 File rows           : 5469
@@ -49,3 +55,9 @@ Max |pos error|     : n/a (no position-control phases in this run)
 Batt V range        : 32794 .. 36235 mV
 
 No critical flags raised.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=310  mean=306  std=33  5/95 pct=250/359 ms
+  current_dur − expected   : median=+0  mean=+2  std=71 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%

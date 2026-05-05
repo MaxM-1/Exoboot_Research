@@ -23,3 +23,9 @@ Batt V range        : 32960 .. 36951 mV
 
 FLAGS:
   ⚠ status_mn changed 15 times during run — device entered/left a fault or special state.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=300  mean=308  std=21  5/95 pct=290/327 ms
+  current_dur − expected   : median=+0  mean=-5  std=28 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+20  5/95 pct=+20/+20 ms
+  cmd vs meas peak %gait   : cmd=46.5%  meas=54.5%  Δ=+8.0%
