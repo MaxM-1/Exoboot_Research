@@ -1,0 +1,91 @@
+5_5
+=============================================
+=============================================
+SAV_OFF1 | 1.25m/s | 
+
+=== LEFT ===
+  Samples         : 9738
+  Detected strides: 87
+  Stride duration : mean=1002 ms  std=42 ms  min=940  max=1310
+  Outlier strides : 1 / 86 (>±30% from median 1000 ms)
+  gyroZ pos peak  : median=+12828  5th pct=+11822  (current ARM = +3280)
+  gyroZ neg peak  : median=-7408  95th pct=-6703  (current TRG = -3280)
+  → suggested HEELSTRIKE_THRESHOLD_ABOVE ≈ +10049  (15% margin under 5th pct)
+  → suggested HEELSTRIKE_THRESHOLD_BELOW ≈ -5698
+
+=== RIGHT ===
+  Samples         : 9738
+  Detected strides: 87
+  Stride duration : mean=1003 ms  std=42 ms  min=950  max=1320
+  Outlier strides : 1 / 86 (>±30% from median 1000 ms)
+  gyroZ pos peak  : median=+13243  5th pct=+12358  (current ARM = +3280)
+  gyroZ neg peak  : median=-7748  95th pct=-7144  (current TRG = -3280)
+  → suggested HEELSTRIKE_THRESHOLD_ABOVE ≈ +10504  (15% margin under 5th pct)
+  → suggested HEELSTRIKE_THRESHOLD_BELOW ≈ -6073
+
+=============================================
+=============================================
+SAV_OFF2 | 1.25m/s | 
+
+Current thresholds in config.py:
+  HEELSTRIKE_THRESHOLD_ABOVE = +3280.0
+  HEELSTRIKE_THRESHOLD_BELOW = -3280.0
+  MIN_STRIDE_PERIOD          = 650 ms
+  REFRACTORY_FRACTION        = 0.6
+  REFRACTORY_MAX             = 850 ms
+
+=== LEFT ===
+  Samples         : 4545
+  Detected strides: 47
+  Stride duration : mean=977 ms  std=24 ms  min=910  max=1050
+  Outlier strides : 0 / 46 (>±30% from median 980 ms)
+  gyroZ pos peak  : median=+12278  5th pct=+11662  (current ARM = +3280)
+  gyroZ neg peak  : median=-7538  95th pct=-6948  (current TRG = -3280)
+  → suggested HEELSTRIKE_THRESHOLD_ABOVE ≈ +9913  (15% margin under 5th pct)
+  → suggested HEELSTRIKE_THRESHOLD_BELOW ≈ -5906
+QSocketNotifier: Can only be used with threads started with QThread
+
+=== RIGHT ===
+  Samples         : 4545
+  Detected strides: 46
+  Stride duration : mean=975 ms  std=13 ms  min=950  max=1020
+  Outlier strides : 0 / 45 (>±30% from median 980 ms)
+  gyroZ pos peak  : median=+13189  5th pct=+12298  (current ARM = +3280)
+  gyroZ neg peak  : median=-7864  95th pct=-7217  (current TRG = -3280)
+  → suggested HEELSTRIKE_THRESHOLD_ABOVE ≈ +10453  (15% margin under 5th pct)
+  → suggested HEELSTRIKE_THRESHOLD_BELOW ≈ -6135
+
+=============================================
+=============================================
+MAX_OFF1 | 1.25m/s | 
+
+Current thresholds in config.py:
+  HEELSTRIKE_THRESHOLD_ABOVE = +3280.0
+  HEELSTRIKE_THRESHOLD_BELOW = -3280.0
+  MIN_STRIDE_PERIOD          = 650 ms
+  REFRACTORY_FRACTION        = 0.6
+  REFRACTORY_MAX             = 850 ms
+
+=== LEFT ===
+  Samples         : 4545
+  Detected strides: 47
+  Stride duration : mean=977 ms  std=24 ms  min=910  max=1050
+  Outlier strides : 0 / 46 (>±30% from median 980 ms)
+  gyroZ pos peak  : median=+12278  5th pct=+11662  (current ARM = +3280)
+  gyroZ neg peak  : median=-7538  95th pct=-6948  (current TRG = -3280)
+  → suggested HEELSTRIKE_THRESHOLD_ABOVE ≈ +9913  (15% margin under 5th pct)
+  → suggested HEELSTRIKE_THRESHOLD_BELOW ≈ -5906
+QSocketNotifier: Can only be used with threads started with QThread
+
+=== RIGHT ===
+  Samples         : 4545
+  Detected strides: 46
+  Stride duration : mean=975 ms  std=13 ms  min=950  max=1020
+  Outlier strides : 0 / 45 (>±30% from median 980 ms)
+  gyroZ pos peak  : median=+13189  5th pct=+12298  (current ARM = +3280)
+  gyroZ neg peak  : median=-7864  95th pct=-7217  (current TRG = -3280)
+  → suggested HEELSTRIKE_THRESHOLD_ABOVE ≈ +10453  (15% margin under 5th pct)
+  → suggested HEELSTRIKE_THRESHOLD_BELOW ≈ -6135
+
+=============================================
+=============================================
