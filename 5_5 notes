@@ -3,6 +3,7 @@ heelstrike/gyroZ testing
 BOB1    | Familiarization | 1.25m/s 
 ~felt like more going on the right than the left 
 Analysis: weird data in the graphs , lines that make no sense 
+-Brownout warning triggered-
 ===============================================================
 LUCY2   | Familiarization | 1.25m/s 
 
@@ -32,3 +33,15 @@ notes for the GUI (look at screenshot in files): need to update A/B
 "condition" is the pair of comparisons 
 When I ask participant I always just say "Condition 1" and then "Condition 2" which works but it not indicative (truelly) of what an actual Condition actually is
 .
+===============================================================
+===============================================================
+SAV_Perception_5 | 1.25m/s | perception test from above | 68kg |
+.
+for video reference - stopped at end of first sweep 
+.
+===============================================================
+===============================================================
+MAX_Perception_1 | 1.25m/s | perception test from above | 95kg |
+
+occasional spiked in torque at various places in the experiment 
+condition 10 left spike
