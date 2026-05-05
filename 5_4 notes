@@ -41,7 +41,7 @@ GyroZ detection and thresholds
 need to have gyroZ limits lower 
 .
 ================================================================
-~need to adjust gyroz and timing thresholds as it needs to work for both 1.25m/s and 1.00m/s (different thresholds values)
+~need to adjust gyroz and timing thresholds as it needs to work for both 1.25m/s and 1.00m/s (different thresholds values) - only focusing on 1.25m/s now 
 .
 
 

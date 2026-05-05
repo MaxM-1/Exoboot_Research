@@ -1,0 +1,27 @@
+=== Diagnostic summary (L) ===
+File rows           : 14982
+Duration            : 155.2 s  (≈ 96.5 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : BOB1   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 126
+TRIGGER events      : 126
+% time armed        : 27.8%
+gyroz range         : -9185 .. 12764
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       37.7%
+   early_stance_no_slack      25.1%
+   cur_ramp_up                24.3%
+   cur_ramp_down               9.7%
+   idle_no_slack               3.2%
+Cmd τ range         : 0.00 .. 21.38 Nm
+Cmd current range   : 800 .. 12665 mA
+Meas current range  : -16776438 .. 12775 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 9983 .. 36030 mV
+
+FLAGS:
+  ⚠ Battery sagged to 9983 mV — likely brownout under load.
+  ⚠ Firmware fault status: ex=1 re=0 samples — motor / regulator fault reported.
+  ⚠ status_mn changed 6 times during run — device entered/left a fault or special state.

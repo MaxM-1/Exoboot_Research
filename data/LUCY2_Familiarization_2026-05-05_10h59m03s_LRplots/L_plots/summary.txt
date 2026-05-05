@@ -1,0 +1,24 @@
+=== Diagnostic summary (L) ===
+File rows           : 13154
+Duration            : 136.1 s  (≈ 96.6 Hz)
+Side                : L   Boot ID: C719   Phase: Familiarization
+Participant         : LUCY2   Weight: 55 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.225
+Final num_gait      : 118
+TRIGGER events      : 118
+% time armed        : 27.1%
+gyroz range         : -10561 .. 14713
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       36.5%
+   early_stance_no_slack      25.1%
+   cur_ramp_up                23.8%
+   cur_ramp_down               9.9%
+   idle_no_slack               4.7%
+Cmd τ range         : 0.00 .. 12.38 Nm
+Cmd current range   : 800 .. 7883 mA
+Meas current range  : 3 .. 8076 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 33852 .. 35757 mV
+
+No critical flags raised.
