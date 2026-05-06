@@ -1,0 +1,34 @@
+=== Diagnostic summary (L) ===
+File rows           : 18999
+Duration            : 196.8 s  (≈ 96.5 Hz)
+Side                : L   Boot ID: C719   Phase: Perception
+Participant         : SAV_Perception_5   Weight: 68 kg
+Profile (varies)    : staircase var = t_peak
+   t_peak            : 51.3×163, 53.3×5, 54.3×15, 55.3×12, 56.3×5
+   t_rise            : 25.3×163, 27.3×5, 28.3×15, 29.3×12, 30.3×5
+   t_fall            : 5.3×5, 6.3×12, 7.3×15, 8.3×5, 10.3×163
+   peak_torque_norm  : 0.225 (constant)
+Final num_gait      : 209
+TRIGGER events      : 199
+% time armed        : 27.7%
+gyroz range         : -10157 .. 14257
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       38.5%
+   early_stance_no_slack      26.3%
+   cur_ramp_up                25.8%
+   cur_ramp_down               9.5%
+Cmd τ range         : 0.00 .. 15.30 Nm
+Cmd current range   : 800 .. 8999 mA
+Meas current range  : 236 .. 9326 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 35378 .. 37406 mV
+
+FLAGS:
+  ⚠ status_mn changed 4 times during run — device entered/left a fault or special state.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=260  mean=262  std=33  5/95 pct=240/280 ms
+  current_dur − expected   : median=+0  mean=+4  std=48 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=51.5%  meas=52.5%  Δ=+1.0%

@@ -44,9 +44,126 @@ import matplotlib.pyplot as plt
 DATA_DIR = (Path(__file__).resolve().parent.parent.parent / "data")
 
 FNAME_RE = re.compile(
-    r"^(?P<pid>[^_]+)_(?P<phase>[^_]+)_(?P<side>[LR])_"
+    r"^(?P<pid>.+?)_(?P<phase>Familiarization|Perception)_"
+    r"(?P<side>[LR])_"
     r"(?P<ts>\d{4}-\d{2}-\d{2}_\d{2}h\d{2}m\d{2}s)_full\.csv$"
 )
+
+# Companion files written by perception_test.py (opt-in overlay only).
+# Trials   : "{pid}_Perception_{ts}.csv"            (no side, no _full)
+# PerStride: "{pid}_PerceptionStride_{L|R}_{ts}.csv"
+# Their timestamp is later than the *_full.csv ts (stamped at run end).
+TRIAL_FNAME_RE = re.compile(
+    r"^(?P<pid>.+?)_Perception_"
+    r"(?P<ts>\d{4}-\d{2}-\d{2}_\d{2}h\d{2}m\d{2}s)\.csv$"
+)
+PERSTRIDE_FNAME_RE = re.compile(
+    r"^(?P<pid>.+?)_PerceptionStride_(?P<side>[LR])_"
+    r"(?P<ts>\d{4}-\d{2}-\d{2}_\d{2}h\d{2}m\d{2}s)\.csv$"
+)
+
+
+# ---------------------------------------------------------------------
+#  Perception helpers
+# ---------------------------------------------------------------------
+def _profile_param_cols() -> list[str]:
+    return ["t_peak", "t_rise", "t_fall", "peak_torque_norm"]
+
+
+def _autopick_staircase_var(df: pd.DataFrame) -> Optional[str]:
+    """Return 'peak_torque_norm' or 't_peak' (whichever varies across
+    strides), or None if both constant. Considers only rows with a
+    valid stride index and percent_gait >= 0.
+    """
+    m = (df.percent_gait >= 0) & (df.stride_idx_in_phase >= 0)
+    if m.sum() == 0:
+        return None
+    candidates = []
+    for col in ("peak_torque_norm", "t_peak"):
+        if col not in df.columns:
+            continue
+        vals = df.loc[m, col].dropna()
+        if len(vals) == 0:
+            continue
+        # Count distinct values per stride (use first sample per stride).
+        per_stride = df.loc[m].groupby("stride_idx_in_phase")[col].first().dropna()
+        n_unique = per_stride.round(6).nunique()
+        if n_unique > 1:
+            candidates.append((n_unique, col))
+    if not candidates:
+        return None
+    # Prefer the column with more variation; tie-break peak_torque_norm.
+    candidates.sort(key=lambda x: (-x[0], 0 if x[1] == "peak_torque_norm" else 1))
+    return candidates[0][1]
+
+
+def _stride_param_table(df: pd.DataFrame) -> pd.DataFrame:
+    """First-sample-per-stride table of profile parameters."""
+    cols = [c for c in _profile_param_cols() if c in df.columns]
+    m = (df.percent_gait >= 0) & (df.stride_idx_in_phase >= 0)
+    if m.sum() == 0 or not cols:
+        return pd.DataFrame(columns=["stride_idx_in_phase"] + cols)
+    return (df.loc[m]
+              .groupby("stride_idx_in_phase")[cols]
+              .first()
+              .reset_index())
+
+
+def _bin_groups(values: np.ndarray, max_bins: int = 6) -> Tuple[np.ndarray, list[str]]:
+    """Return (group_idx_per_stride, label_per_group). Quantile-bins
+    when > max_bins distinct values.
+    """
+    uniq = np.unique(values[~np.isnan(values)])
+    if len(uniq) <= max_bins:
+        labels = [f"{v:g}" for v in uniq]
+        idx = np.searchsorted(uniq, values)
+        return idx, labels
+    qs = np.linspace(0, 1, max_bins + 1)
+    edges = np.unique(np.quantile(uniq, qs))
+    idx = np.clip(np.searchsorted(edges, values, side="right") - 1, 0, len(edges) - 2)
+    labels = [f"{edges[i]:g}–{edges[i+1]:g}" for i in range(len(edges) - 1)]
+    return idx, labels
+
+
+def _find_companion_files(full_csv: Path) -> dict:
+    """Locate sibling Perception trial / per-stride CSVs.
+
+    Returns dict with optional keys: 'trials', 'perstride_L', 'perstride_R'.
+    Match is by participant id; preferred timestamp is the smallest one
+    >= the full-CSV ts (companions are stamped at run end).
+    """
+    m = FNAME_RE.match(full_csv.name)
+    if not m or m.group("phase") != "Perception":
+        return {}
+    pid = m.group("pid"); ts_full = m.group("ts")
+    out: dict = {}
+
+    def _pick(cands: list[Tuple[Path, str]]) -> Optional[Path]:
+        if not cands:
+            return None
+        after = [c for c in cands if c[1] >= ts_full]
+        chosen = min(after, key=lambda c: c[1]) if after else max(cands, key=lambda c: c[1])
+        return chosen[0]
+
+    trial_cands = []
+    for p in full_csv.parent.glob(f"{pid}_Perception_*.csv"):
+        tm = TRIAL_FNAME_RE.match(p.name)
+        if tm and tm.group("pid") == pid:
+            trial_cands.append((p, tm.group("ts")))
+    tp = _pick(trial_cands)
+    if tp is not None:
+        out["trials"] = tp
+
+    for side in ("L", "R"):
+        cands = []
+        for p in full_csv.parent.glob(f"{pid}_PerceptionStride_{side}_*.csv"):
+            sm = PERSTRIDE_FNAME_RE.match(p.name)
+            if sm and sm.group("pid") == pid:
+                cands.append((p, sm.group("ts")))
+        cp = _pick(cands)
+        if cp is not None:
+            out[f"perstride_{side}"] = cp
+    return out
 
 
 def load(path: Path) -> pd.DataFrame:
@@ -103,46 +220,105 @@ def find_pair(participant: Optional[str] = None,
 #  Single-file plotting
 # ---------------------------------------------------------------------
 def plot_torque_profile(df: pd.DataFrame, out: Path, title_suffix=""):
-    """Peng-style torque-vs-gait-cycle overlay."""
+    """Peng-style torque-vs-gait-cycle overlay.
+
+    For Perception runs (where the staircase varies ``peak_torque_norm``
+    or ``t_peak`` across trials) overlaid strides are colored by the
+    auto-picked staircase variable, and one mean curve is drawn per
+    group. Reference vlines are drawn for every distinct profile tuple.
+    """
     fig, ax = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
     strides = sorted(df.stride_idx_in_phase.unique())
+    stair_var = _autopick_staircase_var(df)
+
+    # Per-stride parameter table → group index for coloring.
+    stride_params = _stride_param_table(df)
+    if stair_var and stair_var in stride_params.columns and len(stride_params) > 0:
+        gvals = stride_params[stair_var].to_numpy(dtype=float)
+        gidx, glabels = _bin_groups(gvals, max_bins=6)
+        cmap = plt.get_cmap("viridis", max(len(glabels), 1))
+        stride_to_group = dict(zip(stride_params.stride_idx_in_phase.astype(int), gidx))
+    else:
+        stride_to_group = {}
+        glabels = []
+        cmap = None
+
     n_overlaid = 0
     for s in strides:
         sub = df[(df.stride_idx_in_phase == s) & (df.percent_gait >= 0)]
         if len(sub) < 10:
             continue
-        ax[0].plot(sub.percent_gait, sub.tau_Nm, lw=0.5, alpha=0.35)
-        ax[1].plot(sub.percent_gait, sub.current_cmd_mA, lw=0.5, alpha=0.35)
+        if cmap is not None and int(s) in stride_to_group:
+            color = cmap(stride_to_group[int(s)])
+            alpha = 0.35
+        else:
+            color = "C0"; alpha = 0.25
+        ax[0].plot(sub.percent_gait, sub.tau_Nm, lw=0.5, alpha=alpha, color=color)
+        ax[1].plot(sub.percent_gait, sub.current_cmd_mA, lw=0.5, alpha=alpha, color=color)
         n_overlaid += 1
-    # mean curve binned by % gait
+
+    # Mean curve(s) binned by % gait.
     mask = df.percent_gait >= 0
     if mask.sum() > 0:
         bins = np.arange(0, 101, 1)
-        cats = pd.cut(df.loc[mask, "percent_gait"], bins)
         x = bins[:-1] + 0.5
-        ax[0].plot(x, df.loc[mask].groupby(cats, observed=False)["tau_Nm"].mean().values,
-                   "k-", lw=2, label="mean cmd τ")
-        ax[1].plot(x, df.loc[mask].groupby(cats, observed=False)["current_cmd_mA"].mean().values,
-                   "k-", lw=2, label="mean cmd current")
-        ax[1].plot(x, df.loc[mask].groupby(cats, observed=False)["mot_cur_meas_mA"].mean().values,
-                   "r-", lw=1.5, alpha=0.8, label="mean MEASURED current")
-    # Profile reference verticals
-    if not df.t_peak.isna().all() and df.t_peak.iloc[-1] > 0:
-        tp = df.t_peak.iloc[-1]; tr = df.t_rise.iloc[-1]; tf = df.t_fall.iloc[-1]
-        for a in ax:
-            a.axvline(tp - tr, color="g", ls="--", alpha=0.5, label="t_onset")
-            a.axvline(tp,      color="orange", ls="--", alpha=0.5, label="t_peak")
-            a.axvline(tp + tf, color="b", ls="--", alpha=0.5, label="t_end")
-    ax[0].set_ylabel("Commanded τ (Nm)"); ax[0].legend(loc="upper right", fontsize=8)
-    ax[1].set_ylabel("Current (mA)");    ax[1].legend(loc="upper right", fontsize=8)
+        if cmap is not None and stride_to_group:
+            # One mean per staircase group.
+            grp_series = df.stride_idx_in_phase.map(stride_to_group)
+            for gi, lbl in enumerate(glabels):
+                gm = mask & (grp_series == gi)
+                if gm.sum() < 20:
+                    continue
+                cats = pd.cut(df.loc[gm, "percent_gait"], bins)
+                m_tau = df.loc[gm].groupby(cats, observed=False)["tau_Nm"].mean().values
+                m_cmd = df.loc[gm].groupby(cats, observed=False)["current_cmd_mA"].mean().values
+                col = cmap(gi)
+                ax[0].plot(x, m_tau, color=col, lw=2,
+                           label=f"{stair_var}={lbl}")
+                ax[1].plot(x, m_cmd, color=col, lw=2,
+                           label=f"{stair_var}={lbl}")
+            # Single overall measured-current mean (red) for reference.
+            cats_all = pd.cut(df.loc[mask, "percent_gait"], bins)
+            m_meas = df.loc[mask].groupby(cats_all, observed=False)["mot_cur_meas_mA"].mean().values
+            ax[1].plot(x, m_meas, "r-", lw=1.5, alpha=0.8, label="mean MEASURED current")
+        else:
+            cats = pd.cut(df.loc[mask, "percent_gait"], bins)
+            ax[0].plot(x, df.loc[mask].groupby(cats, observed=False)["tau_Nm"].mean().values,
+                       "k-", lw=2, label="mean cmd τ")
+            ax[1].plot(x, df.loc[mask].groupby(cats, observed=False)["current_cmd_mA"].mean().values,
+                       "k-", lw=2, label="mean cmd current")
+            ax[1].plot(x, df.loc[mask].groupby(cats, observed=False)["mot_cur_meas_mA"].mean().values,
+                       "r-", lw=1.5, alpha=0.8, label="mean MEASURED current")
+
+    # Profile reference verticals — one set per distinct (t_peak,t_rise,t_fall).
+    if {"t_peak", "t_rise", "t_fall"}.issubset(stride_params.columns) and len(stride_params) > 0:
+        tuples = (stride_params[["t_peak", "t_rise", "t_fall"]]
+                  .dropna()
+                  .round(3)
+                  .drop_duplicates()
+                  .values)
+        n_t = max(len(tuples), 1)
+        per_alpha = max(0.15, 0.5 / n_t)
+        for tp, tr, tf in tuples:
+            if tp <= 0:
+                continue
+            for a in ax:
+                a.axvline(tp - tr, color="g",      ls="--", alpha=per_alpha)
+                a.axvline(tp,      color="orange", ls="--", alpha=per_alpha)
+                a.axvline(tp + tf, color="b",      ls="--", alpha=per_alpha)
+
+    ax[0].set_ylabel("Commanded τ (Nm)"); ax[0].legend(loc="upper right", fontsize=7)
+    ax[1].set_ylabel("Current (mA)");    ax[1].legend(loc="upper right", fontsize=7)
     ax[1].set_xlabel("Gait cycle (%)")
-    ax[0].set_title(f"Torque profile — {n_overlaid} strides overlaid {title_suffix}")
+    title_extra = f" — staircase var = {stair_var}" if stair_var else ""
+    ax[0].set_title(f"Torque profile — {n_overlaid} strides overlaid{title_extra} {title_suffix}")
     fig.tight_layout()
     fig.savefig(out / "torque_profile.png", dpi=120)
     plt.close(fig)
 
 
-def plot_controller_timeline(df: pd.DataFrame, out: Path, title_suffix=""):
+def plot_controller_timeline(df: pd.DataFrame, out: Path, title_suffix="",
+                             companions: dict | None = None):
     fig, ax = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
     modes = df.controller_mode.astype("category")
     ax[0].plot(df.t_s, modes.cat.codes, drawstyle="steps-post", lw=0.6)
@@ -157,9 +333,82 @@ def plot_controller_timeline(df: pd.DataFrame, out: Path, title_suffix=""):
     ax[3].plot(df.t_s, df.mot_cur_meas_mA, "r-", lw=0.4, alpha=0.7, label="measured")
     ax[3].set_ylabel("Current (mA)"); ax[3].legend(loc="upper right", fontsize=8)
     ax[3].set_xlabel("Time (s)"); ax[3].grid(alpha=0.3)
-    fig.suptitle(f"Controller timeline {title_suffix}")
+
+    # Optional: shade trial A/B segments from the per-stride companion CSV.
+    overlay_label = ""
+    if companions:
+        side = df.side.iloc[0] if "side" in df.columns and len(df) else None
+        ps_path = companions.get(f"perstride_{side}") if side else None
+        if ps_path is not None:
+            try:
+                ps = pd.read_csv(ps_path)
+                if {"state_time", "trial_phase"}.issubset(ps.columns) and len(df):
+                    t0 = df.state_time_ms.iloc[0]
+                    ps = ps.sort_values("state_time").reset_index(drop=True)
+                    ps["t_s"] = (ps.state_time - t0) / 1000.0
+                    # Shade [t_i, t_{i+1}] (or run end) by trial_phase.
+                    t_end_run = df.t_s.iloc[-1]
+                    starts = ps.t_s.tolist()
+                    ends = starts[1:] + [t_end_run]
+                    palette = {"A": "tab:blue", "B": "tab:orange"}
+                    seen = set()
+                    for s_t, e_t, ph in zip(starts, ends, ps.trial_phase):
+                        if e_t <= 0 or s_t >= t_end_run:
+                            continue
+                        c = palette.get(str(ph), "tab:gray")
+                        lab = f"trial {ph}" if ph not in seen else None
+                        seen.add(ph)
+                        for a in ax:
+                            a.axvspan(max(s_t, 0), min(e_t, t_end_run),
+                                      color=c, alpha=0.07,
+                                      label=lab if a is ax[0] else None)
+                    ax[0].legend(loc="upper right", fontsize=7)
+                    overlay_label = "  [trial A/B shaded]"
+            except Exception as e:
+                print(f"   (warning: failed to overlay per-stride CSV: {e})")
+
+    fig.suptitle(f"Controller timeline{overlay_label} {title_suffix}")
     fig.tight_layout()
     fig.savefig(out / "controller_timeline.png", dpi=120)
+    plt.close(fig)
+
+
+def plot_staircase_delivery(df: pd.DataFrame, out: Path, title_suffix=""):
+    """Per-stride view of the staircase: commanded profile parameter
+    and realized peak |measured current| vs stride index. Skipped if
+    neither ``peak_torque_norm`` nor ``t_peak`` varies across strides
+    (i.e. constant-profile Familiarization runs).
+    """
+    stair_var = _autopick_staircase_var(df)
+    if stair_var is None:
+        return
+    sp = _stride_param_table(df)
+    if len(sp) < 2 or stair_var not in sp.columns:
+        return
+    # Per-stride realized peak |meas current| during actuation window.
+    realized = []
+    for s in sp.stride_idx_in_phase:
+        sub = df[(df.stride_idx_in_phase == s) &
+                 (df.percent_gait >= 20) &
+                 (df.percent_gait <= 70)]
+        realized.append(sub.mot_cur_meas_mA.abs().max() if len(sub) else np.nan)
+    sp = sp.copy(); sp["peak_meas_mA"] = realized
+
+    fig, ax = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
+    ax[0].plot(sp.stride_idx_in_phase, sp[stair_var], "o-", lw=0.7, ms=3)
+    ax[0].set_ylabel(f"cmd {stair_var}"); ax[0].grid(alpha=0.3)
+    ax[0].set_title(f"Staircase delivery — {stair_var} varies across "
+                    f"{sp[stair_var].round(6).nunique()} levels {title_suffix}")
+    if "peak_torque_norm" in sp.columns:
+        ax[1].plot(sp.stride_idx_in_phase, sp.peak_torque_norm, "o-",
+                   lw=0.7, ms=3, color="C2")
+    ax[1].set_ylabel("cmd peak_torque_norm"); ax[1].grid(alpha=0.3)
+    ax[2].plot(sp.stride_idx_in_phase, sp.peak_meas_mA, "o-",
+               lw=0.7, ms=3, color="C3")
+    ax[2].set_ylabel("realized |meas| peak (mA)")
+    ax[2].set_xlabel("stride idx in phase"); ax[2].grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(out / "staircase_delivery.png", dpi=120)
     plt.close(fig)
 
 
@@ -534,9 +783,26 @@ def write_summary(df: pd.DataFrame, out: Path, label: str = "",
                  f"Phase: {df.phase.iloc[0]}")
     lines.append(f"Participant         : {df.participant_id.iloc[0]}   "
                  f"Weight: {df.weight_kg.iloc[0]} kg")
-    lines.append(f"Profile             : t_rise={df.t_rise.iloc[-1]}  "
-                 f"t_fall={df.t_fall.iloc[-1]}  t_peak={df.t_peak.iloc[-1]}  "
-                 f"peak_τ_norm={df.peak_torque_norm.iloc[-1]}")
+    # Profile parameters: list distinct (per-stride) values when they vary,
+    # else fall back to the single-line summary.
+    sp = _stride_param_table(df)
+    stair_var = _autopick_staircase_var(df)
+    if stair_var is not None and len(sp) > 1:
+        lines.append(f"Profile (varies)    : staircase var = {stair_var}")
+        for col in _profile_param_cols():
+            if col not in sp.columns:
+                continue
+            counts = sp[col].round(6).value_counts().sort_index()
+            if len(counts) <= 1:
+                v = counts.index[0] if len(counts) else float("nan")
+                lines.append(f"   {col:18s}: {v} (constant)")
+            else:
+                items = ", ".join(f"{v:g}×{n}" for v, n in counts.items())
+                lines.append(f"   {col:18s}: {items}")
+    else:
+        lines.append(f"Profile             : t_rise={df.t_rise.iloc[-1]}  "
+                     f"t_fall={df.t_fall.iloc[-1]}  t_peak={df.t_peak.iloc[-1]}  "
+                     f"peak_τ_norm={df.peak_torque_norm.iloc[-1]}")
     lines.append(f"Final num_gait      : {int(df.num_gait.iloc[-1])}")
     lines.append(f"TRIGGER events      : {int(df.seg_trigger.sum())}")
     lines.append(f"% time armed        : {100*df.hs_armed.mean():.1f}%")
@@ -659,14 +925,20 @@ def analyze_single(path: Path) -> pd.DataFrame:
     df = load(path)
     out = path.parent / f"{path.stem}_plots"
     out.mkdir(exist_ok=True)
+    companions = _find_companion_files(path)
     print(f"[{path.name}]  → plots in {out}")
+    if companions:
+        for k, v in companions.items():
+            print(f"   companion[{k}] = {v.name}")
     plot_torque_profile(df, out, title_suffix=f"({path.stem})")
-    plot_controller_timeline(df, out, title_suffix=f"({path.stem})")
+    plot_controller_timeline(df, out, title_suffix=f"({path.stem})",
+                             companions=companions)
     plot_hs_diagnostics(df, out, title_suffix=f"({path.stem})")
     plot_kinematics(df, out, title_suffix=f"({path.stem})")
     plot_startup_zoom(df, out, title_suffix=f"({path.stem})")
     plot_faults(df, out, title_suffix=f"({path.stem})")
     plot_battery_status(df, out, title_suffix=f"({path.stem})")
+    plot_staircase_delivery(df, out, title_suffix=f"({path.stem})")
     lat = latency_diagnostics(df, out, title_suffix=f"({path.stem})")
     summary = write_summary(df, out, label=f"({path.stem})", latency=lat)
     print(summary)
@@ -749,16 +1021,23 @@ def analyze_pair(left: Path, right: Path):
     print(f"L: {left.name}\nR: {right.name}\n→ {out}")
     plot_side_by_side(dL, dR, out, label=f"{pid}/{phase}/{ts}")
     plot_torque_overlay_LR(dL, dR, out, label=f"{pid}/{phase}/{ts}")
+    # Companion files (per-stride / trial CSVs) — opt-in overlay only.
+    comp_L = _find_companion_files(left)
+    comp_R = _find_companion_files(right)
     # Also produce per-side individual plots inside the same folder
-    for df, name in [(dL, "L"), (dR, "R")]:
+    for df, name, comp in [(dL, "L", comp_L), (dR, "R", comp_R)]:
         sub = out / f"{name}_plots"; sub.mkdir(exist_ok=True)
+        if comp:
+            for k, v in comp.items():
+                print(f"   companion[{name}/{k}] = {v.name}")
         plot_torque_profile(df, sub, f"({name})")
-        plot_controller_timeline(df, sub, f"({name})")
+        plot_controller_timeline(df, sub, f"({name})", companions=comp)
         plot_hs_diagnostics(df, sub, f"({name})")
         plot_kinematics(df, sub, f"({name})")
         plot_startup_zoom(df, sub, f"({name})")
         plot_faults(df, sub, f"({name})")
         plot_battery_status(df, sub, f"({name})")
+        plot_staircase_delivery(df, sub, f"({name})")
         lat = latency_diagnostics(df, sub, f"({name})")
         write_summary(df, sub, f"({name})", latency=lat)
     # Combined summary

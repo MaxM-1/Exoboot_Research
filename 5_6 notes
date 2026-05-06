@@ -7,10 +7,15 @@ see notes in OneNote and note file on laptop
 . 
 ===============================================
 TODO:
-need to be able to run Analysis2.py script on Perception output data 
--increased analysis and troubleshooting (currently cannot do it in perception mode)
--change perception output file names to be indicative of experiment ran (MAX vs SAV)
+
+-need to be able to run Analysis2.py script on Perception output data [done??]
+
+-increased analysis and troubleshooting (currently cannot do it in perception mode) [done??]
+
+-change perception output file names (in data at least) to be indicative of experiment ran (MAX vs SAV)
+
 -add sweeps on X-axis of 'staircase' plots on perception graph output 
+
 -why does stride_dur graph output for MAX experiment but not SAV experiment 
 --->referenced YA_Perception_1 (MAX experiment) , MAX_SavPerception_1 (SAV experiment)
 ===============================================
@@ -24,7 +29,28 @@ changing peak torque back and forth to get indications if SAVs present experimen
 MAX could tell a difference at 0.03 delta increase from 0.18nm/kg
 second difference at 0.225nm/kg from 0.21nm/kg (delta 0.015nm/kg)
 ===============================================
-MAX_SavPerception_1  | Perception | 1.25m/s  | 95kg 
+MAX_SavPerception_1  | Perception | 1.25m/s  | 95kg | ABOVE
 currently 15 strides - NEED TO CHANGE TO 8 to be the same as MAX experiment
 .
+===============================================
+Lucy_SavPerception_1  | Perception | 1.25m/s  | 55kg | BELOW
+
+at trial 55 the exos shut off and it said perception test complete in middle of trial (sweep 7/9) so NOT DONE 
+.
+Looking at Lucy_SavPerception_1 Left and Right torque_profiles, it seems like some of the torque profiles are 'sharp, jagged, not smooth' as opposed to smooth like they should be [image l/R]
+-> in R/L graphs it looks like it is coming from both commanded torque and current 
+.
+Also, in right boot there is sharp linear torque increases for some strides as opposed to the smooth cubic spline fitment that they should be at [image]
+
+===============================================
+SAV_SavPerception_1  | Perception | 1.25m/s  | 68kg | BELOW
+.
+right one turned off at very early trial in experiment 
+right one keeps turning on and off 
+right one does a thing where when you plug the USB C into the boot and press power on it does not power on 
+-> BUT if you remove USB C from right Exoboot and then press power on then it does come on 
+--> this happens sometime and it happened here 
+
+one thing that I can think of is that maybe it has something to do with how in a previous run maybe the Exo was unplugged before it was turned of (or vise versa) and that maybe messed something up with the Exo 
+-> really only happens on the right boot so IDK 
 .

@@ -1,0 +1,33 @@
+=== Diagnostic summary (R) ===
+File rows           : 37437
+Duration            : 385.7 s  (≈ 97.1 Hz)
+Side                : R   Boot ID: C6D9   Phase: Perception
+Participant         : MAX_SavPerception_1   Weight: 95 kg
+Profile (varies)    : staircase var = peak_torque_norm
+   t_peak            : 51.3 (constant)
+   t_rise            : 25.3 (constant)
+   t_fall            : 10.3 (constant)
+   peak_torque_norm  : 0.18×273, 0.19×4, 0.2×4, 0.21×14, 0.22×17, 0.23×8
+Final num_gait      : 328
+TRIGGER events      : 319
+% time armed        : 28.7%
+gyroz range         : -10032 .. 12753
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       38.6%
+   early_stance_no_slack      26.1%
+   cur_ramp_up                25.4%
+   cur_ramp_down              10.0%
+Cmd τ range         : -0.00 .. 21.85 Nm
+Cmd current range   : -13093 .. -800 mA
+Meas current range  : -13178 .. 68 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 34191 .. 36593 mV
+
+No critical flags raised.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=330  mean=333  std=17  5/95 pct=310/360 ms
+  current_dur − expected   : median=+0  mean=+1  std=20 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=50.5%  meas=52.5%  Δ=+2.0%

@@ -1,0 +1,76 @@
+=== Diagnostic summary (L) ===
+File rows           : 8220
+Duration            : 84.8 s  (≈ 96.9 Hz)
+Side                : L   Boot ID: C719   Phase: Perception
+Participant         : SAV_SavPerception_1   Weight: 68 kg
+Profile (varies)    : staircase var = peak_torque_norm
+   t_peak            : 51.3 (constant)
+   t_rise            : 25.3 (constant)
+   t_fall            : 10.3 (constant)
+   peak_torque_norm  : 0.18×71, 0.23×10, 0.24×5
+Final num_gait      : 95
+TRIGGER events      : 85
+% time armed        : 28.2%
+gyroz range         : -10238 .. 13839
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       38.8%
+   early_stance_no_slack      25.9%
+   cur_ramp_up                25.0%
+   cur_ramp_down              10.1%
+   idle_no_slack               0.1%
+Cmd τ range         : 0.00 .. 16.31 Nm
+Cmd current range   : 800 .. 9552 mA
+Meas current range  : -1862271001 .. 1224736764 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 367 .. 65535 mV
+
+FLAGS:
+  ⚠ Battery sagged to 367 mV — likely brownout under load.
+  ⚠ Firmware fault status: ex=4 re=1 samples — motor / regulator fault reported.
+  ⚠ status_mn changed 16 times during run — device entered/left a fault or special state.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=250  mean=261  std=45  5/95 pct=240/278 ms
+  current_dur − expected   : median=+0  mean=-4  std=68 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=51.5%  meas=99.5%  Δ=+48.0%
+
+
+=== Diagnostic summary (R) ===
+File rows           : 8220
+Duration            : 84.8 s  (≈ 96.9 Hz)
+Side                : R   Boot ID: C6D9   Phase: Perception
+Participant         : SAV_SavPerception_1   Weight: 68 kg
+Profile (varies)    : staircase var = peak_torque_norm
+   t_peak            : 51.3 (constant)
+   t_rise            : 25.3 (constant)
+   t_fall            : 10.3 (constant)
+   peak_torque_norm  : 0.18×43, 0.23×12, 0.24×3
+Final num_gait      : 67
+TRIGGER events      : 57
+% time armed        : 46.1%
+gyroz range         : -28910 .. 31633
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       42.6%
+   early_stance_no_slack      17.1%
+   idle_no_slack              17.0%
+   cur_ramp_up                16.6%
+   cur_ramp_down               6.7%
+Cmd τ range         : 0.00 .. 16.31 Nm
+Cmd current range   : -28000 .. -800 mA
+Meas current range  : -15342 .. 2013265923 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 140 .. 55296 mV
+
+FLAGS:
+  ⚠ Battery sagged to 140 mV — likely brownout under load.
+  ⚠ Firmware fault status: ex=3 re=0 samples — motor / regulator fault reported.
+  ⚠ status_mn changed 22 times during run — device entered/left a fault or special state.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=260  mean=257  std=9  5/95 pct=248/272 ms
+  current_dur − expected   : median=+10  mean=+383  std=2003 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=47.5%  meas=53.5%  Δ=+6.0%
