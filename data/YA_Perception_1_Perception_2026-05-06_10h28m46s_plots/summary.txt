@@ -1,0 +1,6 @@
+Total trials:       22
+  real:             16
+  catch:            6
+Reversals:          9
+Catch false-alarm rate: 16.67% (1/6)
+  approach from_below: 22 trials

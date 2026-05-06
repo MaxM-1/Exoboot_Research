@@ -1,0 +1,1235 @@
+>>> Connecting and zeroing boots …
+Connecting to ExoBoot on /dev/ttyACM0 …
+ExoBoot connected — ID 50969
+Connecting to ExoBoot on /dev/ttyACM1 …
+ExoBoot connected — ID 50905
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50969) …
+  reading 0: mot_ang = 25639
+  reading 1: mot_ang = 25639
+  reading 2: mot_ang = 25639
+  ankle  = 4061
+  motor actual  = 25639
+  motor desired = 25260.0
+  offset        = 379.0
+  motor shifted = 25639.0
+  Encoder check OK ✓
+Boot initialised.
+
+Stand still — zeroing boot …
+Zeroing boot — tightening belt …
+Encoder check (boot 50905) …
+  reading 0: mot_ang = -10412
+  reading 1: mot_ang = -10412
+  reading 2: mot_ang = -10412
+  ankle  = 4055
+  motor actual  = -10412
+  motor desired = -10808.0
+  offset        = 396.0
+  motor shifted = -10412.0
+  Encoder check OK ✓
+Boot initialised.
+
+Boots connected and zeroed.  Start the treadmill, then press 'Start Familiarization' or 'Start Perception Test'.
+Waiting for start command — start the treadmill now …
+>>> Starting perception test …
+=== Perception Test ===
+Gait detection reset — ready for heel‑strikes.
+Sensor check — reading 2 s of IMU data …
+  [L DBG @1000] gz=11  min/max=-110/45  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-50  min/max=-152/69  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [L DBG @2000] gz=7  min/max=-110/45  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-29  min/max=-152/69  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  Left  gyroz  min=-110  max=45  state_time 174216→176406 (Δ=2190)
+  Right gyroz  min=-152  max=69  state_time 156065→158255 (Δ=2190)
+  Thresholds:  ARM >= 3280   TRIGGER <= -3280
+Sensor check complete — starting control loop.
+Per-sample loggers attached → /home/auburn/Desktop/Exoboot_Research/data
+Warm‑up: 10 strides (light current) …
+  [R ARM] gz=3323  t=162155
+  [L ARM] gz=3313  t=181116
+  Left heel‑strike #1  (armed_time=480  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3371  t=163695
+  Right heel‑strike #1  (armed_time=390  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3733  t=182486
+  Left heel‑strike #2  (armed_time=420  thresh=100.0  exp_dur=-1.0)
+  [R ARM] gz=3555  t=164955
+  Right heel‑strike #2  (armed_time=390  thresh=100.0  exp_dur=-1.0)
+  [L ARM] gz=3709  t=183716
+  Left heel‑strike #3  (armed_time=380  thresh=131.0  exp_dur=1310.0)
+  [R ARM] gz=4139  t=166145
+  Right heel‑strike #3  (armed_time=400  thresh=126.0  exp_dur=1260.0)
+  [L ARM] gz=3344  t=184856
+  Left heel‑strike #4  (armed_time=320  thresh=131.0  exp_dur=1310.0)
+  [R ARM] gz=3910  t=167275
+  Right heel‑strike #4  (armed_time=400  thresh=126.0  exp_dur=1260.0)
+  [L ARM] gz=3668  t=185986
+  Left heel‑strike #5  (armed_time=410  thresh=119.0  exp_dur=1190.0)
+  [R ARM] gz=4050  t=168415
+  [L DBG @1000] gz=-1608  min/max=-9654/12942  arm_thr=3280  trg_thr=-3280  armed=False  HS=5  exp_dur=1220
+  [R DBG @1000] gz=7261  min/max=-8085/12558  arm_thr=3280  trg_thr=-3280  armed=True  HS=4  exp_dur=1200
+  Right heel‑strike #5  (armed_time=400  thresh=120.0  exp_dur=1200.0)
+  [L ARM] gz=3695  t=187126
+  Left heel‑strike #6  (armed_time=410  thresh=122.0  exp_dur=1220.0)
+  [R ARM] gz=4174  t=169565
+  Right heel‑strike #6  (armed_time=390  thresh=120.0  exp_dur=1200.0)
+  [L ARM] gz=3408  t=188266
+  Left heel‑strike #7  (armed_time=400  thresh=119.0  exp_dur=1190.0)
+  [R ARM] gz=3413  t=170675
+  Right heel‑strike #7  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  [L ARM] gz=3906  t=189376
+  Left heel‑strike #8  (armed_time=410  thresh=114.0  exp_dur=1140.0)
+  [R ARM] gz=3922  t=171805
+  Right heel‑strike #8  (armed_time=380  thresh=114.0  exp_dur=1140.0)
+  [L ARM] gz=3559  t=190506
+  Left heel‑strike #9  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  [R ARM] gz=3530  t=172905
+  Right heel‑strike #9  (armed_time=390  thresh=114.0  exp_dur=1140.0)
+  [L ARM] gz=3573  t=191596
+  Left heel‑strike #10  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+Warm‑up: 10 strides (Collins) …
+  [R ARM] gz=3724  t=174045
+  Right heel‑strike #10  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  [L ARM] gz=4838  t=192736
+  Left heel‑strike #11  (armed_time=340  thresh=112.0  exp_dur=1120.0)
+  [R ARM] gz=4118  t=175115
+  Right heel‑strike #11  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  [L ARM] gz=3844  t=193826
+  Left heel‑strike #12  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  [R ARM] gz=3766  t=176195
+  Right heel‑strike #12  (armed_time=330  thresh=108.0  exp_dur=1080.0)
+  [L ARM] gz=3719  t=194896
+  Left heel‑strike #13  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  [R ARM] gz=4773  t=177285
+  Right heel‑strike #13  (armed_time=340  thresh=108.0  exp_dur=1080.0)
+  [L ARM] gz=3295  t=195956
+  Left heel‑strike #14  (armed_time=310  thresh=107.0  exp_dur=1070.0)
+  [R ARM] gz=3461  t=178365
+  Right heel‑strike #14  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  [L DBG @2000] gz=-5582  min/max=-10189/13731  arm_thr=3280  trg_thr=-3280  armed=False  HS=14  exp_dur=1090
+  [R DBG @2000] gz=-1713  min/max=-8583/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=14  exp_dur=1080
+  [L ARM] gz=3830  t=197056
+  Left heel‑strike #15  (armed_time=350  thresh=109.0  exp_dur=1090.0)
+  [R ARM] gz=3892  t=179425
+  Right heel‑strike #15  (armed_time=310  thresh=108.0  exp_dur=1080.0)
+  [L ARM] gz=5039  t=198156
+  Left heel‑strike #16  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  [R ARM] gz=3695  t=180515
+  Right heel‑strike #16  (armed_time=310  thresh=108.0  exp_dur=1080.0)
+  [L ARM] gz=4011  t=199236
+  Left heel‑strike #17  (armed_time=350  thresh=107.0  exp_dur=1070.0)
+  [R ARM] gz=3367  t=181615
+  Right heel‑strike #17  (armed_time=360  thresh=108.0  exp_dur=1080.0)
+  [L ARM] gz=3802  t=200336
+  Left heel‑strike #18  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  [R ARM] gz=3788  t=182725
+  Right heel‑strike #18  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  [L ARM] gz=4291  t=201416
+  Left heel‑strike #19  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  [R ARM] gz=4292  t=183805
+  [L CMD @2500] pg=25.9%  tau=0.00Nm  cur=800mA  exp_dur=1080  HS=19  wm_wa=12.35
+  [R CMD @2500] pg=72.2%  tau=0.00Nm  cur=800mA  exp_dur=1080  HS=18  wm_wa=11.61
+  Right heel‑strike #19  (armed_time=340  thresh=108.0  exp_dur=1080.0)
+  [L ARM] gz=4106  t=202496
+  Left heel‑strike #20  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+Perception test begins!
+
+--- Trial 1  sweep=0  comp_t_peak=48.3% gait  ---
+  Right heel‑strike #20  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #21  (armed_time=310  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #21  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #22  (armed_time=350  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #22  (armed_time=360  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #23  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #23  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #24  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  [L DBG @3000] gz=-2829  min/max=-10189/13827  arm_thr=3280  trg_thr=-3280  armed=False  HS=24  exp_dur=1090
+  [R DBG @3000] gz=-3025  min/max=-8583/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=23  exp_dur=1090
+  Right heel‑strike #24  (armed_time=270  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #25  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #25  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #26  (armed_time=350  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #26  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #27  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #27  (armed_time=370  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #28  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #28  (armed_time=260  thresh=108.0  exp_dur=1080.0)
+  [L CMD @3500] pg=71.8%  tau=0.00Nm  cur=800mA  exp_dur=1100  HS=28  wm_wa=12.07
+  [R CMD @3500] pg=25.9%  tau=0.00Nm  cur=800mA  exp_dur=1080  HS=28  wm_wa=11.95
+  Left heel‑strike #29  (armed_time=290  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #29  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #30  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #30  (armed_time=310  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #31  (armed_time=380  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #31  (armed_time=390  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #32  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Response: Same
+  Next comparison t_peak=47.3% gait  sweep = 0
+  Rest (8 strides) …
+  Right heel‑strike #32  (armed_time=340  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #33  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  [L DBG @4000] gz=-3122  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=False  HS=33  exp_dur=1090
+  [R DBG @4000] gz=7882  min/max=-9266/13614  arm_thr=3280  trg_thr=-3280  armed=True  HS=32  exp_dur=1100
+  Right heel‑strike #33  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #34  (armed_time=360  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #34  (armed_time=340  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #35  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #35  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #36  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #36  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #37  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #37  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #38  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  [L CMD @4500] pg=20.6%  tau=0.00Nm  cur=800mA  exp_dur=1070  HS=38  wm_wa=12.28
+  [R CMD @4500] pg=71.0%  tau=0.00Nm  cur=800mA  exp_dur=1070  HS=37  wm_wa=12.27
+  Right heel‑strike #38  (armed_time=360  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #39  (armed_time=300  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #39  (armed_time=270  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #40  (armed_time=320  thresh=107.0  exp_dur=1070.0)
+
+--- Trial 2  sweep=0  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #40  (armed_time=290  thresh=105.0  exp_dur=1050.0)
+  Left heel‑strike #41  (armed_time=270  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #41  (armed_time=280  thresh=105.0  exp_dur=1050.0)
+  Left heel‑strike #42  (armed_time=370  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #42  (armed_time=370  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #43  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  [L DBG @5000] gz=-5453  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=False  HS=43  exp_dur=1090
+  [R DBG @5000] gz=-4515  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=42  exp_dur=1060
+  Right heel‑strike #43  (armed_time=330  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #44  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #44  (armed_time=270  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #45  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Timing B (comp) t_peak=47.3% gait
+  Right heel‑strike #45  (armed_time=300  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #46  (armed_time=360  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #46  (armed_time=290  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #47  (armed_time=280  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #47  (armed_time=310  thresh=107.0  exp_dur=1070.0)
+  [L CMD @5500] pg=85.0%  tau=0.00Nm  cur=800mA  exp_dur=1070  HS=47  wm_wa=12.19
+  [R CMD @5500] pg=33.6%  tau=5.03Nm  cur=3061mA  exp_dur=1070  HS=47  wm_wa=11.73
+  Left heel‑strike #48  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #48  (armed_time=310  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #49  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #49  (armed_time=350  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #50  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #50  (armed_time=350  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #51  (armed_time=350  thresh=109.0  exp_dur=1090.0)
+  Response: Different
+  Next comparison t_peak=48.3% gait  sweep = 0
+Practice complete — real recording starts.
+  Rest (8 strides) …
+  Right heel‑strike #51  (armed_time=340  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #52  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #52  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  [L DBG @6000] gz=-7845  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=False  HS=52  exp_dur=1090
+  [R DBG @6000] gz=-3542  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=52  exp_dur=1090
+  Left heel‑strike #53  (armed_time=310  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #53  (armed_time=340  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #54  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #54  (armed_time=270  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #55  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #55  (armed_time=350  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #56  (armed_time=300  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #56  (armed_time=270  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #57  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  [L CMD @6500] pg=40.2%  tau=11.45Nm  cur=6807mA  exp_dur=1070  HS=57  wm_wa=12.01
+  [R CMD @6500] pg=90.7%  tau=0.00Nm  cur=800mA  exp_dur=1080  HS=56  wm_wa=11.99
+  Right heel‑strike #57  (armed_time=350  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #58  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #58  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #59  (armed_time=360  thresh=107.0  exp_dur=1070.0)
+
+--- Trial 3  sweep=0  comp_t_peak=48.3% gait  ---
+  Right heel‑strike #59  (armed_time=340  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #60  (armed_time=320  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #60  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #61  (armed_time=320  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #61  (armed_time=340  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #62  (armed_time=330  thresh=107.0  exp_dur=1070.0)
+  [L DBG @7000] gz=-280  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=False  HS=62  exp_dur=1070
+  [R DBG @7000] gz=3471  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=61  exp_dur=1070
+  Right heel‑strike #62  (armed_time=340  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #63  (armed_time=320  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #63  (armed_time=340  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #64  (armed_time=280  thresh=107.0  exp_dur=1070.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #64  (armed_time=280  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #65  (armed_time=310  thresh=106.0  exp_dur=1060.0)
+  Right heel‑strike #65  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #66  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #66  (armed_time=380  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #67  (armed_time=300  thresh=107.0  exp_dur=1070.0)
+  [L CMD @7500] pg=1.9%  tau=0.00Nm  cur=800mA  exp_dur=1070  HS=67  wm_wa=12.55
+  [R CMD @7500] pg=46.7%  tau=18.78Nm  cur=11536mA  exp_dur=1070  HS=66  wm_wa=11.67
+  Right heel‑strike #67  (armed_time=280  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #68  (armed_time=300  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #68  (armed_time=310  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #69  (armed_time=310  thresh=106.0  exp_dur=1060.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #69  (armed_time=360  thresh=106.0  exp_dur=1060.0)
+  Left heel‑strike #70  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #70  (armed_time=270  thresh=107.0  exp_dur=1070.0)
+  Response: Same
+  Next comparison t_peak=47.3% gait  sweep = 0
+  Rest (8 strides) …
+  Left heel‑strike #71  (armed_time=300  thresh=106.0  exp_dur=1060.0)
+  Right heel‑strike #71  (armed_time=320  thresh=107.0  exp_dur=1070.0)
+  [L DBG @8000] gz=13423  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=True  HS=71  exp_dur=1070
+  [R DBG @8000] gz=-1442  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=71  exp_dur=1070
+  Left heel‑strike #72  (armed_time=350  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #72  (armed_time=380  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #73  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #73  (armed_time=270  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #74  (armed_time=310  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #74  (armed_time=310  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #75  (armed_time=290  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #75  (armed_time=280  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #76  (armed_time=310  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #76  (armed_time=320  thresh=108.0  exp_dur=1080.0)
+  [L CMD @8500] pg=65.4%  tau=0.00Nm  cur=800mA  exp_dur=1070  HS=76  wm_wa=12.55
+  [R CMD @8500] pg=14.8%  tau=0.00Nm  cur=800mA  exp_dur=1080  HS=76  wm_wa=12.28
+  Left heel‑strike #77  (armed_time=310  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #77  (armed_time=330  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #78  (armed_time=320  thresh=107.0  exp_dur=1070.0)
+
+--- Trial 4  sweep=0  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #78  (armed_time=320  thresh=108.0  exp_dur=1080.0)
+  Left heel‑strike #79  (armed_time=310  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #79  (armed_time=360  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #80  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #80  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #81  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  [L DBG @9000] gz=-2389  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=False  HS=81  exp_dur=1100
+  [R DBG @9000] gz=11930  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=True  HS=80  exp_dur=1100
+  Right heel‑strike #81  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #82  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #82  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #83  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Timing B (comp) t_peak=47.3% gait
+  Right heel‑strike #83  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #84  (armed_time=360  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #84  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #85  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #85  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #86  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  [L CMD @9500] pg=7.3%  tau=0.00Nm  cur=800mA  exp_dur=1100  HS=86  wm_wa=12.53
+  [R CMD @9500] pg=58.7%  tau=8.32Nm  cur=4948mA  exp_dur=1090  HS=85  wm_wa=12.09
+  Right heel‑strike #86  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #87  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #87  (armed_time=380  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #88  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #88  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #89  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #89  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #90  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 0
+  Rest (8 strides) …
+  Right heel‑strike #90  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  [L DBG @10000] gz=3900  min/max=-10189/14314  arm_thr=3280  trg_thr=-3280  armed=True  HS=90  exp_dur=1100
+  [R DBG @10000] gz=-1318  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=90  exp_dur=1100
+  Left heel‑strike #91  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #91  (armed_time=370  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #92  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #92  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #93  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #93  (armed_time=260  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #94  (armed_time=350  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #94  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #95  (armed_time=280  thresh=111.0  exp_dur=1110.0)
+  [L CMD @10500] pg=38.7%  tau=9.66Nm  cur=5755mA  exp_dur=1110  HS=95  wm_wa=11.99
+  [R CMD @10500] pg=89.2%  tau=0.00Nm  cur=800mA  exp_dur=1110  HS=94  wm_wa=12.11
+  Right heel‑strike #95  (armed_time=370  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #96  (armed_time=340  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #96  (armed_time=270  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #97  (armed_time=340  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #97  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #98  (armed_time=280  thresh=111.0  exp_dur=1110.0)
+
+--- CATCH Trial 5  sweep=0  comp_t_peak=51.3% gait  ---
+  Right heel‑strike #98  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #99  (armed_time=350  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #99  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #100  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  [L DBG @11000] gz=-6644  min/max=-10189/14670  arm_thr=3280  trg_thr=-3280  armed=False  HS=100  exp_dur=1100
+  [R DBG @11000] gz=-7544  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=99  exp_dur=1090
+  Right heel‑strike #100  (armed_time=310  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #101  (armed_time=290  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #101  (armed_time=280  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #102  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #102  (armed_time=370  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #103  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  Timing B (comp) t_peak=51.3% gait
+  Right heel‑strike #103  (armed_time=270  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #104  (armed_time=350  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #104  (armed_time=360  thresh=108.0  exp_dur=1080.0)
+  [L CMD @11500] pg=84.3%  tau=0.00Nm  cur=800mA  exp_dur=1080  HS=104  wm_wa=12.14
+  [R CMD @11500] pg=33.6%  tau=3.73Nm  cur=2300mA  exp_dur=1100  HS=104  wm_wa=11.57
+  Left heel‑strike #105  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #105  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #106  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #106  (armed_time=340  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #107  (armed_time=340  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #107  (armed_time=340  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #108  (armed_time=280  thresh=108.0  exp_dur=1080.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #108  (armed_time=260  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #109  (armed_time=290  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #109  (armed_time=360  thresh=109.0  exp_dur=1090.0)
+  [L DBG @12000] gz=-8272  min/max=-10189/14670  arm_thr=3280  trg_thr=-3280  armed=False  HS=109  exp_dur=1080
+  [R DBG @12000] gz=-3467  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=109  exp_dur=1090
+  Left heel‑strike #110  (armed_time=300  thresh=108.0  exp_dur=1080.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 0
+  Rest (8 strides) …
+  Right heel‑strike #110  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #111  (armed_time=310  thresh=108.0  exp_dur=1080.0)
+  Right heel‑strike #111  (armed_time=340  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #112  (armed_time=310  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #112  (armed_time=350  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #113  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #113  (armed_time=270  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #114  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  [L CMD @12500] pg=38.5%  tau=9.38Nm  cur=5536mA  exp_dur=1090  HS=114  wm_wa=12.10
+  [R CMD @12500] pg=88.2%  tau=0.00Nm  cur=800mA  exp_dur=1100  HS=113  wm_wa=12.07
+  Right heel‑strike #114  (armed_time=370  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #115  (armed_time=310  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #115  (armed_time=260  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #116  (armed_time=290  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #116  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #117  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #117  (armed_time=360  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #118  (armed_time=300  thresh=109.0  exp_dur=1090.0)
+
+--- CATCH Trial 6  sweep=0  comp_t_peak=51.3% gait  ---
+  Right heel‑strike #118  (armed_time=270  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #119  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  [L DBG @13000] gz=-2318  min/max=-10189/14670  arm_thr=3280  trg_thr=-3280  armed=False  HS=119  exp_dur=1100
+  [R DBG @13000] gz=-7364  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=118  exp_dur=1120
+  Right heel‑strike #119  (armed_time=350  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #120  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #120  (armed_time=270  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #121  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #121  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #122  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #122  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #123  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Timing B (comp) t_peak=51.3% gait
+  Right heel‑strike #123  (armed_time=330  thresh=109.0  exp_dur=1090.0)
+  [L CMD @13500] pg=75.2%  tau=0.00Nm  cur=800mA  exp_dur=1090  HS=123  wm_wa=12.55
+  [R CMD @13500] pg=23.2%  tau=0.00Nm  cur=800mA  exp_dur=1120  HS=123  wm_wa=12.00
+  Left heel‑strike #124  (armed_time=370  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #124  (armed_time=350  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #125  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #125  (armed_time=280  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #126  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #126  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #127  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #127  (armed_time=370  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #128  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+   Same or Different?
+  Awaiting response …
+  [L DBG @14000] gz=-2595  min/max=-10189/14670  arm_thr=3280  trg_thr=-3280  armed=False  HS=128  exp_dur=1110
+  [R DBG @14000] gz=11805  min/max=-9823/13614  arm_thr=3280  trg_thr=-3280  armed=True  HS=127  exp_dur=1130
+  Right heel‑strike #128  (armed_time=270  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #129  (armed_time=290  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #129  (armed_time=370  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #130  (armed_time=340  thresh=110.0  exp_dur=1100.0)
+  Response: Different
+  Next comparison t_peak=46.3% gait  sweep = 0
+  Rest (8 strides) …
+  Right heel‑strike #130  (armed_time=350  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #131  (armed_time=350  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #131  (armed_time=340  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #132  (armed_time=280  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #132  (armed_time=270  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #133  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  [L CMD @14500] pg=3.6%  tau=0.00Nm  cur=800mA  exp_dur=1100  HS=133  wm_wa=12.55
+  [R CMD @14500] pg=55.5%  tau=18.53Nm  cur=11074mA  exp_dur=1100  HS=132  wm_wa=11.98
+  Right heel‑strike #133  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #134  (armed_time=290  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #134  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #135  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #135  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #136  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #136  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #137  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #137  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  [L DBG @15000] gz=-5493  min/max=-10189/14670  arm_thr=3280  trg_thr=-3280  armed=False  HS=137  exp_dur=1110
+  [R DBG @15000] gz=-3975  min/max=-9842/13614  arm_thr=3280  trg_thr=-3280  armed=False  HS=137  exp_dur=1110
+  Left heel‑strike #138  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+
+--- Trial 7  sweep=0  comp_t_peak=46.3% gait  ---
+  Right heel‑strike #138  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #139  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #139  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #140  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #140  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #141  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #141  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #142  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #142  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #143  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Timing B (comp) t_peak=46.3% gait
+  Right heel‑strike #143  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #144  (armed_time=360  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #144  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #145  (armed_time=290  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #145  (armed_time=380  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #146  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #146  (armed_time=340  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #147  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #147  (armed_time=280  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #148  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #148  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #149  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #149  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #150  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Response: Different
+  Next comparison t_peak=47.3% gait  sweep = 0
+  Rest (8 strides) …
+  Right heel‑strike #150  (armed_time=400  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #151  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #151  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #152  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #152  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #153  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #153  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #154  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #154  (armed_time=390  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #155  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #155  (armed_time=260  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #156  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #156  (armed_time=350  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #157  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #157  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #158  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+
+--- Trial 8  sweep=0  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #158  (armed_time=370  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #159  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #159  (armed_time=280  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #160  (armed_time=370  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #160  (armed_time=370  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #161  (armed_time=290  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #161  (armed_time=280  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #162  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #162  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #163  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #163  (armed_time=370  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #164  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #164  (armed_time=340  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #165  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #165  (armed_time=290  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #166  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #166  (armed_time=310  thresh=109.0  exp_dur=1090.0)
+  Left heel‑strike #167  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #167  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #168  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #168  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #169  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #169  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Response: Different
+  Next comparison t_peak=48.3% gait  sweep = 0
+  Rest (8 strides) …
+  Left heel‑strike #170  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #170  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #171  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #171  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #172  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #172  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #173  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #173  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #174  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #174  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #175  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #175  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #176  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #176  (armed_time=380  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #177  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+
+--- Trial 9  sweep=0  comp_t_peak=48.3% gait  ---
+  Right heel‑strike #177  (armed_time=350  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #178  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #178  (armed_time=280  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #179  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #179  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #180  (armed_time=360  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #180  (armed_time=350  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #181  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #181  (armed_time=260  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #182  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Timing B (comp) t_peak=48.3% gait
+  Right heel‑strike #182  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #183  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #183  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #184  (armed_time=380  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #184  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #185  (armed_time=280  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #185  (armed_time=380  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #186  (armed_time=320  thresh=109.0  exp_dur=1090.0)
+  Right heel‑strike #186  (armed_time=270  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #187  (armed_time=290  thresh=110.0  exp_dur=1100.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #187  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #188  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #188  (armed_time=330  thresh=112.0  exp_dur=1120.0)
+  Response: Different
+  Next comparison t_peak=49.3% gait  sweep = 0
+  Rest (8 strides) …
+  Left heel‑strike #189  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #189  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #190  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #190  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #191  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #191  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #192  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #192  (armed_time=330  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #193  (armed_time=360  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #193  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #194  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #194  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #195  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #195  (armed_time=360  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #196  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+
+--- CATCH Trial 10  sweep=0  comp_t_peak=51.3% gait  ---
+  Right heel‑strike #196  (armed_time=280  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #197  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #197  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #198  (armed_time=290  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #198  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #199  (armed_time=360  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #199  (armed_time=350  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #200  (armed_time=270  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #200  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #201  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #201  (armed_time=260  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #202  (armed_time=360  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #202  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #203  (armed_time=260  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #203  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #204  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #204  (armed_time=310  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #205  (armed_time=360  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #205  (armed_time=380  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #206  (armed_time=260  thresh=113.0  exp_dur=1130.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #206  (armed_time=270  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #207  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #207  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #208  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Response: Same
+  Next comparison t_peak=49.3% gait  sweep = 0
+  Rest (8 strides) …
+  Right heel‑strike #208  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #209  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #209  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #210  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #210  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #211  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #211  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #212  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #212  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #213  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #213  (armed_time=330  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #214  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #214  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #215  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #215  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #216  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+
+--- CATCH Trial 11  sweep=0  comp_t_peak=51.3% gait  ---
+  Right heel‑strike #216  (armed_time=390  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #217  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #217  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #218  (armed_time=360  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #218  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #219  (armed_time=260  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #219  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #220  (armed_time=380  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #220  (armed_time=370  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #221  (armed_time=280  thresh=113.0  exp_dur=1130.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #221  (armed_time=270  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #222  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #222  (armed_time=390  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #223  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #223  (armed_time=270  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #224  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #224  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #225  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #225  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #226  (armed_time=300  thresh=111.0  exp_dur=1110.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #226  (armed_time=320  thresh=110.0  exp_dur=1100.0)
+  Left heel‑strike #227  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #227  (armed_time=390  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #228  (armed_time=360  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #228  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #229  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #229  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Response: Same
+  Next comparison t_peak=49.3% gait  sweep = 0
+  Rest (8 strides) …
+  Left heel‑strike #230  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #230  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #231  (armed_time=380  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #231  (armed_time=310  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #232  (armed_time=270  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #232  (armed_time=290  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #233  (armed_time=300  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #233  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #234  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #234  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #235  (armed_time=350  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #235  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #236  (armed_time=270  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #236  (armed_time=380  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #237  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+
+--- Trial 12  sweep=0  comp_t_peak=49.3% gait  ---
+  Right heel‑strike #237  (armed_time=280  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #238  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #238  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #239  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #239  (armed_time=330  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #240  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #240  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #241  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #241  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #242  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Timing B (comp) t_peak=49.3% gait
+  Right heel‑strike #242  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #243  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #243  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #244  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #244  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #245  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #245  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #246  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #246  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #247  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #247  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #248  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #248  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Response: Same
+  Next comparison t_peak=48.3% gait  sweep = 1
+  Rest (8 strides) …
+  Left heel‑strike #249  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #249  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #250  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #250  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #251  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #251  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #252  (armed_time=360  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #252  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #253  (armed_time=270  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #253  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #254  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #254  (armed_time=340  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #255  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #255  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #256  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+
+--- Trial 13  sweep=1  comp_t_peak=48.3% gait  ---
+  Right heel‑strike #256  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #257  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #257  (armed_time=340  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #258  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #258  (armed_time=390  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #259  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #259  (armed_time=270  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #260  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #260  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #261  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #261  (armed_time=400  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #262  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #262  (armed_time=270  thresh=119.0  exp_dur=1190.0)
+  Left heel‑strike #263  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #263  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #264  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #264  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #265  (armed_time=290  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #265  (armed_time=400  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #266  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #266  (armed_time=280  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #267  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #267  (armed_time=340  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #268  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #268  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #269  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Response: Same
+  Next comparison t_peak=47.3% gait  sweep = 1
+  Rest (8 strides) …
+  Right heel‑strike #269  (armed_time=340  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #270  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #270  (armed_time=310  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #271  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #271  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #272  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #272  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #273  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #273  (armed_time=400  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #274  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #274  (armed_time=270  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #275  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #275  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #276  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #276  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #277  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+
+--- Trial 14  sweep=1  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #277  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #278  (armed_time=290  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #278  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #279  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #279  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #280  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #280  (armed_time=390  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #281  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #281  (armed_time=270  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #282  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #282  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #283  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #283  (armed_time=400  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #284  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #284  (armed_time=290  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #285  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #285  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #286  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #286  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #287  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #287  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Response: Different
+  Next comparison t_peak=48.3% gait  sweep = 1
+  Rest (8 strides) …
+  Left heel‑strike #288  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #288  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #289  (armed_time=320  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #289  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #290  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #290  (armed_time=380  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #291  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #291  (armed_time=380  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #292  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #292  (armed_time=360  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #293  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #293  (armed_time=290  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #294  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #294  (armed_time=340  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #295  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+
+--- Trial 15  sweep=1  comp_t_peak=48.3% gait  ---
+  Right heel‑strike #295  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  Left heel‑strike #296  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #296  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #297  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #297  (armed_time=340  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #298  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #298  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #299  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #299  (armed_time=410  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #300  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #300  (armed_time=290  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #301  (armed_time=300  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #301  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #302  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #302  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #303  (armed_time=320  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #303  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #304  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #304  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #305  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #305  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #306  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #306  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #307  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Response: Same
+  Next comparison t_peak=47.3% gait  sweep = 2
+  Rest (8 strides) …
+  Right heel‑strike #307  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #308  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #308  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #309  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #309  (armed_time=390  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #310  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #310  (armed_time=270  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #311  (armed_time=360  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #311  (armed_time=380  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #312  (armed_time=280  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #312  (armed_time=340  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #313  (armed_time=340  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #313  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #314  (armed_time=290  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #314  (armed_time=340  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #315  (armed_time=290  thresh=115.0  exp_dur=1150.0)
+
+--- Trial 16  sweep=2  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #315  (armed_time=270  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #316  (armed_time=300  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #316  (armed_time=380  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #317  (armed_time=330  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #317  (armed_time=360  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #318  (armed_time=360  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #318  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #319  (armed_time=340  thresh=110.0  exp_dur=1100.0)
+  Right heel‑strike #319  (armed_time=370  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #320  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Timing B (ref) t_peak=51.3% gait
+  Right heel‑strike #320  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #321  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #321  (armed_time=380  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #322  (armed_time=380  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #322  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #323  (armed_time=280  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #323  (armed_time=400  thresh=107.0  exp_dur=1070.0)
+  Left heel‑strike #324  (armed_time=380  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #324  (armed_time=340  thresh=118.0  exp_dur=1180.0)
+  Left heel‑strike #325  (armed_time=280  thresh=111.0  exp_dur=1110.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #325  (armed_time=280  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #326  (armed_time=370  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #326  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #327  (armed_time=270  thresh=118.0  exp_dur=1180.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 2
+  Rest (8 strides) …
+  Right heel‑strike #327  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #328  (armed_time=430  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #328  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #329  (armed_time=280  thresh=119.0  exp_dur=1190.0)
+  Right heel‑strike #329  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #330  (armed_time=350  thresh=107.0  exp_dur=1070.0)
+  Right heel‑strike #330  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #331  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #331  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #332  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #332  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #333  (armed_time=290  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #333  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #334  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #334  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #335  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+
+--- CATCH Trial 17  sweep=2  comp_t_peak=51.3% gait  ---
+  Right heel‑strike #335  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #336  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #336  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #337  (armed_time=370  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #337  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #338  (armed_time=270  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #338  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #339  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #339  (armed_time=400  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #340  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Timing B (comp) t_peak=51.3% gait
+  Right heel‑strike #340  (armed_time=280  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #341  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #341  (armed_time=390  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #342  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #342  (armed_time=290  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #343  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #343  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #344  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #344  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #345  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #345  (armed_time=320  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #346  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #346  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #347  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 2
+  Rest (8 strides) …
+  Right heel‑strike #347  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #348  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #348  (armed_time=390  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #349  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #349  (armed_time=280  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #350  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #350  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #351  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #351  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #352  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #352  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #353  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #353  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #354  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #354  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #355  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+
+--- Trial 18  sweep=2  comp_t_peak=46.3% gait  ---
+  Right heel‑strike #355  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #356  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #356  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #357  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #357  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #358  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #358  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #359  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #359  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #360  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Timing B (comp) t_peak=46.3% gait
+  Right heel‑strike #360  (armed_time=360  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #361  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #361  (armed_time=290  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #362  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #362  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #363  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #363  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #364  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #364  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #365  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #365  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #366  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #366  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Response: Different
+  Next comparison t_peak=47.3% gait  sweep = 2
+  Rest (8 strides) …
+  Left heel‑strike #367  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #367  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #368  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #368  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #369  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #369  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #370  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #370  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #371  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #371  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #372  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #372  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #373  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #373  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #374  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+
+--- Trial 19  sweep=2  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #374  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #375  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #375  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #376  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #376  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #377  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #377  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #378  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #378  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #379  (armed_time=300  thresh=116.0  exp_dur=1160.0)
+  Timing B (comp) t_peak=47.3% gait
+  Right heel‑strike #379  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #380  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #380  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #381  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #381  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #382  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #382  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #383  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #383  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #384  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #384  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 3
+  Rest (8 strides) …
+  Left heel‑strike #385  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #385  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #386  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #386  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #387  (armed_time=290  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #387  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #388  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #388  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #389  (armed_time=290  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #389  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #390  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #390  (armed_time=300  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #391  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #391  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #392  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+
+--- CATCH Trial 20  sweep=3  comp_t_peak=51.3% gait  ---
+  Right heel‑strike #392  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #393  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #393  (armed_time=310  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #394  (armed_time=290  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #394  (armed_time=320  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #395  (armed_time=340  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #395  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Left heel‑strike #396  (armed_time=300  thresh=112.0  exp_dur=1120.0)
+  Right heel‑strike #396  (armed_time=330  thresh=112.0  exp_dur=1120.0)
+  Left heel‑strike #397  (armed_time=310  thresh=111.0  exp_dur=1110.0)
+  Timing B (comp) t_peak=51.3% gait
+  Right heel‑strike #397  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #398  (armed_time=330  thresh=111.0  exp_dur=1110.0)
+  Right heel‑strike #398  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #399  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #399  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #400  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #400  (armed_time=290  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #401  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #401  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #402  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #402  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #403  (armed_time=340  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #403  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 3
+  Rest (8 strides) …
+  Left heel‑strike #404  (armed_time=310  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #404  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #405  (armed_time=330  thresh=113.0  exp_dur=1130.0)
+  Right heel‑strike #405  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #406  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #406  (armed_time=330  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #407  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #407  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #408  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #408  (armed_time=390  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #409  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #409  (armed_time=280  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #410  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #410  (armed_time=340  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #411  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+
+--- Trial 21  sweep=3  comp_t_peak=46.3% gait  ---
+  Right heel‑strike #411  (armed_time=310  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #412  (armed_time=320  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #412  (armed_time=420  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #413  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #413  (armed_time=270  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #414  (armed_time=300  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #414  (armed_time=400  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #415  (armed_time=370  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #415  (armed_time=280  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #416  (armed_time=270  thresh=115.0  exp_dur=1150.0)
+  Timing B (comp) t_peak=46.3% gait
+  Right heel‑strike #416  (armed_time=320  thresh=113.0  exp_dur=1130.0)
+  Left heel‑strike #417  (armed_time=380  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #417  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #418  (armed_time=340  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #418  (armed_time=310  thresh=114.0  exp_dur=1140.0)
+  Left heel‑strike #419  (armed_time=280  thresh=115.0  exp_dur=1150.0)
+  Right heel‑strike #419  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #420  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+  Right heel‑strike #420  (armed_time=320  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #421  (armed_time=300  thresh=114.0  exp_dur=1140.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #421  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #422  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #422  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Response: Different
+  Next comparison t_peak=47.3% gait  sweep = 3
+  Rest (8 strides) …
+  Left heel‑strike #423  (armed_time=380  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #423  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #424  (armed_time=290  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #424  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #425  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #425  (armed_time=330  thresh=115.0  exp_dur=1150.0)
+  Left heel‑strike #426  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #426  (armed_time=320  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #427  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #427  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #428  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #428  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #429  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #429  (armed_time=350  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #430  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+
+--- Trial 22  sweep=3  comp_t_peak=47.3% gait  ---
+  Right heel‑strike #430  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #431  (armed_time=310  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #431  (armed_time=340  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #432  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #432  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #433  (armed_time=300  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #433  (armed_time=300  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #434  (armed_time=310  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #434  (armed_time=330  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #435  (armed_time=320  thresh=116.0  exp_dur=1160.0)
+  Timing B (comp) t_peak=47.3% gait
+  Right heel‑strike #435  (armed_time=330  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #436  (armed_time=310  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #436  (armed_time=330  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #437  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #437  (armed_time=410  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #438  (armed_time=330  thresh=116.0  exp_dur=1160.0)
+  Right heel‑strike #438  (armed_time=290  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #439  (armed_time=310  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #439  (armed_time=340  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #440  (armed_time=320  thresh=117.0  exp_dur=1170.0)
+   Same or Different?
+  Awaiting response …
+  Right heel‑strike #440  (armed_time=330  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #441  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  Right heel‑strike #441  (armed_time=340  thresh=117.0  exp_dur=1170.0)
+  Response: Same
+  Next comparison t_peak=46.3% gait  sweep = 4
+  Rest (8 strides) …
+  Left heel‑strike #442  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  Right heel‑strike #442  (armed_time=330  thresh=118.0  exp_dur=1180.0)
+  Left heel‑strike #443  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  Right heel‑strike #443  (armed_time=330  thresh=118.0  exp_dur=1180.0)
+  Left heel‑strike #444  (armed_time=310  thresh=118.0  exp_dur=1180.0)
+  Right heel‑strike #444  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  Left heel‑strike #445  (armed_time=310  thresh=118.0  exp_dur=1180.0)
+  Right heel‑strike #445  (armed_time=340  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #446  (armed_time=340  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #446  (armed_time=320  thresh=118.0  exp_dur=1180.0)
+  Left heel‑strike #447  (armed_time=310  thresh=118.0  exp_dur=1180.0)
+  Right heel‑strike #447  (armed_time=360  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #448  (armed_time=340  thresh=117.0  exp_dur=1170.0)
+  Right heel‑strike #448  (armed_time=310  thresh=117.0  exp_dur=1170.0)
+  Left heel‑strike #449  (armed_time=320  thresh=117.0  exp_dur=1170.0)
+
+--- Trial 23  sweep=4  comp_t_peak=46.3% gait  ---
+  Right heel‑strike #449  (armed_time=340  thresh=116.0  exp_dur=1160.0)
+  Left heel‑strike #450  (armed_time=320  thresh=119.0  exp_dur=1190.0)
+  Right heel‑strike #450  (armed_time=410  thresh=119.0  exp_dur=1190.0)
+  Left heel‑strike #451  (armed_time=330  thresh=119.0  exp_dur=1190.0)
+  Right heel‑strike #451  (armed_time=420  thresh=121.0  exp_dur=1210.0)
+  Left heel‑strike #452  (armed_time=510  thresh=119.0  exp_dur=1190.0)
+  Right heel‑strike #452  (armed_time=530  thresh=121.0  exp_dur=1210.0)
+>>> STOP requested
+Data saved → /home/auburn/Desktop/Exoboot_Research/data
+=== Perception test complete ===
+Shutting down boots …
+DataLog renamed → Data2026-05-06_10h18m59s_LEFT_idC719_YA_Perception_1_Connect.csv

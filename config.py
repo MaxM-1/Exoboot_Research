@@ -114,10 +114,10 @@ MAX_REST_STRIDES = 8                # Rest strides between trials (≈ 8 s)
 MAX_FAM_DELTA = 1.0                 # Manual fam. adjustment step (% stride)
 
 # SAV experiment (peak‑torque staircase) — values in Nm/kg.
-SAV_DELTA = 0.005                   # Adaptive step‑size (Nm/kg)
+SAV_DELTA = 0.01                   # Adaptive step‑size (Nm/kg) [0.005->0.01 on 5_6]
 SAV_INITIAL_OFFSET = 0.05           # Starting offset from reference (Nm/kg)
 SAV_TOTAL_SWEEPS = 9                # Sweeps per approach direction
-SAV_REST_STRIDES = 15               # Rest strides between trials (≈ 15 s)
+SAV_REST_STRIDES = 8               # Rest strides between trials (≈ 15 s) [15->8 on 5_6]
 SAV_FAM_DELTA = 0.005               # Manual fam. adjustment step (Nm/kg)
 SAV_REFERENCE_PEAK_TN = SAV_FAM_PEAK_TN  # Reference torque for SAV staircase
 SAV_MIN_PEAK_TN = 0.05              # Lower clamp on staircase value (Nm/kg)

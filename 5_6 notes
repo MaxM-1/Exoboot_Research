@@ -1,0 +1,30 @@
+5_6 notes 
+===============================================
+YA_Perception_1  | 1.25m/s | 95kg | from_below 
+.
+see notes in OneNote and note file on laptop 
+*general idea is that its good enough*
+. 
+===============================================
+TODO:
+need to be able to run Analysis2.py script on Perception output data 
+-increased analysis and troubleshooting (currently cannot do it in perception mode)
+-change perception output file names to be indicative of experiment ran (MAX vs SAV)
+-add sweeps on X-axis of 'staircase' plots on perception graph output 
+-why does stride_dur graph output for MAX experiment but not SAV experiment 
+--->referenced YA_Perception_1 (MAX experiment) , MAX_SavPerception_1 (SAV experiment)
+===============================================
+SAV_SavMODE1  |Familiarization | 1.25m/s  | 68kg 
+.
+changing peak torque back and forth to get indications if SAVs present experiment parameters are good or need changing 
+===============================================
+MAX_SavMODE1  |Familiarization | 1.25m/s  | 95kg 
+.
+changing peak torque back and forth to get indications if SAVs present experiment parameters are good or need changing 
+MAX could tell a difference at 0.03 delta increase from 0.18nm/kg
+second difference at 0.225nm/kg from 0.21nm/kg (delta 0.015nm/kg)
+===============================================
+MAX_SavPerception_1  | Perception | 1.25m/s  | 95kg 
+currently 15 strides - NEED TO CHANGE TO 8 to be the same as MAX experiment
+.
+.

@@ -18,7 +18,7 @@ weaker heel-strike dips are still caught??
 
 ---
 
-## Analysis2 summaries across participants
+## Analysis2 summaries across different tests
 
 
 | Trial | Side | n_strides = TRIGGERs | mean stride (ms) | gyroz min | gyroz max |

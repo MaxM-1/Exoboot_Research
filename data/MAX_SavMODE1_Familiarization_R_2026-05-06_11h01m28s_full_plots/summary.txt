@@ -1,0 +1,30 @@
+=== Diagnostic summary (MAX_SavMODE1_Familiarization_R_2026-05-06_11h01m28s_full) ===
+File rows           : 20696
+Duration            : 213.2 s  (≈ 97.1 Hz)
+Side                : R   Boot ID: C6D9   Phase: Familiarization
+Participant         : MAX_SavMODE1   Weight: 95 kg
+Profile             : t_rise=25.3  t_fall=10.300000000000004  t_peak=51.3  peak_τ_norm=0.23
+Final num_gait      : 170
+TRIGGER events      : 170
+% time armed        : 27.8%
+gyroz range         : -9965 .. 13744
+ARM thr / TRG thr   : 3280 / -3280
+Controller-mode time-share:
+   late_stance_no_slack       38.0%
+   early_stance_no_slack      25.1%
+   cur_ramp_up                24.3%
+   cur_ramp_down               9.6%
+   idle_no_slack               3.0%
+Cmd τ range         : 0.00 .. 21.85 Nm
+Cmd current range   : -14569 .. -800 mA
+Meas current range  : -14486 .. 0 mA
+Max |pos error|     : n/a (no position-control phases in this run)
+Batt V range        : 34148 .. 36782 mV
+
+No critical flags raised.
+
+LATENCY:
+  ARM→TRIG armed_time      : median=330  mean=327  std=15  5/95 pct=310/350 ms
+  current_dur − expected   : median=+0  mean=-4  std=30 ms  (positive = estimator under-predicts)
+  cmd→meas xcorr lag       : median=+10  5/95 pct=+10/+10 ms
+  cmd vs meas peak %gait   : cmd=51.5%  meas=52.5%  Δ=+1.0%
