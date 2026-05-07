@@ -1,0 +1,102 @@
+5_7 notes 
+Continueing to troubleshoot problems with yesterdays (5_6) tests 
+Sav and Lucy under SAV_experiment had issues 
+==================================================================
+Notes from yesterday in battery/Exoboot assemply 
+-lab has blue tape places to one of the two batteries to differentiate them 
+-yesterday blue tape (BT) battery was on left boot 
+==================================================================
+Doing some Exo off tests 
+===
+turning both batteries ON BUT NOT LETTING THEM CHARGE
+-plugging in no tape (NT) battery to right Exoboot and also blue tape (BT) into left boot (same as yesterday) 
+-connected RPi to Exoboot connection 
+-turned on left then right 
+-running exo_off_recorder.py with both boots lating flat on tabletop 
+--just doing to get battery data 
+had both boots recording data while laying flat on benchtop.
+SOMETHING HAPPENED AND THEY THE PROGRAM WAS KILLED
+TERMINAL OUTPUT BELOW:
+
+"
+======================================================================
+  ExoOff Recorder | participant=BenchTest1  phase=ExoOff
+  Streaming @ 100 Hz | motors at 0 mA (no torque)
+  Duration: run-until-Ctrl-C
+======================================================================
+Opening LEFT  boot...
+Connecting to ExoBoot on /dev/ttyACM0 …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+ExoBoot connected — ID 50969
+Opening RIGHT boot...
+Connecting to ExoBoot on /dev/ttyACM1 …
+Using firmware version: 7.2.0
+Using library file: /home/auburn/.dephy/precompiled_c_libs/7.2.0/pi_64bit/libfx_plan_stack.so
+ExoBoot connected — ID 50905
+  L log: BenchTest1_ExoOff_L_2026-05-07_14h23m16s_full.csv
+  R log: BenchTest1_ExoOff_R_2026-05-07_14h23m16s_full.csv
+
+Walk on the treadmill. Ctrl-C to stop.
+  t=   5.0s  L_HS=0  R_HS=0  L_gz=   +12  R_gz=   -12
+  [L DBG @1000] gz=3  min/max=-2/21  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @1000] gz=-15  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  10.0s  L_HS=0  R_HS=0  L_gz=   +10  R_gz=   -11
+  t=  15.0s  L_HS=0  R_HS=0  L_gz=    +7  R_gz=   -17
+  [L DBG @2000] gz=6  min/max=-2/21  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @2000] gz=-14  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  20.0s  L_HS=0  R_HS=0  L_gz=    +8  R_gz=   -18
+  [L ARM] gz=3584  t=111464
+  t=  25.0s  L_HS=0  R_HS=0  L_gz=   +10  R_gz=   -15
+  [L DBG @3000] gz=10  min/max=-4/3584  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @3000] gz=-17  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  30.0s  L_HS=0  R_HS=0  L_gz=    +7  R_gz=   -14
+  t=  35.0s  L_HS=0  R_HS=0  L_gz=    +9  R_gz=   -15
+  [L ARM] gz=9252  t=125194
+  [L DBG @4000] gz=4  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @4000] gz=-20  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  40.0s  L_HS=0  R_HS=0  L_gz=    +8  R_gz=   -13
+  t=  45.0s  L_HS=0  R_HS=0  L_gz=   +10  R_gz=   -13
+  [L DBG @5000] gz=6  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @5000] gz=-11  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  50.0s  L_HS=0  R_HS=0  L_gz=    +7  R_gz=   -16
+  t=  55.0s  L_HS=0  R_HS=0  L_gz=    +3  R_gz=   -19
+  [L DBG @6000] gz=6  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @6000] gz=-16  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  60.0s  L_HS=0  R_HS=0  L_gz=    +4  R_gz=   -15
+  t=  65.1s  L_HS=0  R_HS=0  L_gz=    +3  R_gz=   -15
+  [L DBG @7000] gz=7  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @7000] gz=-16  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  70.1s  L_HS=0  R_HS=0  L_gz=   +10  R_gz=   -17
+  t=  75.1s  L_HS=0  R_HS=0  L_gz=    +6  R_gz=   -18
+  [L DBG @8000] gz=4  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @8000] gz=-16  min/max=-7140/0  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  80.1s  L_HS=0  R_HS=0  L_gz=    +6  R_gz=   -17
+  t=  85.1s  L_HS=0  R_HS=0  L_gz=    +6  R_gz=   -11
+  [L ARM] gz=9250  t=177134
+  [R ARM] gz=7168  t=161250
+  [L DBG @9000] gz=6  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @9000] gz=-17  min/max=-7141/7168  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t=  90.1s  L_HS=0  R_HS=0  L_gz=   +10  R_gz=   -13
+  t=  95.1s  L_HS=0  R_HS=0  L_gz=    +3  R_gz=   -16
+  [L DBG @10000] gz=9  min/max=-4/9252  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  [R DBG @10000] gz=-18  min/max=-7141/7168  arm_thr=3280  trg_thr=-3280  armed=False  HS=0  exp_dur=-1
+  t= 100.1s  L_HS=0  R_HS=0  L_gz=    +7  R_gz=   -15
+
+======================================================================
+Recording stopped after 102.4 s (10237 iterations)
+  Detected strides: L=0  R=0
+DataLog renamed → Data2026-05-07_14h23m12s_LEFT_idC719_BenchTest1_ExoOff.csv
+DataLog renamed → Data2026-05-07_14h23m16s_RIGHT_idC6D9_BenchTest1_ExoOff.csv
+  Combined CSV: BenchTest1_ExoOff_combined_2026-05-07_14h25m01s.csv
+Done.
+======================================================================
+RuntimeError: Error: read command failed.
+"
+=====================================================================
+=====================================================================
+=====================================================================
+-continue of notes below: 
+ran exo_off_analysis.py on BenchTest1_ExoOff files for L/R
+-output files only really looked at heelstrikes and since both of the boots were laying flat on a table the data did not really give any indication for anything - only difference I observed was that in the graphs for the right and left they did look pretty different (both were noisy but different kind of noise)
+-
